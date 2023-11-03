@@ -3,7 +3,7 @@
 -- @license GPL v3
 -- @version 1.0
 -- @changelog
---
+-- Initial Release
 -- @provides
 --   Fonts/Icons.ttf
 
