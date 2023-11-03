@@ -1,8 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0
--- @changelog Initial Release
+-- @version 1.0.1a
+-- @changelog Fixed a pad number
+--  Removed track templates from fx browser
 -- @provides
 --   Fonts/Icons.ttf
 
@@ -78,12 +79,6 @@ function ThirdPartyDeps() -- FX Browser
       r.ReaPack_BrowsePackages(fx_browser_reapack)
       return 'error Sexan FX BROWSER'
     end
-    --    if r.file_exists(fm_script_path) then
-    --       dofile(fm_script_path)
-    --    else
-    --      r.ShowMessageBox("Sexan FileManager is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
-    --      return r.ReaPack_BrowsePackages('sexan ImGui FileManager')
-    --    end
   end
 end
 
@@ -193,7 +188,7 @@ function AddPad(note_name, a) -- pad_id, pad_num
     Pad_Num = pad_num,
     Pad_GUID = r.TrackFX_GetFXGUID(track, pad_id),
     TblIdx = a,
-    Note_Num = a
+    Note_Num = notenum
   }
   return pad_id, pad_num
 end
@@ -292,24 +287,24 @@ function UpdatePadID()
     local previous_pad_id = get_fx_id_from_container_path(track, parent_id, p - 1)
     local next_pad_id = get_fx_id_from_container_path(track, parent_id, p + 1)
     local pad_id = get_fx_id_from_container_path(track, parent_id, p)
-    Pad[rv] = {
+    Pad[rv + 1] = {
       Previous_Pad_ID = previous_pad_id,
       Pad_ID = pad_id,
       Next_Pad_ID = next_pad_id,
       Pad_Num = p,
       Pad_GUID = r.TrackFX_GetFXGUID(track, pad_id),
-      TblIdx = rv,
+      TblIdx = rv + 1,
       Note_Num = rv
     }
-    local ret, renamed_name = r.TrackFX_GetNamedConfigParm(track, Pad[rv].Pad_ID, 'renamed_name') -- Set Pad[rv].Rename
+    local ret, renamed_name = r.TrackFX_GetNamedConfigParm(track, Pad[rv + 1].Pad_ID, 'renamed_name') -- Set Pad[rv].Rename
     local note_name = getNoteName(rv)
     local search_str = note_name .. ": "
     local colon_pos = renamed_name:find(search_str)
     if colon_pos then
     local new_name = string.sub(renamed_name, colon_pos + #search_str)
-    Pad[rv].Rename = new_name
+    Pad[rv + 1].Rename = new_name
     else
-    Pad[rv].Rename = nil
+    Pad[rv + 1].Rename = nil
     end
     CountPadFX(p) -- Set Pad[a].Name
     local found = false
@@ -320,17 +315,17 @@ function UpdatePadID()
         found = true
         _, bf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'FILE0')  
         filename = bf:match("([^\\/]+)%.%w%w*$")
-        Pad[rv].Name = filename
-        if Pad[rv].Rename then
-          r.SetTrackMIDINoteNameEx(0, track, rv, 0, Pad[rv].Rename)
-        elseif Pad[rv].Name then
-          r.SetTrackMIDINoteNameEx(0, track, rv, 0, Pad[rv].Name)
+        Pad[rv + 1].Name = filename
+        if Pad[rv + 1].Rename then
+          r.SetTrackMIDINoteNameEx(0, track, rv, 0, Pad[rv + 1].Rename)
+        elseif Pad[rv + 1].Name then
+          r.SetTrackMIDINoteNameEx(0, track, rv, 0, Pad[rv + 1].Name)
         else
           r.SetTrackMIDINoteNameEx(0, track, rv, 0, "")
         end
       end
       if not found then
-        Pad[rv].Name = nil
+        Pad[rv + 1].Name = nil
         r.SetTrackMIDINoteNameEx(0, track, rv, 0, "")
       end
     end
@@ -1189,7 +1184,7 @@ function DrawPads(loopmin, loopmax)
   FXLIST()
 
   for a = loopmin, loopmax do
-    notenum = a
+    notenum = a - 1
     note_name = getNoteName(notenum)
 
     if Pad[a] then
@@ -1304,16 +1299,16 @@ function Main()
 
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_ChildBg(), COLOR["bg"])
   r.ImGui_BeginGroup(ctx)
-
+  
   draw_list = r.ImGui_GetWindowDrawList(ctx)                  -- 4 x 4 left veertical bar drawing
   f_draw_list = r.ImGui_GetForegroundDrawList(ctx) 
   local SPLITTER = r.ImGui_CreateDrawListSplitter(f_draw_list)
   r.ImGui_DrawListSplitter_Split(SPLITTER, 2)                     -- NUMBER OF Z ORDER CHANNELS
-  if Pad[a] then
-    r.ImGui_DrawListSplitter_SetCurrentChannel(SPLITTER, 1)       -- SET HIGHER PRIORITY TO DRAW FIRST
-    local x, y = r.ImGui_GetCursorPos(ctx)
-    r.ImGui_DrawList_AddRectFilled(f_draw_list, 100, 100, 100, 100, 0x654321FF)
-  end
+  --if Pad[a] then
+  --  r.ImGui_DrawListSplitter_SetCurrentChannel(SPLITTER, 1)       -- SET HIGHER PRIORITY TO DRAW FIRST
+  --  local x, y = r.ImGui_GetCursorPos(ctx)
+  --  r.ImGui_DrawList_AddRectFilled(f_draw_list, 100, 100, 100, 100, 0x654321FF)
+  --end
   r.ImGui_DrawListSplitter_SetCurrentChannel(SPLITTER, 0)       -- SET LOWER PRIORITY TO DRAW AFTER
   local x, y = r.ImGui_GetCursorPos(ctx)
   --  r.ImGui_DrawList_AddRect(draw_list, wx+x-2, wy+y-2+33 * (i-1), wx+x+33, wy+y+33 * i, 0xFFFFFFFF)  -- white box when selected
@@ -1351,7 +1346,7 @@ function Main()
     r.ImGui_SetCursorPos(ctx, x + w_closed, y)
     if r.ImGui_BeginChild(ctx, "child_menu", w_open + 250, h + 88) then
       if LAST_MENU == 1 then
-        DrawPads(113, 127)
+        DrawPads(113, 128)
       elseif LAST_MENU == 2 then
         DrawPads(97, 112)
       elseif LAST_MENU == 3 then
@@ -1497,39 +1492,6 @@ local function DrawFxChains(tbl, path)
   end
 end
 
-local function LoadTemplate(template, replace)
-  local track_template_path = r.GetResourcePath() .. "/TrackTemplates" .. template
-  if replace then
-    local chunk = GetFileContext(track_template_path)
-    r.SetTrackStateChunk(TRACK, chunk, true)
-  else
-    r.Main_openProject(track_template_path)
-  end
-end
-
-local function DrawTrackTemplates(tbl, path)
-  local extension = ".RTrackTemplate"
-  path = path or ""
-  for i = 1, #tbl do
-    if tbl[i].dir then
-      if r.ImGui_BeginMenu(ctx, tbl[i].dir) then
-        local cur_path = table.concat({ path, os_separator, tbl[i].dir })
-        DrawTrackTemplates(tbl[i], cur_path)
-        r.ImGui_EndMenu(ctx)
-      end
-    end
-    if type(tbl[i]) ~= "table" then
-      if r.ImGui_Selectable(ctx, tbl[i]) then
-        if TRACK then
-          local template_str = table.concat({ path, os_separator, tbl[i], extension })
-          LoadTemplate(template_str)                 -- ADD NEW TRACK FROM TEMPLATE
-          LoadTemplate(template_str, true)           -- REPLACE CURRENT TRACK WITH TEMPLATE
-        end
-      end
-    end
-  end
-end
-
 local function DrawItems(tbl, main_cat_name)
   for i = 1, #tbl do
     if r.ImGui_BeginMenu(ctx, tbl[i].name) then
@@ -1562,15 +1524,19 @@ function Frame()
   local search = FilterBox()
   if search then return end
   for i = 1, #CAT do
-    if r.ImGui_BeginMenu(ctx, CAT[i].name) then
-      if CAT[i].name == "FX CHAINS" then
-        DrawFxChains(CAT[i].list)
-      elseif CAT[i].name == "TRACK TEMPLATES" then
-        DrawTrackTemplates(CAT[i].list)
-      else
-        DrawItems(CAT[i].list, CAT[i].name)
+    if CAT[i].name ~= "TRACK TEMPLATES" then
+      if #CAT[i].list ~= 0 then
+        if r.ImGui_BeginMenu(ctx, CAT[i].name) then
+          if CAT[i].name == "FX CHAINS" then
+            DrawFxChains(CAT[i].list)
+      --elseif CAT[i].name == "TRACK TEMPLATES" then
+      --  DrawTrackTemplates(CAT[i].list)
+          else
+            DrawItems(CAT[i].list, CAT[i].name)
+          end
+          r.ImGui_EndMenu(ctx)
+        end
       end
-      r.ImGui_EndMenu(ctx)
     end
   end
   if r.ImGui_Selectable(ctx, "CONTAINER") then
