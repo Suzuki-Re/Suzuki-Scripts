@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="b692425bc9c73038fbe4cbec17132e23d9d54f5b">
+<index version="1" name="Suzuki Scripts" commit="8c0d0bffedce123621111aee9997e0f0599a8667">
+  <category name="ReaDrum Machine">
+    <reapack name="Suzuki_ReaDrum_Machine_Instruments_Rack.lua" type="script" desc="Suzuki ReaDrum Machine">
+      <version name="1.0" author="Suzuki" time="2023-11-03T15:59:51Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/8c0d0bffedce123621111aee9997e0f0599a8667/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
+        <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/8c0d0bffedce123621111aee9997e0f0599a8667/ReaDrum%20Machine/Fonts/Icons.ttf</source>
+      </version>
+    </reapack>
+  </category>
   <metadata>
     <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
 {\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
