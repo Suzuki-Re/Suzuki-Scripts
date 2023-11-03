@@ -2,8 +2,7 @@
 -- @author Suzuki
 -- @license GPL v3
 -- @version 1.0
--- @changelog
--- Initial Release
+-- @changelog Initial Release
 -- @provides
 --   Fonts/Icons.ttf
 
