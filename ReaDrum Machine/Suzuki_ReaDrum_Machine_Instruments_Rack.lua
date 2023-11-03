@@ -6,6 +6,8 @@
 --  Removed track templates from fx browser
 -- @provides
 --   Fonts/Icons.ttf
+-- @link 
+-- https://forum.cockos.com/showthread.php?t=284566
 
 local r            = reaper
 local os_separator = package.config:sub(1, 1)
