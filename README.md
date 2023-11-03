@@ -13,6 +13,6 @@ ReaDrum Machine is a script which loads samples and FX from browser/arrange into
 
 ![](https://i.imgur.com/b1zTCtW.gif)
 
-## Please upport me if you find my work useful!
+## Please support me if you find my work useful!
 
 [https://ko-fi.com/suzukireaper](https://ko-fi.com/suzukireaper)
