@@ -1,3 +1,10 @@
+-- @description Toggle show hide visible track envelope for last touched track FX parameter
+-- @author Suzuki
+-- @license GPL v3
+-- @version 1.0
+-- @changelog Initial Release
+-- @about For use in other scripts
+
 r = reaper
 
 retval, trackidx, itemidx, takeidx, fxidx, parm = r.GetTouchedOrFocusedFX(0)
