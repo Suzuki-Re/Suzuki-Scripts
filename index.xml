@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="29ad7840faaab2a28adbec42356d88fd5b5bebf8">
+<index version="1" name="Suzuki Scripts" commit="d58fce4b2819d97a5da7007911217576a72d95b2">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible track envelope for last touched track FX parameter.lua" type="script" desc="Toggle show hide visible track envelope for last touched track FX parameter">
       <metadata>
@@ -19,9 +19,7 @@
   </category>
   <category name="ReaDrum Machine">
     <reapack name="Suzuki_ReaDrum_Machine_Instruments_Rack.lua" type="script" desc="Suzuki ReaDrum Machine">
-      <metadata>
-        <link rel="website">https://forum.cockos.com/showthread.php?t=284566</link>
-      </metadata>
+      <metadata/>
       <version name="1.0" author="Suzuki" time="2023-11-03T15:59:51Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/8c0d0bffedce123621111aee9997e0f0599a8667/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
@@ -32,6 +30,12 @@
 Removed track templates from fx browser]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/70485d8463c61cb830b750cac5cf26d09f2d20ab/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
         <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/70485d8463c61cb830b750cac5cf26d09f2d20ab/ReaDrum%20Machine/Fonts/Icons.ttf</source>
+      </version>
+      <version name="1.0.2" author="Suzuki" time="2023-11-05T10:28:49Z">
+        <changelog><![CDATA[Fixed crash when no track is selected
+Disabled mousewheel]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/d58fce4b2819d97a5da7007911217576a72d95b2/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
+        <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/d58fce4b2819d97a5da7007911217576a72d95b2/ReaDrum%20Machine/Fonts/Icons.ttf</source>
       </version>
     </reapack>
   </category>
