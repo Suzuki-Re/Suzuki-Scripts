@@ -1,9 +1,8 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0.2
--- @changelog Fixed crash when no track is selected
---  Disabled mousewheel
+-- @version 1.0.3
+-- @changelog Fixed naming issue
 -- @provides
 --   Fonts/Icons.ttf
 
@@ -656,7 +655,7 @@ local function DndAddFX_TARGET(a)
   r.ImGui_PopStyleColor(ctx)
 end
 
-local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum)
+local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
   rs5k_id = get_fx_id_from_container_path(track, parent_id, pad_num, add_pos)
   rv, payload = r.ImGui_GetDragDropPayloadFile(ctx, i) -- 0 based
   r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
@@ -669,7 +668,7 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum)
   rv, buf = r.TrackFX_GetNamedConfigParm(track, rs5k_id, 'FILE')
   filename = buf:match("([^\\/]+)%.%w%w*$")
   r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
-  if filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
+  if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
   r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
   Pad[a].Name = filename
 end
@@ -776,7 +775,7 @@ local function DndAddSample_TARGET(a)
             Note_Num = notenum + i
           }
           AddNoteFilter(notenum + i, pad_num)
-          AddSamplesToRS5k(pad_num, 2, i, a + i, notenum + i) -- Pad[a].Name
+          AddSamplesToRS5k(pad_num, 2, i, a + i, notenum + i, getNoteName(notenum + i)) -- Pad[a].Name
         elseif Pad[a + i].Pad_Num then
           CountPadFX(Pad[a + i].Pad_Num) -- padfx_idx = num
           local found = false
@@ -791,7 +790,7 @@ local function DndAddSample_TARGET(a)
               rv, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'FILE')
               filename = buf:match("([^\\/]+)%.%w%w*$")
               Pad[a].Name = filename
-              if filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
+              if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
               r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
               r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
               r.TrackFX_SetParam(track, find_rs5k, 11, 1) -- obey note offs
@@ -800,7 +799,7 @@ local function DndAddSample_TARGET(a)
             end
           end
           if not found then
-            AddSamplesToRS5k(Pad[a + i].Pad_Num, padfx_idx + 1, i, a + i, notenum + i)
+            AddSamplesToRS5k(Pad[a + i].Pad_Num, padfx_idx + 1, i, a + i, notenum + i, getNoteName(notenum + i))
           end
         end
       end
@@ -831,13 +830,13 @@ local function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
       AddNoteFilter(notenum, pad_num)
       for i = 0, count - 1 do
         rs5k_id = get_fx_id_from_container_path(track, parent_id, pad_num, padfx_idx + 2 + i)
-        AddSamplesToRS5k(pad_num, padfx_idx + 2 + i, i, a)
+        AddSamplesToRS5k(pad_num, padfx_idx + 2 + i, i, a, note_name)
       end
     elseif rv and Pad[a].Pad_Num then
       GetDrumMachineIdx() -- parent_id = num
       CountPadFX(Pad[a].Pad_Num)
       for i = 0, count - 1 do
-        AddSamplesToRS5k(Pad[a].Pad_Num, padfx_idx + 1 + i, i, a)
+        AddSamplesToRS5k(Pad[a].Pad_Num, padfx_idx + 1 + i, i, a, note_name)
       end
     end
     r.ImGui_EndDragDropTarget(ctx)
