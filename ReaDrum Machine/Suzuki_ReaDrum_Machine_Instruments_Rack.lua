@@ -1,12 +1,11 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0.1a
--- @changelog Fixed a pad number
---  Removed track templates from fx browser
+-- @version 1.0.2
+-- @changelog Fixed crash when no track is selected
+--  Disabled mousewheel
 -- @provides
 --   Fonts/Icons.ttf
--- @link https://forum.cockos.com/showthread.php?t=284566
 
 local r            = reaper
 local os_separator = package.config:sub(1, 1)
@@ -1572,13 +1571,13 @@ function Run()
     set_dock_id = nil
   end
 
-  r.ImGui_SetNextWindowSizeConstraints(ctx, 500, 350, FLT_MAX, FLT_MAX)
+  r.ImGui_SetNextWindowSizeConstraints(ctx, 500, 360, FLT_MAX, FLT_MAX)
   r.ImGui_SetNextWindowSize(ctx, 400, 300, r.ImGui_Cond_FirstUseEver())
   
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_WindowBg(), COLOR["bg"])
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_TitleBg(), COLOR["bg"])
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_TitleBgActive(), COLOR["bg"])
-  local imgui_visible, imgui_open = r.ImGui_Begin(ctx, 'ReaDrum Machine', true, r.ImGui_WindowFlags_NoCollapse())
+  local imgui_visible, imgui_open = r.ImGui_Begin(ctx, 'ReaDrum Machine', true, r.ImGui_WindowFlags_NoScrollWithMouse())
   r.ImGui_PopStyleColor(ctx)
   r.ImGui_PopStyleColor(ctx)
   r.ImGui_PopStyleColor(ctx)
@@ -1586,9 +1585,11 @@ function Run()
   if imgui_visible then
     imgui_width, imgui_height = r.ImGui_GetWindowSize(ctx)
 
-    if not TRACK then return end
+    if not TRACK then r.ImGui_TextDisabled(ctx, 'No track selected')
+    else
     CheckKeys()
     Main()
+    end
     r.ImGui_End(ctx)
   end
 
