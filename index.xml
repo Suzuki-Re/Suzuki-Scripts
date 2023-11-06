@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="002c3459b4fb6648a47725de518968971c2d4667">
+<index version="1" name="Suzuki Scripts" commit="afc744130cda24fd989877aeac0aab454eb6e36f">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible track envelope for last touched track FX parameter.lua" type="script" desc="Toggle show hide visible track envelope for last touched track FX parameter">
       <metadata>
@@ -19,7 +19,9 @@
   </category>
   <category name="ReaDrum Machine">
     <reapack name="Suzuki_ReaDrum_Machine_Instruments_Rack.lua" type="script" desc="Suzuki ReaDrum Machine">
-      <metadata/>
+      <metadata>
+        <link rel="website">https://forum.cockos.com/showthread.php?t=284566</link>
+      </metadata>
       <version name="1.0" author="Suzuki" time="2023-11-03T15:59:51Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/8c0d0bffedce123621111aee9997e0f0599a8667/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
@@ -41,6 +43,11 @@ Disabled mousewheel]]></changelog>
         <changelog><![CDATA[Fixed naming issue]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/002c3459b4fb6648a47725de518968971c2d4667/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
         <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/002c3459b4fb6648a47725de518968971c2d4667/ReaDrum%20Machine/Fonts/Icons.ttf</source>
+      </version>
+      <version name="1.0.4" author="Suzuki" time="2023-11-06T10:42:33Z">
+        <changelog><![CDATA[Fixed a vertical menu button offset when window is docked]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/afc744130cda24fd989877aeac0aab454eb6e36f/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
+        <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/afc744130cda24fd989877aeac0aab454eb6e36f/ReaDrum%20Machine/Fonts/Icons.ttf</source>
       </version>
     </reapack>
   </category>
