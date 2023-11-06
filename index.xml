@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="d2cbc026236f5df07d058e55467a1a916af50199">
+<index version="1" name="Suzuki Scripts" commit="09daac1fd3ff196db248755fbdc3879bd44fad34">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible track envelope for last touched track FX parameter.lua" type="script" desc="Toggle show hide visible track envelope for last touched track FX parameter">
       <metadata>
@@ -60,6 +60,11 @@ Disabled mousewheel]]></changelog>
         <changelog><![CDATA[Hotfix:Load RS5k with user-defined preset and handle loading samples when user-defined preset is set]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/d2cbc026236f5df07d058e55467a1a916af50199/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
         <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/d2cbc026236f5df07d058e55467a1a916af50199/ReaDrum%20Machine/Fonts/Icons.ttf</source>
+      </version>
+      <version name="1.0.6" author="Suzuki" time="2023-11-06T22:39:13Z">
+        <changelog><![CDATA[Fixed naming issue introduced in v1.0.3]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/09daac1fd3ff196db248755fbdc3879bd44fad34/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
+        <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/09daac1fd3ff196db248755fbdc3879bd44fad34/ReaDrum%20Machine/Fonts/Icons.ttf</source>
       </version>
     </reapack>
   </category>
