@@ -1,12 +1,12 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0.4
--- @changelog Fixed a vertical menu button offset when window is docked
+-- @version 1.0.5
+-- @changelog Hotfix:Load RS5k with user-defined preset and handle loading samples when user-defined preset is set
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @provides
 --   Fonts/Icons.ttf
--- @aobut ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
+-- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 
 local r            = reaper
 local os_separator = package.config:sub(1, 1)
@@ -663,9 +663,10 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
   r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
   r.TrackFX_Show(track, rs5k_id, 2)
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)         -- Sample mode
-  r.TrackFX_SetNamedConfigParm(track, rs5k_id, '+FILE0', payload) -- add file
+  r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '') -- remove file list
+  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', payload) -- add file
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')        -- always necessary
-  r.TrackFX_SetParam(track, rs5k_id, 11, 1)                       -- obey note offs
+  -- r.TrackFX_SetParam(track, rs5k_id, 11, 1)                       -- obey note offs
   Pad[a]["RS5k_ID"] = rs5k_id
   rv, buf = r.TrackFX_GetNamedConfigParm(track, rs5k_id, 'FILE')
   filename = buf:match("([^\\/]+)%.%w%w*$")
@@ -681,7 +682,8 @@ local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offs
   Pad[a]["RS5k_ID"] = rs5k_id
   r.TrackFX_Show(track, rs5k_id, 2)
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)             -- Sample mode
-  r.TrackFX_SetNamedConfigParm(track, rs5k_id, '+FILE0', filenamebuf) -- add file
+  r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '')
+  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', filenamebuf) -- add file
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')            -- always necessary
   r.TrackFX_SetParam(track, rs5k_id, 11, 1)                           -- obey note offs
   r.TrackFX_SetParam(track, rs5k_id, 13, start_offset)                -- Sample start offset
