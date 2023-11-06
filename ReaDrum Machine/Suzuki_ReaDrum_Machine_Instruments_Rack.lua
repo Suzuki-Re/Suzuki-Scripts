@@ -1,8 +1,8 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0.5
--- @changelog Hotfix:Load RS5k with user-defined preset and handle loading samples when user-defined preset is set
+-- @version 1.0.6
+-- @changelog Fixed naming issue introduced in v1.0.3
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @provides
 --   Fonts/Icons.ttf
@@ -297,16 +297,20 @@ function UpdatePadID()
       TblIdx = rv + 1,
       Note_Num = rv
     }
-    local ret, renamed_name = r.TrackFX_GetNamedConfigParm(track, Pad[rv + 1].Pad_ID, 'renamed_name') -- Set Pad[rv].Rename
-    local note_name = getNoteName(rv)
-    local search_str = note_name .. ": "
-    local colon_pos = renamed_name:find(search_str)
-    if colon_pos then
-    local new_name = string.sub(renamed_name, colon_pos + #search_str)
-    Pad[rv + 1].Rename = new_name
-    else
-    Pad[rv + 1].Rename = nil
+    rev, value = r.GetProjExtState(0, 'ReaDrum Machine', 'Rename' .. rv + 1)
+    if rev == 1 then
+    Pad[rv + 1].Rename = value
     end
+    -- local ret, renamed_name = r.TrackFX_GetNamedConfigParm(track, Pad[rv + 1].Pad_ID, 'renamed_name') -- Set Pad[rv].Rename
+    -- local note_name = getNoteName(rv)
+    -- local search_str = note_name .. ": "
+    -- local colon_pos = renamed_name:find(search_str)
+    -- if colon_pos then
+    -- local new_name = string.sub(renamed_name, colon_pos + #search_str)
+    -- Pad[rv + 1].Rename = new_name
+    -- else
+    -- Pad[rv + 1].Rename = nil
+    -- end
     CountPadFX(p) -- Set Pad[a].Name
     local found = false
     for f = 1, padfx_idx do
@@ -468,9 +472,25 @@ local function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kep
           -- dst_guid = Pad[a].Pad_GUID
           srcfx_idx = CountPadFX(src_num)
           dstfx_idx = CountPadFX(dst_num)
-          if Pad[b].Rename then src_renamed_name = getNoteName(notenum) .. ": " .. Pad[b].Rename else src_renamed_name = getNoteName(notenum) end
+          if Pad[b].Rename then 
+            src_renamed_name = getNoteName(notenum) .. ": " .. Pad[b].Rename
+            r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, Pad[b].Rename)
+            r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. b, "")
+          elseif Pad[b].Name then 
+            src_renamed_name = getNoteName(notenum) .. ": " .. Pad[b].Name
+          else 
+            src_renamed_name = getNoteName(notenum) 
+          end
           r.TrackFX_SetNamedConfigParm(track, src_pad, "renamed_name", src_renamed_name)
-          if Pad[a].Rename then dst_renamed_name = getNoteName(src_note) .. ": " .. Pad[a].Rename else dst_renamed_name = getNoteName(src_note) end
+          if Pad[a].Rename then 
+            dst_renamed_name = getNoteName(src_note) .. ": " .. Pad[a].Rename
+            r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. b, Pad[a].Rename)
+            r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, "")
+          elseif Pad[a].Name then 
+            dst_renamed_name = getNoteName(src_note) .. ": " .. Pad[a].Name
+          else 
+            dst_renamed_name = getNoteName(src_note)
+          end
           r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", dst_renamed_name)
           r.TrackFX_CopyToTrack(track, src_pad, track, dst_pad, true) -- true = move
           local src_num = tonumber(src_num)
@@ -489,7 +509,6 @@ local function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kep
           local dst_filter = get_fx_id_from_container_path(track, parent_id, src_num, fi)
           r.TrackFX_SetParam(track, dst_filter, 0, src_note) -- lowest key for filter, pad number = midi note drop
           r.TrackFX_SetParam(track, dst_filter, 1, src_note) -- highest key for filter
-
           -- SwapRS5kNoteRange(srcfx_idx, dst_num, notenum)
           -- SwapRS5kNoteRange(dstfx_idx, src_num, src_note)
           UpdatePadID()
@@ -512,8 +531,16 @@ local function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kep
             TblIdx = a,
             Note_Num = notenum,
             Name = Pad[b].Name,
-            Rename = Pad[b].Rename
           }
+          if Pad[b].Rename then
+            Pad[a].Rename = Pad[b].Rename
+            r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, Pad[b].Rename)
+          end
+          rev, value = r.GetProjExtState(0, 'ReaDrum Machine', 'Rename' .. b)
+          if rev == 1 then
+          r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. b, "")
+          Pad[b].Rename = nil
+          end
           if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename else renamed_name = note_name end
           r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
           r.SetTrackMIDINoteNameEx(0, track, src_note, 0, "")
@@ -571,9 +598,14 @@ local function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kep
             TblIdx = a,
             Note_Num = notenum,
             Name = Pad[b].Name,
-            Rename = Pad[b].Rename
           }
-          if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename else renamed_name = note_name end
+          if Pad[b].Rename then 
+            renamed_name = note_name .. ": " .. Pad[b].Rename
+            Pad[a].Rename = Pad[b].Rename
+            r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, Pad[b].Rename)
+          else 
+            renamed_name = note_name 
+          end
           r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
           local srcfx_idx = CountPadFX(src_num)
           local dstfx_idx = CountPadFX(pad_num)
@@ -685,7 +717,7 @@ local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offs
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '')
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', filenamebuf) -- add file
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')            -- always necessary
-  r.TrackFX_SetParam(track, rs5k_id, 11, 1)                           -- obey note offs
+  --r.TrackFX_SetParam(track, rs5k_id, 11, 1)                           -- obey note offs
   r.TrackFX_SetParam(track, rs5k_id, 13, start_offset)                -- Sample start offset
   r.TrackFX_SetParam(track, rs5k_id, 14, end_offset)                  -- Sample end offset
   -- r.TrackFX_SetParam(track, rs5k_id, 15, take_pitch)                  -- Pitch offset
@@ -739,7 +771,7 @@ local function LoadItemsFromArrange(a)
           found = true
           r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'FILE0', filenamebuf)   -- change file
           r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'DONE', '')
-          r.TrackFX_SetParam(track, find_rs5k, 11, 1)                            -- obey note offs
+          --r.TrackFX_SetParam(track, find_rs5k, 11, 1)                            -- obey note offs
           r.TrackFX_SetParam(track, find_rs5k, 13, start_offset)                 -- Sample start offset
           r.TrackFX_SetParam(track, find_rs5k, 14, end_offset)                   -- Sample end offset
         end
@@ -797,7 +829,7 @@ local function DndAddSample_TARGET(a)
               if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
               r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
               r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
-              r.TrackFX_SetParam(track, find_rs5k, 11, 1) -- obey note offs
+              --r.TrackFX_SetParam(track, find_rs5k, 11, 1) -- obey note offs
               r.TrackFX_SetParam(track, find_rs5k, 13, 0) -- Sample start offset, reset
               r.TrackFX_SetParam(track, find_rs5k, 14, 1) -- Sample end offset, reset
             end
@@ -1086,6 +1118,7 @@ local function RenameWindow(a, note_name)
         r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
         r.SetTrackMIDINoteNameEx(0, track, notenum, 0, new_name)
         Pad[a].Rename = new_name
+        r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, new_name)
         end
         r.PreventUIRefresh(-1)
         EndUndoBlock("RENAME PAD") 
@@ -1108,6 +1141,10 @@ local function ClickPadActions(a)
         r.Undo_BeginBlock()
         r.PreventUIRefresh(1)
         ClearPad(a, Pad[a].Pad_Num)
+        rev, value = r.GetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a)
+        if rev == 1 then
+        r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, "")
+        end
         UpdatePadID()
         r.PreventUIRefresh(-1)
         EndUndoBlock("CLEAR PAD")
@@ -1135,7 +1172,7 @@ local function PadMenu(a, note_name)
       open_settings = true
     end
     r.ImGui_Separator(ctx)
-    if r.ImGui_MenuItem(ctx, 'Clear All Pads') then
+    if r.ImGui_MenuItem(ctx, 'Clear All Pads##' .. a) then
       GetDrumMachineIdx()
       CountPads()                                                          -- pads_idx = num
       r.Undo_BeginBlock()
@@ -1145,6 +1182,7 @@ local function PadMenu(a, note_name)
         r.TrackFX_Delete(track, clear_pad)
       end
       Pad = {}
+      r.SetProjExtState(0, 'ReaDrum Machine', "", "")
       local IsMidiOpen = r.MIDIEditor_LastFocused_OnCommand(40412, false)
       if not IsMidiOpen then
         r.Main_OnCommand(40716, 0)
