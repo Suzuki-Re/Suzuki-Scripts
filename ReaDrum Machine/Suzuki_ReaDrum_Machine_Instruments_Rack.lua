@@ -1,10 +1,12 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0.3
--- @changelog Fixed naming issue
+-- @version 1.0.4
+-- @changelog Fixed a vertical menu button offset when window is docked
+-- @link https://forum.cockos.com/showthread.php?t=284566
 -- @provides
 --   Fonts/Icons.ttf
+-- @aobut ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 
 local r            = reaper
 local os_separator = package.config:sub(1, 1)
@@ -1215,7 +1217,6 @@ function DrawPads(loopmin, loopmax)
       DndMoveFX_SRC(a)
     end
 
-
     r.ImGui_SetCursorPos(ctx, x, y + 50)
     r.ImGui_InvisibleButton(ctx, "▶##play" .. a, 30, 25)
     SendMidiNote(notenum)
@@ -1295,6 +1296,11 @@ function Main()
   local h = 220
   local hh = h + 100
   local hy = hh / 8
+  if r.ImGui_IsWindowDocked(ctx) then
+    button_offset = 6
+  else
+    button_offset = 25
+  end
 
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_ChildBg(), COLOR["bg"])
   r.ImGui_BeginGroup(ctx)
@@ -1311,7 +1317,7 @@ function Main()
   r.ImGui_DrawListSplitter_SetCurrentChannel(SPLITTER, 0)       -- SET LOWER PRIORITY TO DRAW AFTER
   local x, y = r.ImGui_GetCursorPos(ctx)
   --  r.ImGui_DrawList_AddRect(draw_list, wx+x-2, wy+y-2+33 * (i-1), wx+x+33, wy+y+33 * i, 0xFFFFFFFF)  -- white box when selected
-  for ci = 0, hh - hy, hy - 2.5 do
+  for ci = 0, hh - hy, hy - 4.5 do
     for bi = 0, 24, 8 do
       for i = 0, 24, 8 do
         r.ImGui_DrawList_AddRectFilled(f_draw_list, wx + x + i, wy + y + bi + ci, wx + x + 7 + i, wy + y + 7 + bi + ci,
@@ -1323,7 +1329,7 @@ function Main()
 
   if r.ImGui_BeginChild(ctx, 'BUTTON_SECTION', w_closed + 10, h + 100, false) then   -- vertical tab
     for i = 1, 8 do
-      r.ImGui_SetCursorPos(ctx, 0, (y + 10.5) * (i - 1))
+      r.ImGui_SetCursorPos(ctx, 0, y + (i - 1) * 35 - button_offset)
       if r.ImGui_InvisibleButton(ctx, "B" .. i, 31, 31) then
         if not LAST_MENU then
           VUI_VISIBLE = true
@@ -1335,7 +1341,6 @@ function Main()
             VUI_VISIBLE = true
           end
         end
-
         LAST_MENU = i
       end
     end
@@ -1576,7 +1581,7 @@ function Run()
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_WindowBg(), COLOR["bg"])
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_TitleBg(), COLOR["bg"])
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_TitleBgActive(), COLOR["bg"])
-  local imgui_visible, imgui_open = r.ImGui_Begin(ctx, 'ReaDrum Machine', true, r.ImGui_WindowFlags_NoScrollWithMouse())
+  local imgui_visible, imgui_open = r.ImGui_Begin(ctx, 'ReaDrum Machine', true, r.ImGui_WindowFlags_NoScrollWithMouse() | r.ImGui_WindowFlags_NoScrollbar() | r.ImGui_WindowFlags_NoCollapse())
   r.ImGui_PopStyleColor(ctx)
   r.ImGui_PopStyleColor(ctx)
   r.ImGui_PopStyleColor(ctx)
