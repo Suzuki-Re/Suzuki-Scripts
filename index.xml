@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="afc744130cda24fd989877aeac0aab454eb6e36f">
+<index version="1" name="Suzuki Scripts" commit="d2cbc026236f5df07d058e55467a1a916af50199">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible track envelope for last touched track FX parameter.lua" type="script" desc="Toggle show hide visible track envelope for last touched track FX parameter">
       <metadata>
@@ -20,6 +20,13 @@
   <category name="ReaDrum Machine">
     <reapack name="Suzuki_ReaDrum_Machine_Instruments_Rack.lua" type="script" desc="Suzuki ReaDrum Machine">
       <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.\par}
+}
+]]></description>
         <link rel="website">https://forum.cockos.com/showthread.php?t=284566</link>
       </metadata>
       <version name="1.0" author="Suzuki" time="2023-11-03T15:59:51Z">
@@ -48,6 +55,11 @@ Disabled mousewheel]]></changelog>
         <changelog><![CDATA[Fixed a vertical menu button offset when window is docked]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/afc744130cda24fd989877aeac0aab454eb6e36f/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
         <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/afc744130cda24fd989877aeac0aab454eb6e36f/ReaDrum%20Machine/Fonts/Icons.ttf</source>
+      </version>
+      <version name="1.0.5" author="Suzuki" time="2023-11-06T18:25:12Z">
+        <changelog><![CDATA[Hotfix:Load RS5k with user-defined preset and handle loading samples when user-defined preset is set]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/d2cbc026236f5df07d058e55467a1a916af50199/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
+        <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/d2cbc026236f5df07d058e55467a1a916af50199/ReaDrum%20Machine/Fonts/Icons.ttf</source>
       </version>
     </reapack>
   </category>
