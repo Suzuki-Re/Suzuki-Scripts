@@ -1,8 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0.6
--- @changelog Fixed naming issue introduced in v1.0.3
+-- @version 1.0.7
+-- @changelog Fixed updating pads depending on the track selected
+-- Added a basic menu to toggle loop and obey note off
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @provides
 --   Fonts/Icons.ttf
@@ -96,12 +97,11 @@ r.ImGui_Attach(ctx, ICONS_FONT)
 FLT_MIN, FLT_MAX = r.ImGui_NumericLimits_Float()
 
 local posx, posy = r.ImGui_GetCursorScreenPos(ctx)
-track = r.GetLastTouchedTrack()
+
 
 function InsertDrumMachine()
   local found = false
   count = r.TrackFX_GetCount(track) -- 1 based
-
   for i = 0, count - 1 do
     local rv, rename = r.TrackFX_GetNamedConfigParm(track, i, 'renamed_name') -- 0 based
     if rename == 'ReaDrum Machine' then
@@ -110,8 +110,12 @@ function InsertDrumMachine()
     end
   end
   if not found then
+    r.Undo_BeginBlock()
+    r.PreventUIRefresh(1)
     r.TrackFX_AddByName(track, "Container", false, -1000 - count)                 -- 0 based + count(1 based) = the last slot
     r.TrackFX_SetNamedConfigParm(track, count, 'renamed_name', 'ReaDrum Machine') -- 0 based + count(1 based) = the last slot
+    r.PreventUIRefresh(-1)
+    EndUndoBlock("ADD DRUM MACHINE")
   end
 end
 
@@ -301,22 +305,13 @@ function UpdatePadID()
     if rev == 1 then
     Pad[rv + 1].Rename = value
     end
-    -- local ret, renamed_name = r.TrackFX_GetNamedConfigParm(track, Pad[rv + 1].Pad_ID, 'renamed_name') -- Set Pad[rv].Rename
-    -- local note_name = getNoteName(rv)
-    -- local search_str = note_name .. ": "
-    -- local colon_pos = renamed_name:find(search_str)
-    -- if colon_pos then
-    -- local new_name = string.sub(renamed_name, colon_pos + #search_str)
-    -- Pad[rv + 1].Rename = new_name
-    -- else
-    -- Pad[rv + 1].Rename = nil
-    -- end
     CountPadFX(p) -- Set Pad[a].Name
     local found = false
     for f = 1, padfx_idx do
       local find_rs5k = get_fx_id_from_container_path(track, parent_id, p, f)
       retval, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'original_name')
       if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
+        Pad[rv + 1].RS5k_ID = get_fx_id_from_container_path(track, parent_id, p, f)
         found = true
         _, bf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'FILE0')  
         filename = bf:match("([^\\/]+)%.%w%w*$")
@@ -394,8 +389,8 @@ function UpdateFxData()
       FX_DATA[fx_guid].ID = i
       IterateContainerUpdate(0, TRACK, i, total_fx_count, 0, fx_guid)
     end
-    UpdatePadID()
   end
+  UpdatePadID()
 end
 
 -----------------
@@ -673,8 +668,8 @@ local function DndAddFX_TARGET(a)
       AddNoteFilter(notenum, pad_num)
       padfx_id = get_fx_id_from_container_path(track, parent_id, pad_num, padfx_idx + 2)     -- add FX
       r.TrackFX_AddByName(track, payload, false, padfx_id)
-      EndUndoBlock("ADD FX")
       r.PreventUIRefresh(-1)
+      EndUndoBlock("ADD FX") 
     elseif ret and Pad[a].Pad_Num then
       GetDrumMachineIdx()   -- parent_id = num
       CountPadFX(Pad[a].Pad_Num)
@@ -682,8 +677,8 @@ local function DndAddFX_TARGET(a)
       r.Undo_BeginBlock()
       r.PreventUIRefresh(1)
       r.TrackFX_AddByName(track, payload, false, -1000 - padfx_id)
-      EndUndoBlock("ADD FX")
       r.PreventUIRefresh(-1)
+      EndUndoBlock("ADD FX")
     end
   end
   r.ImGui_PopStyleColor(ctx)
@@ -699,7 +694,7 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', payload) -- add file
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')        -- always necessary
   -- r.TrackFX_SetParam(track, rs5k_id, 11, 1)                       -- obey note offs
-  Pad[a]["RS5k_ID"] = rs5k_id
+  Pad[a].RS5k_ID = rs5k_id
   rv, buf = r.TrackFX_GetNamedConfigParm(track, rs5k_id, 'FILE')
   filename = buf:match("([^\\/]+)%.%w%w*$")
   r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
@@ -711,7 +706,7 @@ end
 local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offset, end_offset)
   rs5k_id = get_fx_id_from_container_path(track, parent_id, pad_num, add_pos)
   r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
-  Pad[a]["RS5k_ID"] = rs5k_id
+  Pad[a].RS5k_ID = rs5k_id
   r.TrackFX_Show(track, rs5k_id, 2)
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)             -- Sample mode
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '')
@@ -823,13 +818,11 @@ local function DndAddSample_TARGET(a)
               rv, payload = r.ImGui_GetDragDropPayloadFile(ctx, i)
               r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'FILE0', payload) -- change file
               r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'DONE', '')
-              rv, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'FILE')
-              filename = buf:match("([^\\/]+)%.%w%w*$")
+              filename = payload:match("([^\\/]+)%.%w%w*$")
               Pad[a].Name = filename
               if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
               r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
               r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
-              --r.TrackFX_SetParam(track, find_rs5k, 11, 1) -- obey note offs
               r.TrackFX_SetParam(track, find_rs5k, 13, 0) -- Sample start offset, reset
               r.TrackFX_SetParam(track, find_rs5k, 14, 1) -- Sample end offset, reset
             end
@@ -1152,7 +1145,7 @@ local function ClickPadActions(a)
         r.Undo_BeginBlock()
         r.PreventUIRefresh(1)
         local open =  r.TrackFX_GetOpen(track, Pad[a].Pad_ID) -- 0 based
-          r.TrackFX_Show(track, Pad[a].Pad_ID, open and 2 or 3)           -- show/hide floating window       
+        r.TrackFX_Show(track, Pad[a].Pad_ID, open and 2 or 3)           -- show/hide floating window   
         r.PreventUIRefresh(-1)
         EndUndoBlock("OPEN FX WINDOW")
       end
@@ -1170,6 +1163,30 @@ local function PadMenu(a, note_name)
     end
     if r.ImGui_MenuItem(ctx, 'Rename Pad##' .. a) then
       open_settings = true
+    end
+    if r.ImGui_MenuItem(ctx, 'Toggle Obey note offs##' .. a) then
+      if Pad[a] and Pad[a].RS5k_ID then
+        rv = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 11)
+        if rv == 0 then
+          r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 1) -- obey note offs on
+        else
+          r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 0)
+        end
+      end
+    end
+    if r.ImGui_MenuItem(ctx, 'Toggle Loop##' .. a) then
+      if Pad[a] and Pad[a].RS5k_ID then
+        rv = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 12)
+        if rv == 0 then
+          no = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 11)
+          if no == 0 then
+          r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 1) -- obey note offs on
+          end
+          r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 12, 1) -- Loop on
+        else
+          r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 12, 0)
+        end
+      end
     end
     r.ImGui_Separator(ctx)
     if r.ImGui_MenuItem(ctx, 'Clear All Pads##' .. a) then
@@ -1609,7 +1626,8 @@ end
 
 -----------
 function Run()
-  TRACK = r.GetSelectedTrack(0, 0)
+  track = r.GetSelectedTrack2(0, 0, false)
+  TRACK = track
   if set_dock_id then
     r.ImGui_SetNextWindowDockID(ctx, set_dock_id)
     set_dock_id = nil
