@@ -1,9 +1,8 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0.7
--- @changelog Fixed updating pads depending on the track selected
--- Added a basic menu to toggle loop and obey note off
+-- @version 1.0.8
+-- @changelog Added a menu to explode pads to tracks
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @provides
 --   Fonts/Icons.ttf
@@ -282,6 +281,7 @@ function UpdatePadID()
   if not track then return end
   Pad = {}
   GetDrumMachineIdx()
+  if not parent_id then return end
   CountPads()
   if pads_idx == nil then return end
   for p = 1, pads_idx do
@@ -1079,14 +1079,76 @@ local function AdjustPadVolume(a)
   end
 end
 
+local function SetLowChannel(e)
+  local left = (e - 1) * 2
+  local right = left + 1 
+  left_low = 2^left
+  left_high = 0
+  right_low = 2^right
+  right_high = 0
+end
+
+local function SetHighChannel(e)
+  local left = (e - 1) * 2
+  local right = left + 1 
+  left_low = 0
+  left_high = 2^left
+  right_low = 0
+  right_high = 2^right
+end
+
 local function ExplodePadsToTracks()
+  CountPads()
+  r.SetMediaTrackInfo_Value(track, 'I_NCHAN', 128)
+  local drum_id = get_fx_id_from_container_path(track, parent_id)
+  r.TrackFX_SetNamedConfigParm(track, drum_id, 'container_nch', 128)
+  r.TrackFX_SetNamedConfigParm(track, drum_id, 'container_nch_out', 128)
+  local drum_track = track
+  local track_id = r.CSurf_TrackToID(track, false)
   r.Main_OnCommand(40001, 0)
-  r.SetMediaTrackInfo_Value(track, parmname, newvalue)
-  -- I_FOLDERDEPTH : int * : folder depth change, 0=normal, 1=track is a folder parent, -1=track is the last in the innermost folder, -2=track is the last in the innermost and next-innermost folders, etc
-  r.TrackFX_SetNamedConfigParm(track, fx, parmname, value)
-  --container_nch : number of internal channels for container
-  --container_nch_in : number of input pins for container
-  --container_nch_out : number of output pints for container
+  for e = 1, pads_idx do
+    if e > 64 then last_child = r.CSurf_TrackFromID(track_id + 1 + e, false) break end
+    local pad_id = get_fx_id_from_container_path(track, parent_id, e)
+    r.Main_OnCommand(40001, 0)
+    local retval, pad_name = r.TrackFX_GetNamedConfigParm(drum_track, pad_id, 'renamed_name')
+    local child = r.CSurf_TrackFromID(track_id + 1 + e, false)
+    r.GetSetMediaTrackInfo_String(child, 'P_NAME', pad_name, true) -- change child track's name to pad name
+    local send = r.CreateTrackSend(drum_track, child)
+    local channel_offset = (e - 1) * 2 -- even number
+    local num_channels = 0 -- stereo
+    local send_info = (num_channels << 9) | channel_offset
+    r.SetTrackSendInfo_Value(drum_track, 0, send, 'I_SRCCHAN', send_info) -- set send channel
+    if e <= 32 then
+      l_pin_idx = 0 --left 
+      r_pin_idx = 1 -- right
+      if e <= 16 then -- use low for 1~16
+        SetLowChannel(e)
+      elseif e > 16 then -- use high for 17~32
+        local e = e - 16
+        SetHighChannel(e)
+      end
+    elseif e > 32 then
+      l_pin_idx = 0 + 0x1000000 -- add 0x1000000 for 64~
+      r_pin_idx = 1 + 0x1000000
+      if e <= 48 then -- use low for 33~48
+      local e = e - 32
+      SetLowChannel(e)
+      elseif e > 48 then -- use high for 49~64
+      local e = e - 48
+      SetHighChannel(e)
+      end
+    end
+    r.TrackFX_SetPinMappings(track, pad_id, 1, l_pin_idx, left_low, left_high) -- left
+    r.TrackFX_SetPinMappings(track, pad_id, 1, r_pin_idx, right_low, right_high) -- right
+    last_child = r.CSurf_TrackFromID(track_id + 1 + pads_idx, false)
+  end
+  local bus_track = r.CSurf_TrackFromID(track_id + 1, false)
+  r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERDEPTH', 1) -- parent folder
+  r.GetSetMediaTrackInfo_String(bus_track, 'P_NAME', "ReaDrum Bus", true)
+  r.SetMediaTrackInfo_Value(last_child, 'I_FOLDERDEPTH', -1) -- last child track
+  r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERCOMPACT', 1) -- collapse folder
+  r.SetMediaTrackInfo_Value(drum_track, 'I_SELECTED', 1) -- select drum track
+  r.SetMediaTrackInfo_Value(drum_track, 'B_MAINSEND', 0) -- turn off master send
 end
 
 local function RenameWindow(a, note_name)
@@ -1189,6 +1251,13 @@ local function PadMenu(a, note_name)
       end
     end
     r.ImGui_Separator(ctx)
+    if r.ImGui_MenuItem(ctx, 'Explode All Pads to Tracks##' .. a) then
+    r.Undo_BeginBlock()
+    r.PreventUIRefresh(1)
+    ExplodePadsToTracks()
+    r.PreventUIRefresh(-1)
+    EndUndoBlock("EXPLODE ALL PADS") 
+    end
     if r.ImGui_MenuItem(ctx, 'Clear All Pads##' .. a) then
       GetDrumMachineIdx()
       CountPads()                                                          -- pads_idx = num
