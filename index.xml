@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="68ad73be581e6414b724de44d932d3c2aa7b39e3">
+<index version="1" name="Suzuki Scripts" commit="61030d2aac84ccd9e25c14940c1fc5060ba4d9ae">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible track envelope for last touched track FX parameter.lua" type="script" desc="Toggle show hide visible track envelope for last touched track FX parameter">
       <metadata>
@@ -70,6 +70,11 @@ Disabled mousewheel]]></changelog>
         <changelog><![CDATA[Fixed updating pads depending on the track selected]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/68ad73be581e6414b724de44d932d3c2aa7b39e3/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
         <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/68ad73be581e6414b724de44d932d3c2aa7b39e3/ReaDrum%20Machine/Fonts/Icons.ttf</source>
+      </version>
+      <version name="1.0.8" author="Suzuki" time="2023-11-10T23:51:10Z">
+        <changelog><![CDATA[Added a menu to explode pads to tracks]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/61030d2aac84ccd9e25c14940c1fc5060ba4d9ae/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
+        <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/61030d2aac84ccd9e25c14940c1fc5060ba4d9ae/ReaDrum%20Machine/Fonts/Icons.ttf</source>
       </version>
     </reapack>
   </category>
