@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="1d0a9a2addfb3b34c02c5589d6ad741c34c3dddc">
+<index version="1" name="Suzuki Scripts" commit="f1d84f1398a32ada92ed7ac02609abf4ed4f854f">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible track envelope for last touched track FX parameter.lua" type="script" desc="Toggle show hide visible track envelope for last touched track FX parameter">
       <metadata>
@@ -80,6 +80,13 @@ Disabled mousewheel]]></changelog>
         <changelog><![CDATA[Fixed cropping drag/drop, play, and mute display]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/1d0a9a2addfb3b34c02c5589d6ad741c34c3dddc/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
         <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/1d0a9a2addfb3b34c02c5589d6ad741c34c3dddc/ReaDrum%20Machine/Fonts/Icons.ttf</source>
+      </version>
+      <version name="1.1" author="Suzuki" time="2023-11-11T20:04:17Z">
+        <changelog><![CDATA[Changed midi note filter name. Let me know on the forum if someone already saves a preset, template, etc using this script.]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/f1d84f1398a32ada92ed7ac02609abf4ed4f854f/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
+        <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/f1d84f1398a32ada92ed7ac02609abf4ed4f854f/ReaDrum%20Machine/Fonts/Icons.ttf</source>
+        <source file="JSFX/RDM_midi_note_filter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/f1d84f1398a32ada92ed7ac02609abf4ed4f854f/ReaDrum%20Machine/JSFX/RDM_midi_note_filter.jsfx</source>
+        <source type="effect" file="JSFX/RDM_midi_note_filter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/f1d84f1398a32ada92ed7ac02609abf4ed4f854f/ReaDrum%20Machine/JSFX/RDM_midi_note_filter.jsfx</source>
       </version>
     </reapack>
   </category>
