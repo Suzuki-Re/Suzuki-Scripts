@@ -1,8 +1,8 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0.8
--- @changelog Added a menu to explode pads to tracks
+-- @version 1.0.9
+-- @changelog Fixed cropping drag/drop, play, and mute display
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @provides
 --   Fonts/Icons.ttf
@@ -444,7 +444,7 @@ end
 
 local function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
   if not DND_MOVE_FX then return end
-  -- r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), COLOR["dnd_swap"])
+  r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), 0)
   if r.ImGui_BeginDragDropTarget(ctx) then
     local ret, payload = r.ImGui_AcceptDragDropPayload(ctx, 'DND MOVE FX')
     r.ImGui_EndDragDropTarget(ctx)
@@ -619,8 +619,8 @@ local function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kep
         end
       end
     end
-    -- r.ImGui_PopStyleColor(ctx)
   end
+  r.ImGui_PopStyleColor(ctx)
 end
 
 local function DndAddSample_SRC(sample)
@@ -644,7 +644,7 @@ end
 local function DndAddFX_TARGET(a)
   if not DND_ADD_FX then return end
   InsertDrumMachine()
-  r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), COLOR["dnd"])
+  r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), 0)
   if r.ImGui_BeginDragDropTarget(ctx) then
     local ret, payload = r.ImGui_AcceptDragDropPayload(ctx, 'DND ADD FX')
     r.ImGui_EndDragDropTarget(ctx)
@@ -942,6 +942,16 @@ local function ButtonDrawlist(splitter, name, color)
   if r.ImGui_IsItemActive(ctx) then
     r.ImGui_DrawList_AddRect(draw_list, xs, ys, xe, ye, 0x22FF44FF)
   end
+  if DND_MOVE_FX and r.ImGui_IsMouseHoveringRect(ctx,xs,ys,xe,ye) then
+    local x_offset = 2
+    r.ImGui_DrawList_AddRect(f_draw_list, xs - x_offset, ys - x_offset, xe + x_offset, ye + x_offset, 0xFF0000FF, 2,
+        nil, 2)
+  end
+  if DND_ADD_FX and r.ImGui_IsMouseHoveringRect(ctx,xs,ys,xe,ye) then
+    local x_offset = 2
+    r.ImGui_DrawList_AddRect(f_draw_list, xs - x_offset, ys - x_offset, xe + x_offset, ye + x_offset, COLOR["dnd"], 2,
+        nil, 2)
+  end
 
   local font_size = r.ImGui_GetFontSize(ctx)
   local char_size_w,char_size_h = r.ImGui_CalcTextSize(ctx, "A")
@@ -965,7 +975,7 @@ local function DrawListButton(splitter, name, color, round_side, icon, hover, of
   r.ImGui_DrawList_AddRectFilled(draw_list, xs, ys, xe, ye, r.ImGui_GetColorEx(ctx, multi_color), round_amt,
     round_flag)
   if r.ImGui_IsItemActive(ctx) then
-    r.ImGui_DrawList_AddRect(draw_list, xs - 2, ys - 2, xe + 2, ye + 2, 0x22FF44FF, 3, nil, 2)
+    r.ImGui_DrawList_AddRect(f_draw_list, xs - 2, ys - 2, xe + 2, ye + 2, 0x22FF44FF, 3, nil, 2)
   end
 
   if icon then r.ImGui_PushFont(ctx, ICONS_FONT) end
