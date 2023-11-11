@@ -1,3 +1,5 @@
+noindex: true
+
 desc:RDM MIDI Note Filter
 //tags: MIDI processing filter
 //author: Unknown
