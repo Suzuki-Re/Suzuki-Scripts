@@ -1,12 +1,14 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0.9
--- @changelog Fixed cropping drag/drop, play, and mute display
+-- @version 1.1
+-- @changelog Changed midi note filter name. Let me know on the forum if someone already saves a preset, template, etc using this script.
 -- @link https://forum.cockos.com/showthread.php?t=284566
+-- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
 --   Fonts/Icons.ttf
--- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
+--   JSFX/*.jsfx
+--   [effect] JSFX/*.jsfx
 
 local r            = reaper
 local os_separator = package.config:sub(1, 1)
@@ -39,7 +41,6 @@ function ThirdPartyDeps() -- FX Browser
 
   local fx_browser_path
   local n, arch = r.GetAppVersion():match("(.+)/(.+)")
-  --  local fm_script_path         = r.GetResourcePath() .. "/Scripts/Sexan_Scripts/ImGui_Tools/FileManager.lua"
 
   if n:match("^7%.") then
     fx_browser = r.GetResourcePath() .. "/Scripts/Sexan_Scripts/FX/Sexan_FX_Browser_ParserV7.lua"
@@ -267,8 +268,8 @@ local function FindNoteFilter(pad_num)
     for f = 1, padfx_idx do      
       local find_filter = get_fx_id_from_container_path(track, parent_id, pad_num, f)
       retval, buf = r.TrackFX_GetNamedConfigParm(track, find_filter, 'fx_ident')
-      buf = buf:gsub("midi\\", "")
-      if buf == "midi_note_filter" then
+      buf = buf:gsub("Suzuki Scripts\\", "")
+      if buf == "RDM_midi_note_filter" then
       fi = f
       break
       end
@@ -414,7 +415,7 @@ end
 
 local function AddNoteFilter(notenum, pad_num)
   filter_id = get_fx_id_from_container_path(track, parent_id, pad_num, 1) -- 1 based, num
-  r.TrackFX_AddByName(track, 'midi_note_filter', false, filter_id)
+  r.TrackFX_AddByName(track, 'RDM_midi_note_filter', false, filter_id)
   r.TrackFX_SetParam(track, filter_id, 0, notenum)                        -- lowest key for filter, pad number = midi note
   r.TrackFX_SetParam(track, filter_id, 1, notenum)                        -- highest key for filter
 end
