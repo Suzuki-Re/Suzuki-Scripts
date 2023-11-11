@@ -7,8 +7,8 @@
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
 --   Fonts/Icons.ttf
---   JSFX/*.jsfx
---   [effect] JSFX/*.jsfx
+--   JSFX/RDM_midi_note_filter.jsfx
+--   [effect] JSFX/RDM_midi_note_filter.jsfx
 
 local r            = reaper
 local os_separator = package.config:sub(1, 1)
