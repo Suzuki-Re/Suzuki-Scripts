@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="f1d84f1398a32ada92ed7ac02609abf4ed4f854f">
+<index version="1" name="Suzuki Scripts" commit="f7cf1cbc108db840118a3c0524f5667385229385">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible track envelope for last touched track FX parameter.lua" type="script" desc="Toggle show hide visible track envelope for last touched track FX parameter">
       <metadata>
@@ -14,6 +14,26 @@
       <version name="1.0" author="Suzuki" time="2023-11-04T07:26:07Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/29ad7840faaab2a28adbec42356d88fd5b5bebf8/Envelopes/Suzuki_Toggle%20show%20hide%20visible%20track%20envelope%20for%20last%20touched%20track%20FX%20parameter.lua</source>
+      </version>
+    </reapack>
+  </category>
+  <category name="Modulation">
+    <reapack name="Suzuki_Toggle enable disable audio control signal to last touched track or take FX parameter.lua" type="script" desc="Toggle enable/disable audio control signal to last touched track or take FX parameter">
+      <version name="1.0" author="Suzuki" time="2023-11-12T21:53:19Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/0af3e8fad533ce5c850ffb893906ed5871fc536f/Modulation/Suzuki_Toggle%20enable%20disable%20audio%20control%20signal%20to%20last%20touched%20track%20or%20take%20FX%20parameter.lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Toggle enable disable LFO to last touched track or take FX parameter.lua" type="script" desc="Toggle enable/disable LFO to last touched track or take FX parameter">
+      <version name="1.0" author="Suzuki" time="2023-11-12T21:53:05Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/bfe53d2c68c3ab21aa725f2f2289f36d08edc4fd/Modulation/Suzuki_Toggle%20enable%20disable%20LFO%20to%20last%20touched%20track%20or%20take%20FX%20parameter.lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Toggle set midi CC link to last touched track or take FX parameter (user input).lua" type="script" desc="Toggle set midi CC link to last touched track or take FX parameter (user input)">
+      <version name="1.0" author="Suzuki" time="2023-11-12T21:53:33Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/f7cf1cbc108db840118a3c0524f5667385229385/Modulation/Suzuki_Toggle%20set%20midi%20CC%20link%20to%20last%20touched%20track%20or%20take%20FX%20parameter%20(user%20input).lua</source>
       </version>
     </reapack>
   </category>
