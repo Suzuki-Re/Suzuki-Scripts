@@ -1,4 +1,4 @@
--- @description Toggle enable/disable audio control signal to last touched track or take FX parameter
+-- @description Toggle enable/disable audio control signal for last touched track or take FX parameter
 -- @author Suzuki
 -- @license GPL v3
 -- @version 1.0
