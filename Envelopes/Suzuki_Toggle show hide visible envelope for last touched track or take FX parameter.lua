@@ -1,4 +1,4 @@
--- @description Toggle show hide visible envelope for last touched track or take FX parameter
+-- @description Toggle show/hide visible envelope for last touched track or take FX parameter
 -- @author Suzuki
 -- @license GPL v3
 -- @version 1.0
