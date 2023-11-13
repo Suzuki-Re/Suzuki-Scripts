@@ -6,7 +6,7 @@
 
 local r = reaper
 
-function get_fx_id_from_container_path(tr, idx1, ...) -- returns a fx-address from a list of 1-based IDs
+function get_fx_id_from_container_path(tr, idx1, ...) -- returns a fx-address from a list of 1-based IDs https://forum.cockos.com/showthread.php?t=282861
     local sc,rv = reaper.TrackFX_GetCount(tr)+1, 0x2000000 + idx1
     for i,v in ipairs({...}) do
       local ccok, cc = reaper.TrackFX_GetNamedConfigParm(tr, rv, 'container_count')
