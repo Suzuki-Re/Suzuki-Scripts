@@ -1,4 +1,4 @@
--- @description Toggle enable/disable LFO to last touched track or take FX parameter
+-- @description Toggle enable/disable LFO for last touched track or take FX parameter
 -- @author Suzuki
 -- @license GPL v3
 -- @version 1.0
