@@ -1,8 +1,8 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.1
--- @changelog Changed midi note filter name. Let me know on the forum if someone already saves a preset, template, etc using this script.
+-- @version 1.1.1
+-- @changelog Fixed a display bug
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
@@ -159,10 +159,10 @@ function get_fx_id_from_container_path(tr, idx1, ...) -- 1based
    for i = 1, #vararg do
     new_vararg[#new_vararg + 1] = vararg[i]
    end
-   local new_sc, new_rv = reaper.TrackFX_GetCount(track)+1, 0x2000000 + new_vararg[1]
+   local new_sc, new_rv = r.TrackFX_GetCount(track)+1, 0x2000000 + new_vararg[1]
     for i = 2, #new_vararg do
     local new_v = new_vararg[i]
-    local new_ccok, new_cc = reaper.TrackFX_GetNamedConfigParm(track, new_rv, 'container_count')
+    local new_ccok, new_cc = r.TrackFX_GetNamedConfigParm(track, new_rv, 'container_count')
     new_ccok = tostring(new_ccok)
     new_rv = new_rv + new_sc * new_v
     new_sc = new_sc * (1+tonumber(new_cc))  
@@ -268,8 +268,8 @@ local function FindNoteFilter(pad_num)
     for f = 1, padfx_idx do      
       local find_filter = get_fx_id_from_container_path(track, parent_id, pad_num, f)
       retval, buf = r.TrackFX_GetNamedConfigParm(track, find_filter, 'fx_ident')
-      buf = buf:gsub("Suzuki Scripts\\", "")
-      if buf == "RDM_midi_note_filter" then
+      buf = buf:gsub("Suzuki Scripts\\ReaDrum Machine\\JSFX\\", "")
+      if buf == "RDM_midi_note_filter.jsfx" then
       fi = f
       break
       end
