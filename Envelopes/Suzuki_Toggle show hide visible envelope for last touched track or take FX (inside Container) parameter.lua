@@ -140,8 +140,8 @@ function take_fx_map_parameter(tr, fxidx, parmidx) -- maps a parameter to the to
   return fxidx, parmidx
 end
 
-local track = r.GetSelectedTrack2(0, 0, true)
-local retval, trackidx, itemidx, takeidx, fxidx, parm = r.GetTouchedOrFocusedFX(0)
+local retval, trackidx, itemidx, takeidx, fxidx, parm = r.GetTouchedOrFocusedFX(0) -- 0 based
+local track = r.CSurf_TrackFromID(trackidx + 1, false) -- 1 based
 
 if itemidx ~= -1 then
     local item = r.GetMediaItem(0, itemidx)
