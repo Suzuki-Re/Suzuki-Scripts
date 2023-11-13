@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="c1e8d70b33c353942489be687303471e549f2201">
+<index version="1" name="Suzuki Scripts" commit="ab0a6d1a13f518f21855a20e8d7d9b21f34ba442">
+  <category name="Envelopes">
+    <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
+      <version name="1.0" author="Suzuki" time="2023-11-13T13:46:43Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/ab0a6d1a13f518f21855a20e8d7d9b21f34ba442/Envelopes/Suzuki_Toggle%20show%20hide%20visible%20envelope%20for%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter.lua</source>
+      </version>
+    </reapack>
+  </category>
   <category name="Modulation">
     <reapack name="Suzuki_Toggle enable disable audio control signal for last touched track or take FX parameter.lua" type="script" desc="Toggle enable/disable audio control signal for last touched track or take FX parameter">
       <version name="1.0" author="Suzuki" time="2023-11-13T00:18:33Z">
