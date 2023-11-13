@@ -1,4 +1,4 @@
--- @description Toggle set midi CC link to last touched track or take FX parameter (user input)
+-- @description Toggle set midi CC link for last touched track or take FX parameter (user input)
 -- @author Suzuki
 -- @license GPL v3
 -- @version 1.0
