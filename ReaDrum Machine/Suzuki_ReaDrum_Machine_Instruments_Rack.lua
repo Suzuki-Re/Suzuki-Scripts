@@ -1,8 +1,8 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.1.1
--- @changelog Fixed a display bug
+-- @version 1.1.2
+-- @changelog Fixed path for mac, thanks fro testing it BryanChi!
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
@@ -262,13 +262,18 @@ local function getNoteNumber(note) -- Assumes capital letters, only use '#' (not
   return base + 12 * oct + 24 -- C1 = 24
 end
 
+
 local function FindNoteFilter(pad_num)
   CountPadFX(pad_num) 
   if padfx_idx ~= 0 then
     for f = 1, padfx_idx do      
       local find_filter = get_fx_id_from_container_path(track, parent_id, pad_num, f)
       retval, buf = r.TrackFX_GetNamedConfigParm(track, find_filter, 'fx_ident')
-      buf = buf:gsub("Suzuki Scripts\\ReaDrum Machine\\JSFX\\", "")
+      if r.GetOS() == 'Win32' or r.GetOS() == 'Win64' then
+        buf = buf:gsub("Suzuki Scripts\\ReaDrum Machine\\JSFX\\", "")
+      else
+        buf = buf:gsub("Suzuki Scripts/ReaDrum Machine/JSFX/", "")
+      end
       if buf == "RDM_midi_note_filter.jsfx" then
       fi = f
       break
