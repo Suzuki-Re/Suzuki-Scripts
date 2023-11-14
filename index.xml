@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="d5d434b1f54a4265db5421a39fac4f27cfff6581">
+<index version="1" name="Suzuki Scripts" commit="2c11a7e9fbf1b97a1e3b13ec2ba7a4d8b40ad7a6">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -118,6 +118,13 @@ Disabled mousewheel]]></changelog>
         <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/cfb7895f26714db91359a9de68ee549b0a88e308/ReaDrum%20Machine/Fonts/Icons.ttf</source>
         <source file="JSFX/RDM_midi_note_filter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/cfb7895f26714db91359a9de68ee549b0a88e308/ReaDrum%20Machine/JSFX/RDM_midi_note_filter.jsfx</source>
         <source type="effect" file="JSFX/RDM_midi_note_filter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/cfb7895f26714db91359a9de68ee549b0a88e308/ReaDrum%20Machine/JSFX/RDM_midi_note_filter.jsfx</source>
+      </version>
+      <version name="1.1.2" author="Suzuki" time="2023-11-14T16:45:05Z">
+        <changelog><![CDATA[Fixed path for mac, thanks fro testing it BryanChi!]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/2c11a7e9fbf1b97a1e3b13ec2ba7a4d8b40ad7a6/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
+        <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/2c11a7e9fbf1b97a1e3b13ec2ba7a4d8b40ad7a6/ReaDrum%20Machine/Fonts/Icons.ttf</source>
+        <source file="JSFX/RDM_midi_note_filter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/2c11a7e9fbf1b97a1e3b13ec2ba7a4d8b40ad7a6/ReaDrum%20Machine/JSFX/RDM_midi_note_filter.jsfx</source>
+        <source type="effect" file="JSFX/RDM_midi_note_filter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/2c11a7e9fbf1b97a1e3b13ec2ba7a4d8b40ad7a6/ReaDrum%20Machine/JSFX/RDM_midi_note_filter.jsfx</source>
       </version>
     </reapack>
   </category>
