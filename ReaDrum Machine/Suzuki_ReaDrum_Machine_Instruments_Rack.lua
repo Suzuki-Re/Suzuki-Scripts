@@ -2,7 +2,7 @@
 -- @author Suzuki
 -- @license GPL v3
 -- @version 1.1.2
--- @changelog Fixed path for mac, thanks fro testing it BryanChi!
+-- @changelog Fixed path for mac, thanks for testing it BryanChi!
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
