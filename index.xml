@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="2c11a7e9fbf1b97a1e3b13ec2ba7a4d8b40ad7a6">
+<index version="1" name="Suzuki Scripts" commit="9d9030d2fd4b7034524a864836de655520bf60ff">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -125,6 +125,18 @@ Disabled mousewheel]]></changelog>
         <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/2c11a7e9fbf1b97a1e3b13ec2ba7a4d8b40ad7a6/ReaDrum%20Machine/Fonts/Icons.ttf</source>
         <source file="JSFX/RDM_midi_note_filter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/2c11a7e9fbf1b97a1e3b13ec2ba7a4d8b40ad7a6/ReaDrum%20Machine/JSFX/RDM_midi_note_filter.jsfx</source>
         <source type="effect" file="JSFX/RDM_midi_note_filter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/2c11a7e9fbf1b97a1e3b13ec2ba7a4d8b40ad7a6/ReaDrum%20Machine/JSFX/RDM_midi_note_filter.jsfx</source>
+      </version>
+      <version name="1.1.3" author="Suzuki" time="2023-11-15T23:19:02Z">
+        <changelog><![CDATA[Turned some functions into modules]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9d9030d2fd4b7034524a864836de655520bf60ff/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
+        <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9d9030d2fd4b7034524a864836de655520bf60ff/ReaDrum%20Machine/Fonts/Icons.ttf</source>
+        <source file="JSFX/RDM_midi_note_filter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9d9030d2fd4b7034524a864836de655520bf60ff/ReaDrum%20Machine/JSFX/RDM_midi_note_filter.jsfx</source>
+        <source file="Modules/DragNDrop.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9d9030d2fd4b7034524a864836de655520bf60ff/ReaDrum%20Machine/Modules/DragNDrop.lua</source>
+        <source file="Modules/Drawing.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9d9030d2fd4b7034524a864836de655520bf60ff/ReaDrum%20Machine/Modules/Drawing.lua</source>
+        <source file="Modules/FX List.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9d9030d2fd4b7034524a864836de655520bf60ff/ReaDrum%20Machine/Modules/FX%20List.lua</source>
+        <source file="Modules/General Functions.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9d9030d2fd4b7034524a864836de655520bf60ff/ReaDrum%20Machine/Modules/General%20Functions.lua</source>
+        <source file="Modules/Pad Actions.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9d9030d2fd4b7034524a864836de655520bf60ff/ReaDrum%20Machine/Modules/Pad%20Actions.lua</source>
+        <source type="effect" file="JSFX/RDM_midi_note_filter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9d9030d2fd4b7034524a864836de655520bf60ff/ReaDrum%20Machine/JSFX/RDM_midi_note_filter.jsfx</source>
       </version>
     </reapack>
   </category>
