@@ -1,8 +1,8 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.1.3
--- @changelog Turned some functions into modules
+-- @version 1.1.4
+-- @changelog Provides a scrollable layout version script
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
@@ -10,6 +10,7 @@
 --   JSFX/RDM_midi_note_filter.jsfx
 --   Modules/*.lua
 --   [effect] JSFX/RDM_midi_note_filter.jsfx
+--   [main] Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable Layout).lua
 
 local r            = reaper
 os_separator = package.config:sub(1, 1)
