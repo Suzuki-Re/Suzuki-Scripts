@@ -1,5 +1,11 @@
---@noindex
---NoIndex: true
+-- @description Suzuki ReaDrum Machine (Scrollable Layout)
+-- @author Suzuki
+-- @license GPL v3
+-- @version 1.0
+-- @noindex
+-- @changelog Initial Release
+-- @link https://forum.cockos.com/showthread.php?t=284566
+-- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. This is a version which lets users scroll vertically.
 
 local r            = reaper
 os_separator = package.config:sub(1, 1)
