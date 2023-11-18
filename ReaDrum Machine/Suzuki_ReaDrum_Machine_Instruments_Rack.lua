@@ -1,8 +1,8 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.1.4
--- @changelog Provides a scrollable layout version script
+-- @version 1.1.5
+-- @changelog Added function to enhance a feature of FX Devices
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides

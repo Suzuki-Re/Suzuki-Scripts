@@ -16,6 +16,7 @@ function CheckDNDType()
     DND_MOVE_FX = dnd_type == "DND MOVE FX"
     -- DND_ADD_SAMPLE = dnd_type == "DND ADD SAMPLE"
     -- DND_MOVE_SAMPLE = dnd_type == "DND MOVE SAMPLE"
+    FX_DRAG = dnd_type == "FX_Drag" -- For FX Devices
 end
   
   function AddNoteFilter(notenum, pad_num)
