@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="c2ec5e58bf5e8f63b23a6386bed9d217343f06d9">
+<index version="1" name="Suzuki Scripts" commit="c91b44efdc568a35d489c2977f39e39936880ea7">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -99,10 +99,19 @@
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/e96035ac7869a7f3754db30d149dd05f025076ac/Modulation/Suzuki_Toggle%20link%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter%20as%20a%20follower%20to%20the%20lead%20parameter.lua</source>
       </version>
     </reapack>
-    <reapack name="Suzuki_Toggle set midi CC link for last touched track or take FX parameter (user input).lua" type="script" desc="Toggle set midi CC link for last touched track or take FX parameter (user input)">
-      <version name="1.0" author="Suzuki" time="2023-11-13T00:20:07Z">
+    <reapack name="Suzuki_Toggle set midi CC link for last touched track or take FX (inside Container) parameter (user input).lua" type="script" desc="Toggle set midi CC link for last touched track or take FX (inside Container) parameter (user input)">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 Using v7.0+ API\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2023-11-24T12:00:16Z">
         <changelog><![CDATA[Initial Release]]></changelog>
-        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/a4e1fa66a8e424732b728fd0d851c427eeddd025/Modulation/Suzuki_Toggle%20set%20midi%20CC%20link%20for%20last%20touched%20track%20or%20take%20FX%20parameter%20(user%20input).lua</source>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c91b44efdc568a35d489c2977f39e39936880ea7/Modulation/Suzuki_Toggle%20set%20midi%20CC%20link%20for%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter%20(user%20input).lua</source>
       </version>
     </reapack>
   </category>
