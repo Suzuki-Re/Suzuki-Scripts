@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="7e33f8234a5b378c1917e2a4cdd9abf18790deda">
+<index version="1" name="Suzuki Scripts" commit="e96035ac7869a7f3754db30d149dd05f025076ac">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -39,6 +39,21 @@
     </reapack>
   </category>
   <category name="Modulation">
+    <reapack name="Suzuki_Set last touched track or take FX (inside Container) parameter as a lead parameter for parameter link.lua" type="script" desc="Set last touched track or take FX (inside Container) parameter as a lead parameter for parameter link">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 Using v7.06+ API, run link action after this script\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2023-11-24T11:41:34Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/e96035ac7869a7f3754db30d149dd05f025076ac/Modulation/Suzuki_Set%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter%20as%20a%20lead%20parameter%20for%20parameter%20link.lua</source>
+      </version>
+    </reapack>
     <reapack name="Suzuki_Toggle enable disable audio control signal for last touched track or take FX parameter.lua" type="script" desc="Toggle enable/disable audio control signal for last touched track or take FX parameter">
       <version name="1.0" author="Suzuki" time="2023-11-13T00:18:33Z">
         <changelog><![CDATA[Initial Release]]></changelog>
@@ -49,6 +64,21 @@
       <version name="1.0" author="Suzuki" time="2023-11-13T00:18:07Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/0a52427f0cbd61554e63f3e23619bbdc97f88a90/Modulation/Suzuki_Toggle%20enable%20disable%20LFO%20for%20last%20touched%20track%20or%20take%20FX%20parameter.lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Toggle link last touched track or take FX (inside Container) parameter as a follower to the lead parameter.lua" type="script" desc="Toggle link last touched track or take FX (inside Container) parameter as a follower to the lead parameter">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 Using v7.06+ API, run set action before using this\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2023-11-24T11:41:34Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/e96035ac7869a7f3754db30d149dd05f025076ac/Modulation/Suzuki_Toggle%20link%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter%20as%20a%20follower%20to%20the%20lead%20parameter.lua</source>
       </version>
     </reapack>
     <reapack name="Suzuki_Toggle set midi CC link for last touched track or take FX parameter (user input).lua" type="script" desc="Toggle set midi CC link for last touched track or take FX parameter (user input)">
