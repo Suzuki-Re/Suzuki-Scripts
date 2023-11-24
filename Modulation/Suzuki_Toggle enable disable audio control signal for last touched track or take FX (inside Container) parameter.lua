@@ -1,13 +1,14 @@
--- @description Toggle enable/disable audio control signal for last touched track or take FX parameter
+-- @description Toggle enable/disable audio control signal for last touched track or take FX (inside Container) parameter
 -- @author Suzuki
 -- @license GPL v3
 -- @version 1.0
 -- @changelog Initial Release
+-- @about Using v7.0+ API
 
 local r = reaper
 
-local track = r.GetSelectedTrack2(0, 0, true)
 local retval, trackidx, itemidx, takeidx, fxidx, parm = r.GetTouchedOrFocusedFX(0)
+local track = r.CSurf_TrackFromID(trackidx + 1, false) -- 1 based
 
 if itemidx ~= -1 then
     local item = r.GetMediaItem(0, itemidx)
