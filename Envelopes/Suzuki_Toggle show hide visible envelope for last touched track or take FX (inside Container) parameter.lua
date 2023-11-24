@@ -1,9 +1,9 @@
 -- @description Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.1
--- @changelog Utilized API (v7.05+dev1113) for FX inside Container
--- @about Utilizing API (v7.06+) for FX inside Container. You can still use the scrpt for non-container FX before v7.06
+-- @version 1.2
+-- @changelog Changed the description
+-- @about Using v7.0+ API
 
 local r = reaper
 
