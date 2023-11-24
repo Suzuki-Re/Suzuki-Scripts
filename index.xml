@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="c91b44efdc568a35d489c2977f39e39936880ea7">
+<index version="1" name="Suzuki Scripts" commit="d9b2b2d334a3123096253926e849ed5d8ab3068a">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -7,7 +7,7 @@
 {\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
 \widowctrl\hyphauto
 
-{\pard \ql \f0 \sa180 \li0 \fi0 Utilizing API (v7.06+) for FX inside Container. You can still use the scrpt for non-container FX before v7.06\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Using v7.0+ API\par}
 }
 ]]></description>
       </metadata>
@@ -18,6 +18,10 @@
       <version name="1.1" author="Suzuki" time="2023-11-13T21:42:52Z">
         <changelog><![CDATA[Utilized API (v7.05+dev1113) for FX inside Container]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/d5d434b1f54a4265db5421a39fac4f27cfff6581/Envelopes/Suzuki_Toggle%20show%20hide%20visible%20envelope%20for%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter.lua</source>
+      </version>
+      <version name="1.2" author="Suzuki" time="2023-11-24T12:03:18Z">
+        <changelog><![CDATA[Changed the description]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/d9b2b2d334a3123096253926e849ed5d8ab3068a/Envelopes/Suzuki_Toggle%20show%20hide%20visible%20envelope%20for%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter.lua</source>
       </version>
     </reapack>
   </category>
