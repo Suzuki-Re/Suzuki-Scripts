@@ -1,8 +1,8 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.1.5
--- @changelog Added function to enhance a feature of FX Devices
+-- @version 1.1.6
+-- @changelog Added highlight to selected vertical bar which opens pads window
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
@@ -319,41 +319,22 @@ function Main()
     for i = 1, 8 do
       r.ImGui_SetCursorPos(ctx, 0, y + (i - 1) * 35 - button_offset)
       if r.ImGui_InvisibleButton(ctx, "B" .. i, 31, 31) then
-        if not LAST_MENU then
-          VUI_VISIBLE = true
-        end
-        if LAST_MENU == i then
-          VUI_VISIBLE = not VUI_VISIBLE
-        else
-          if not VUI_VISIBLE then
-            VUI_VISIBLE = true
-          end
-        end
-        LAST_MENU = i
+        LAST_MENU = toggle2 (LAST_MENU, i)
+      end
+      HighlightHvredItem()
+      if LAST_MENU == i then 
+        Highlight_Itm(f_draw_list, 0x12345655, 0x184673ff)
       end
     end
     r.ImGui_EndChild(ctx)
   end
-  if VUI_VISIBLE then       -- Open pads manu
+  local openpad 
+    if LAST_MENU then       -- Open pads manu
     r.ImGui_SetCursorPos(ctx, x + w_closed, y)
     if r.ImGui_BeginChild(ctx, "child_menu", w_open + 250, h + 88) then
-      if LAST_MENU == 1 then
-        DrawPads(113, 128)
-      elseif LAST_MENU == 2 then
-        DrawPads(97, 112)
-      elseif LAST_MENU == 3 then
-        DrawPads(81, 96)
-      elseif LAST_MENU == 4 then
-        DrawPads(65, 80)
-      elseif LAST_MENU == 5 then
-        DrawPads(49, 64)
-      elseif LAST_MENU == 6 then
-        DrawPads(33, 48)
-      elseif LAST_MENU == 7 then
-        DrawPads(17, 32)
-      elseif LAST_MENU == 8 then
-        DrawPads(1, 16)
-      end
+      local high = 128 - 16 * (LAST_MENU - 1 )
+      local low = 128 - 16 * (LAST_MENU) + 1
+      openpad = DrawPads(low, high)
       r.ImGui_EndChild(ctx)
     end
   end

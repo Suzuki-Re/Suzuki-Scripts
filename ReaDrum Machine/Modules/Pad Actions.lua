@@ -31,7 +31,7 @@ function ClearPad(a, pad_num)
     r.SetTrackMIDINoteNameEx(0, track, notenum, 0, "")                   -- remove note name
     r.TrackFX_Delete(track, clear_pad)
     Pad[a] = nil
-  end
+end
 
 function ClickPadActions(a)
     -- if not r.ImGui_IsItemHovered(ctx) then return end

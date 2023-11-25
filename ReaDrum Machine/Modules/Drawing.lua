@@ -52,3 +52,30 @@ function ColorToHex(color, amt)
   red = adjustBrightness(red, amt)
   return (alpha) | (blue << 8) | (green << 16) | (red << 24)
 end
+
+function toggle2(a, b)
+  if a == b then return nil else return b end 
+end
+
+function HighlightHvredItem()
+  local DL = r.ImGui_GetForegroundDrawList(ctx)
+  L, T = r.ImGui_GetItemRectMin(ctx)
+  R, B = r.ImGui_GetItemRectMax(ctx)
+  if r.ImGui_IsMouseHoveringRect(ctx, L, T, R, B) then
+      r.ImGui_DrawList_AddRect(DL, L, T, R, B, 0x99999999)
+      r.ImGui_DrawList_AddRectFilled(DL, L, T, R, B, 0x99999933)
+      if IsLBtnClicked then
+          r.ImGui_DrawList_AddRect(DL, L, T, R, B, 0x999999dd)
+          r.ImGui_DrawList_AddRectFilled(DL, L, T, R, B, 0xffffff66)
+          return true
+      end
+  end
+end
+
+function Highlight_Itm(drawlist, FillClr, OutlineClr)
+  local L, T = r.ImGui_GetItemRectMin(ctx);
+  local R, B = r.ImGui_GetItemRectMax(ctx);
+  
+  if FillClr then r.ImGui_DrawList_AddRectFilled(drawlist, L, T, R, B, FillClr, rounding) end
+  if OutlineClr then r.ImGui_DrawList_AddRect(drawlist, L, T, R, B, OutlineClr, rounding) end
+end
