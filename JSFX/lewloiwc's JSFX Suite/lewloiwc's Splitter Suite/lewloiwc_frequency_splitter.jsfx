@@ -1,0 +1,794 @@
+NoIndex: true
+desc:Frequency Splitter (lewloiwc)
+tags: Frequency Splitter
+version: 1.0.0
+author: lewloiwc
+changelog: Initial Release
+License: CC0
+about:
+  # Linkwitz-Riley (Minimum Phase)
+  Linkwitz-Riley has a consistent band-by-band frequency response and does not peak or dip when summed, but does cause phase rotation at the crossover point when created with Minimum Phase.
+  Most vst frequency splitters probably use this method.
+  [12 dB/oct](https://i.imgur.com/bh3NGly.png), [24 dB/oct](https://i.imgur.com/IAdX651.png), [36 dB/oct](https://i.imgur.com/XdL569r.png), and [48 dB/oct](https://i.imgur.com/1Zv21an.png).
+  Different slopes can be set for each crossover point, for example [12 dB/oct and 36 dB/oct](https://i.imgur.com/3LkoJlo.png).
+  # Linkwitz-Riley (Linear Phase)
+  Linkwitz-Riley (Linear Phase) has no phase rotation and can be set to any dB/oct that is not in 12 increments, but it does have pre ringing and latency.
+  I have not verified this, but the Linear Phase on the FabFilter Pro-MB probably uses this method. [Screenshot](https://i.imgur.com/ysAJq9D.png)
+  # Butterworth (Minimum Phase)
+  Butterworth has a crossover point of -3 dB. This causes it to behave a little differently than Linkwitz-Riley.
+  [6 dB/oct](https://i.imgur.com/PNpufua.png), [18 dB/oct](https://i.imgur.com/377olVl.png), [30 dB/oct](https://i.imgur.com/4X59dkD.png), and [42 dB/oct](https://i.imgur.com/Cuu9HOl.png).
+  This can also be set to a different slope for each crossover point, for example [6 dB/oct and 30 dB/oct](https://i.imgur.com/7HauoZ8.png).
+  # Sinc Splitter (Linear Phase)
+  Sinc (Linear Phase) is the frequency splitter with the sharpest slope. The shape of the slope varies considerably depending on the frequency of the crossover point, the IR Length, and the Window used. Since this is a Linear Phase, pre ringing and latency will occur.
+  [Screenshot](https://i.imgur.com/eZGw1vS.png)
+  # ReaX
+  [Screenshot1](https://i.imgur.com/JuSNjiT.png)
+  Red is ReaXcomp and light blue is ReaX with the gain of each band from init set to [Band 1: -5 dB] [Band 2: -20 dB] [Band 3: -15 dB] [Band 4: -25 dB], as you can see they match.
+  The features of this method are that there is no phase rotation when the gains of all bands are the same, the computational load is small even if the number of bands is increased, the shape of the segmentation is not consistent, and changing the gain of each band will result in a strange frequency response when summed.
+  Perhaps this method is called Parallel Equalizer, which does the same thing as [this video](https://www.youtube.com/watch?v=xDlZjmxWChM).
+  [Screenshot2](https://i.imgur.com/mOmB3at.png)
+  The red lines are the respective divided bands, the light blue line is the summed result, the blue line is the 12 dB/oct slope, and the green line is the 6 dB/oct slope.
+  It looks like the HPF slope is 6 dB/oct and the LPF slope is 12 dB/oct. At the time of division, the frequency response exceeds 0 dB, but when summed, it flattens out nicely.
+  [Screenshot3](https://i.imgur.com/nRJlXYd.png)
+  The red line is the frequency response of each band, and the light blue line is the summed result.
+  The dip occurs around 3 kHz.
+  # Inflator
+  [This](https://i.imgur.com/tPc1dXu.png) is the Band Split method used by Oxford Inflator. The slope is 6 dB/oct, and as with ReaX, no phase rotation occurs when all bands have the same gain.
+  # StudioRack's (Waves)
+  StudioRack's (Waves) MultiBand Split uses a slightly different filter that is neither a Butterworth filter nor a Linkwitz-Riley filter.
+
+slider1:mode_slider=0<0,6,1{[N Band] Linkwitz-Riley (Minimum Phase),[N Band] Linkwitz-Riley (Linear Phase),[N Band] Butterworth (Minimum Phase),[N Band] Sinc (Linear Phase),[N Band] ReaX,[3 Band] Inflator,[N Band] StudioRack (Waves)}>Mode
+slider2:band_slider=0<0,2,1{2,3,4}>Band
+
+slider11:frequency_1_slider=100<20,20000,0.01:log>Frequency 1 (Hz)
+slider12:slope_1_slider=12<0.1,120,0.1:log=12>Slope 1 (dB/oct)
+
+slider21:frequency_2_slider=1000<20,20000,0.01:log>Frequency 2 (Hz)
+slider22:slope_2_slider=12<0.1,120,0.1:log=12>Slope 2 (dB/oct)
+
+slider31:frequency_3_slider=5000<20,20000,0.01:log>Frequency 3 (Hz)
+slider32:slope_3_slider=12<0.1,120,0.1:log=12>Slope 3 (dB/oct)
+
+slider51:len_slider=100<0,500,0.01>IR Length (ms)
+
+in_pin:Input L
+in_pin:Input R
+out_pin:Output 1 L
+out_pin:Output 1 R
+out_pin:Output 2 L
+out_pin:Output 2 R
+out_pin:Output 3 L
+out_pin:Output 3 R
+out_pin:Output 4 L
+out_pin:Output 4 R
+
+import more_math_functions.jsfx-inc
+import more_graphics.jsfx-inc
+
+
+
+@init //----------------------------------------------------------------
+
+ext_nodenorm = 1;
+
+//Linkwitz-Riley (Minimum Phase)
+    function LR_LOW(x,freq,slope)
+    (
+        //LR12
+            slope === 12 ? (
+                x = this.SVFlow(x,freq,0.5);
+            ) :
+        //LR24
+            slope === 24 ? (
+                x = this.1.SVFlow(x,freq,LR24Q);
+                x = this.2.SVFlow(x,freq,LR24Q);
+            ) :
+        //LR36
+            slope === 36 ? (
+                x = this.1.SVFlow(x,freq,1);
+                x = this.2.SVFlow(x,freq,1);
+                x = this.3.SVFlow(x,freq,0.5);
+            ) :
+        //LR48
+            slope === 48 ? (
+                x = this.1.SVFlow(x,freq,LR48Q1);
+                x = this.2.SVFlow(x,freq,LR48Q2);
+                x = this.3.SVFlow(x,freq,LR48Q1);
+                x = this.4.SVFlow(x,freq,LR48Q2);
+            );
+    );
+    
+    function LR_HIG(x,freq,slope)
+    (
+        //LR12
+            slope === 12 ? (
+                x = this.SVFhigh(-x,freq,0.5);
+            ) :
+        //LR24
+            slope === 24 ? (
+                x = this.1.SVFhigh(x,freq,LR24Q);
+                x = this.2.SVFhigh(x,freq,LR24Q);
+            ) :
+        //LR36
+            slope === 36 ? (
+                x = this.1.SVFhigh(-x,freq,1);
+                x = this.2.SVFhigh(x,freq,1);
+                x = this.3.SVFhigh(x,freq,0.5);
+            ) :
+        //LR48
+            slope === 48 ? (
+                x = this.1.SVFhigh(x,freq,LR48Q1);
+                x = this.2.SVFhigh(x,freq,LR48Q2);
+                x = this.3.SVFhigh(x,freq,LR48Q1);
+                x = this.4.SVFhigh(x,freq,LR48Q2);
+            );
+    );
+    
+    function LR_ALL(x,freq,slope)
+    (
+        //for 12 (BW6)
+            slope === 12 ? (
+                x = this.SVFOPapf_temp(-x,freq);
+            ) :
+        //for 24 (BW12)
+            slope === 24 ? (
+                x = this.SVFall(x,freq,LR24Q);
+            ) :
+        //for 36 (BW18)
+            slope === 36 ? (
+                x = this.SVFall(-x,freq,1);
+                x = this.SVFOPapf_temp(x,freq);
+            ) :
+        //for 48 (BW24)
+            slope === 48 ? (
+                x = this.1.SVFall(x,freq,LR48Q1);
+                x = this.2.SVFall(x,freq,LR48Q2);
+            );
+    );
+    
+    function LR_MP(x)
+    (
+        //1
+            band_slider >= 0 ? this.1 = this.1_1.LR_LOW(x     ,frequency_1_slider,slope_1_slider);
+            band_slider >= 1 ? this.1 = this.1_2.LR_LOW(this.1,frequency_2_slider,slope_2_slider);
+            band_slider >= 2 ? this.1 = this.1_3.LR_LOW(this.1,frequency_3_slider,slope_3_slider);
+        //2
+            band_slider >= 0 ? this.2 = this.2_1.LR_HIG(x     ,frequency_1_slider,slope_1_slider);
+            band_slider >= 1 ? this.2 = this.2_2.LR_LOW(this.2,frequency_2_slider,slope_2_slider);
+            band_slider >= 2 ? this.2 = this.2_3.LR_LOW(this.2,frequency_3_slider,slope_3_slider);
+        //3
+            band_slider >= 1 ? this.3 = this.3_1.LR_ALL(x     ,frequency_1_slider,slope_1_slider);
+            band_slider >= 1 ? this.3 = this.3_2.LR_HIG(this.3,frequency_2_slider,slope_2_slider);
+            band_slider >= 2 ? this.3 = this.3_3.LR_LOW(this.3,frequency_3_slider,slope_3_slider);
+        //4
+            band_slider >= 2 ? this.4 = this.4_1.LR_ALL(x     ,frequency_1_slider,slope_1_slider);
+            band_slider >= 2 ? this.4 = this.4_2.LR_ALL(this.4,frequency_2_slider,slope_2_slider);
+            band_slider >= 2 ? this.4 = this.4_3.LR_HIG(this.4,frequency_3_slider,slope_3_slider);
+    );
+
+//Butterworth (Minimum Phase)
+    function BW_LOW(x,freq,slope)
+    (
+        //BW6
+            slope === 6 ? (
+                x = this.SVFOPlpf_temp(x,freq);
+            ) :
+        //BW18
+            slope === 18 ? (
+                x = this.1.SVFlow(x,freq,1);
+                x = this.2.SVFOPlpf_temp(x,freq);
+            ) :
+        //BW30
+            slope === 30 ? (
+                x = this.1.SVFlow(x,freq,BW30Q1);
+                x = this.2.SVFlow(x,freq,BW30Q2);
+                x = this.3.SVFOPlpf_temp(x,freq);
+            ) :
+        //BW42
+            slope === 42 ? (
+                x = this.1.SVFlow(x,freq,BW42Q1);
+                x = this.2.SVFlow(x,freq,BW42Q2);
+                x = this.3.SVFlow(x,freq,BW42Q3);
+                x = this.4.SVFOPlpf_temp(x,freq);
+            );
+    );
+    
+    function BW_HIG(x,freq,slope)
+    (
+        //BW6
+            slope === 6 ? (
+                x = this.SVFOPhpf_temp(x,freq);
+            ) :
+        //BW18
+            slope === 18 ? (
+                x = this.1.SVFhigh(x,freq,1);
+                x = this.2.SVFOPhpf_temp(x,freq);
+            ) :
+        //BW30
+            slope === 30 ? (
+                x = this.1.SVFhigh(x,freq,BW30Q1);
+                x = this.2.SVFhigh(x,freq,BW30Q2);
+                x = this.3.SVFOPhpf_temp(x,freq);
+            ) :
+        //BW42
+            slope === 42 ? (
+                x = this.1.SVFhigh(x,freq,BW42Q1);
+                x = this.2.SVFhigh(x,freq,BW42Q2);
+                x = this.3.SVFhigh(x,freq,BW42Q3);
+                x = this.4.SVFOPhpf_temp(x,freq);
+            );
+    );
+    
+    function BW_ALL(x,freq,slope)
+    (
+        //for 6
+            slope === 6 ? (
+                x = x;
+            ) :
+        //for 18
+            slope === 18 ? (
+                x = this.SVFall(x,freq,1);
+            ) :
+        //for 30
+            slope === 30 ? (
+                x = this.SVFall(x,freq,BW30AQ);
+            ) :
+        //for 42
+            slope === 42 ? (
+                x = this.1.SVFall(x,freq,BW42AQ1);
+                x = this.2.SVFall(x,freq,BW42AQ2);
+            );
+    );
+    
+    function BW_MP(x)
+    (
+        //1
+            band_slider >= 0 ? this.1 = this.1_1.BW_LOW(x     ,frequency_1_slider,slope_1_slider);
+            band_slider >= 1 ? this.1 = this.1_2.BW_LOW(this.1,frequency_2_slider,slope_2_slider);
+            band_slider >= 2 ? this.1 = this.1_3.BW_LOW(this.1,frequency_3_slider,slope_3_slider);
+        //2
+            band_slider >= 0 ? this.2 = this.2_1.BW_HIG(x     ,frequency_1_slider,slope_1_slider);
+            band_slider >= 1 ? this.2 = this.2_2.BW_LOW(this.2,frequency_2_slider,slope_2_slider);
+            band_slider >= 2 ? this.2 = this.2_3.BW_LOW(this.2,frequency_3_slider,slope_3_slider);
+        //3
+            band_slider >= 1 ? this.3 = this.3_1.BW_ALL(x     ,frequency_1_slider,slope_1_slider);
+            band_slider >= 1 ? this.3 = this.3_2.BW_HIG(this.3,frequency_2_slider,slope_2_slider);
+            band_slider >= 2 ? this.3 = this.3_3.BW_LOW(this.3,frequency_3_slider,slope_3_slider);
+        //4
+            band_slider >= 2 ? this.4 = this.4_1.BW_ALL(x     ,frequency_1_slider,slope_1_slider);
+            band_slider >= 2 ? this.4 = this.4_2.BW_ALL(this.4,frequency_2_slider,slope_2_slider);
+            band_slider >= 2 ? this.4 = this.4_3.BW_HIG(this.4,frequency_3_slider,slope_3_slider);
+    );
+
+//LP
+    //https://www.desmos.com/calculator/nknvpcqfcm
+    //dB_octが+のときはLPで-のときはHPになる
+    function CONVOLTION_freqresp_LR(x,cutoff,dB_oct)
+    (
+        1/(1 + (x/cutoff)^(dB_oct/6));
+    );
+    
+    //InputSize = 1024の場合　Inputは513個必要
+    function CONVOLTION_freqresp_to_kernel(Input,InputSize,Output,OutputSize,KernelSize,Window)
+    local(i)
+    (
+        fft_ipermute(Input,InputSize/2);
+        ifft_real(Input,InputSize);
+        memset(Output,0,OutputSize*2);
+        i = 0;
+        loop(KernelSize,
+            Output[i*2] = Input[(i + InputSize - floor(KernelSize*0.5))%InputSize]/(OutputSize*InputSize);
+            Output[i*2] *= -cos(2*$pi*i/(KernelSize - 1))*0.5 + 0.5;//Apply Hann Window
+            i += 1;
+        );
+        fft(Output,OutputSize);
+    );
+    
+    function CONVOLTION_set(kernel,ws,size)
+    (
+        this.ws0 = kernel;
+        this.ws2 = ws;
+        this.ws3 = size + ws;
+        this.ws4 = 65536 + ws;
+        this.size = size;
+    );
+    
+    function CONVOLTION2(x0,x1)
+    (
+        this.ws3[this.cnt] = x0;
+        this.ws3[this.cnt + 1] = x1;
+        (this.cnt += 2) >= this.size ? (
+            memcpy    (this.ws4, this.ws3, this.size);//copy b3 -> b4 //b4 ni hinan
+            fft       (this.ws2,           this.size);//fft  b2~b3
+            convolve_c(this.ws2, this.ws0, this.size);//conv b2 = b0*b2
+            ifft      (this.ws2,           this.size);//ifft b2
+            memcpy    (this.ws2, this.ws4, this.size);//copy b4 -> b2 
+            this.cnt = 0;
+        );
+        this.y0 = this.ws3[this.cnt];
+        this.y1 = this.ws3[this.cnt + 1];
+    );
+
+//ReaX
+    function ReaX(x)
+    (
+        this.1 = this.1.SVFlow(x,frequency_1_slider,1);
+        band_slider === 0 ? (
+            this.2 = x - this.1;
+        ) :
+        band_slider === 1 ? (
+            this.2 = this.2.SVFlow(x - this.1,frequency_2_slider,1);
+            this.3 = x - this.1 - this.2;
+        ) :
+        band_slider === 2 ? (
+            this.2 = this.2.SVFlow(x - this.1,frequency_2_slider,1);
+            this.3 = this.3.SVFlow(x - this.1 - this.2,frequency_3_slider,1);
+            this.4 = x - this.1 - this.2 - this.3;
+        );
+    );
+
+//Inflator Band Split
+    function inflator_band_split_set(xA,xB)
+    (
+        //Low
+            this.A.SVFOP_set(xA);
+        //High
+            this.B.SVFOP_set(xB);
+    );
+    
+    function inflator_band_split(x)
+    (
+        //Low
+            this.1 = this.A.SVFOPlpf(x);
+        //High
+            this.3 = this.B.SVFOPhpf(x);
+        //Mid
+            this.2 = (x - this.1 - this.3);
+    );
+
+//StudioRack (Waves)
+    function studiorack_waves(x)
+    (
+        //2
+            band_slider === 0 ? (
+                this.1 = this.1_1.SVFlow(x,frequency_1,SR_Q1);
+                this.1 = this.1_2.SVFlow(this.1,frequency_1,SR_Q1);
+                
+                this.a1 = this.a1.SVFall(x,frequency_1,SR_Q1);
+                
+                this.2 = this.a1 - this.1;
+            ) :
+        //3
+            band_slider === 1 ? (
+                this.1 = this.1_1.SVFlow(x,frequency_1,SR_Q1);
+                this.1 = this.1_2.SVFlow(this.1,frequency_1,SR_Q1);
+                
+                this.a1 = this.a1.SVFall(x,frequency_1,SR_Q1);
+                
+                this.2 = this.a1 - this.1;
+                
+                
+                
+                this.1 = this.2_1.SVFlow(this.1,frequency_2,SR_Q2);
+                this.1 = this.2_2.SVFlow(this.1,frequency_2,SR_Q2);
+                
+                this.2 = this.3_1.SVFlow(this.2,frequency_2,SR_Q2);
+                this.2 = this.3_2.SVFlow(this.2,frequency_2,SR_Q2);
+                
+                this.a2 = this.a2.SVFall(this.a1,frequency_2,SR_Q2);
+                
+                this.3 = this.a2 - (this.1 + this.2);
+            ) :
+        //4
+            band_slider === 2 ? (
+                this.a1 = this.a1.SVFall(x,frequency_1,SR_Q1);
+                this.a2 = this.a2.SVFall(this.a1,frequency_2,SR_Q2);
+                this.a3 = this.a3.SVFall(this.a2,frequency_3,SR_Q3);
+                
+                this.1 = this.1_1.SVFlow(x,frequency_1,SR_Q1);
+                this.1 = this.1_2.SVFlow(this.1,frequency_1,SR_Q1);
+                this.1 = this.1_3.SVFlow(this.1,frequency_2,SR_Q2);
+                this.1 = this.1_4.SVFlow(this.1,frequency_2,SR_Q2);
+                this.1 = this.1_5.SVFlow(this.1,frequency_3,SR_Q3);
+                this.1 = this.1_6.SVFlow(this.1,frequency_3,SR_Q3);
+                
+                this.2 = this.2_1.SVFlow(x,frequency_1,SR_Q1);
+                this.2 = this.2_2.SVFlow(this.2,frequency_1,SR_Q1);
+                this.2 = this.a1 - this.2;
+                this.2 = this.2_3.SVFlow(this.2,frequency_2,SR_Q2);
+                this.2 = this.2_4.SVFlow(this.2,frequency_2,SR_Q2);
+                this.2 = this.2_5.SVFlow(this.2,frequency_3,SR_Q3);
+                this.2 = this.2_6.SVFlow(this.2,frequency_3,SR_Q3);
+                
+                this.3 = this.3_1.SVFlow(this.a1,frequency_2,SR_Q2);
+                this.3 = this.3_2.SVFlow(this.3,frequency_2,SR_Q2);
+                this.3 = this.a2 - this.3;
+                this.3 = this.3_3.SVFlow(this.3,frequency_3,SR_Q3);
+                this.3 = this.3_4.SVFlow(this.3,frequency_3,SR_Q3);
+                
+                this.4 = this.4_1.SVFlow(this.a2,frequency_3,SR_Q3);
+                this.4 = this.4_2.SVFlow(this.4,frequency_3,SR_Q3);
+                this.4 = this.a3 - this.4;
+                
+                
+                
+                /*this.a1 = this.a1.SVFall(x,frequency_1,SR_Q1);
+                this.a2 = this.a2.SVFall(this.a1,frequency_2,SR_Q2);
+                this.a3 = this.a3.SVFall(this.a2,frequency_3,SR_Q3);
+                
+                this.1 = this.1_1.SVFlow(x,frequency_1,SR_Q1);
+                this.1 = this.1_2.SVFlow(this.1,frequency_1,SR_Q1);
+                this.1 = this.1_3.SVFlow(this.1,frequency_2,SR_Q2);
+                this.1 = this.1_4.SVFlow(this.1,frequency_2,SR_Q2);
+                this.1 = this.1_5.SVFlow(this.1,frequency_3,SR_Q3);
+                this.1 = this.1_6.SVFlow(this.1,frequency_3,SR_Q3);
+                
+                this.2 = this.2_1.SVFlow(x,frequency_1,SR_Q1);
+                this.2 = this.2_2.SVFlow(this.2,frequency_1,SR_Q1);
+                this.2 = this.a1 - this.2;
+                this.2 = this.2_3.SVFlow(this.2,frequency_2,SR_Q2);
+                this.2 = this.2_4.SVFlow(this.2,frequency_2,SR_Q2);
+                this.2 = this.2_5.SVFall(this.2,frequency_3,SR_Q3);
+                
+                this.3 = this.3_1.SVFlow(this.a1,frequency_2,SR_Q2);
+                this.3 = this.3_2.SVFlow(this.3,frequency_2,SR_Q2);
+                this.3 = this.a2 - this.3;
+                this.3 = this.3_3.SVFlow(this.3,frequency_3,SR_Q3);
+                this.3 = this.3_4.SVFlow(this.3,frequency_3,SR_Q3);
+                
+                this.4 = this.a3 - (this.1 + this.2 + this.3);*/
+            );
+    );
+
+function slope(x)
+(
+    mode_slider === 0 ? (
+        x < 18 ? 12 :
+        x < 30 ? 24 :
+        x < 42 ? 36 :
+        48;
+    ) :
+    mode_slider === 2 ? (
+        x < 12 ? 6 :
+        x < 24 ? 18 :
+        x < 36 ? 30 :
+        42;
+    ) :
+    x;
+);
+
+//for LR
+    LR24Q = sqrt(0.5);
+    LR48Q1 = 0.5/cos($pi/8*1);
+    LR48Q2 = 0.5/cos($pi/8*3);
+
+//for BW
+    BW30Q1 = 0.5/cos($pi/10*2);
+    BW30Q2 = 0.5/cos($pi/10*4);
+    
+    BW42Q1 = 0.5/cos($pi/14*2);
+    BW42Q2 = 0.5/cos($pi/14*4);
+    BW42Q3 = 0.5/cos($pi/14*6);
+    
+    BW30AQ = 0.5/cos($pi/10*2);
+    
+    BW42AQ1 = 0.5/cos($pi/14*2);
+    BW42AQ2 = 0.5/cos($pi/14*6);
+
+
+
+@slider //----------------------------------------------------------------
+
+//基本のpdc設定 (LPじゃないやつに一個ずつpdc0を設定するのを回避するため)
+    pdc_delay = 0;
+    pdc_bot_ch = 0;
+    pdc_top_ch = 7 + 1;
+
+//slider_show
+    //スロープが調整できるかどうか
+        slider_show_slope =
+            mode_slider === 0 ||
+            mode_slider === 1 ||
+            mode_slider === 2;
+    //バンド数を変えられるかどうか
+        slider_show_band =
+            mode_slider === 0 ||
+            mode_slider === 1 ||
+            mode_slider === 2 ||
+            mode_slider === 3 ||
+            mode_slider === 4 ||
+            mode_slider === 6;
+    //選択したバンド数に応じたsliderを表示
+        slider_show_band2 = band_slider >= 1 && slider_show_band;
+        slider_show_band3 = band_slider >= 2 && slider_show_band;
+    //Inflatorの場合
+        mode_slider === 5 ? slider_show_band2 = 1;
+        mode_slider === 5 ? slider_show_band3 = 0;
+    //Linear Phase専用パラメーター
+        slider_show_LP =
+            mode_slider === 1 ||
+            mode_slider === 3;
+    
+    slider_show(mode_slider,1);
+    slider_show(band_slider,slider_show_band);
+    
+    slider_show(frequency_1_slider,1);
+    slider_show(slope_1_slider,slider_show_slope);
+    
+    slider_show(frequency_2_slider,slider_show_band2);
+    slider_show(slope_2_slider,slider_show_slope && slider_show_band2);
+    
+    slider_show(frequency_3_slider,slider_show_band3);
+    slider_show(slope_3_slider,slider_show_slope && slider_show_band3);
+    
+    slider_show(len_slider,slider_show_LP);
+
+//slope round
+    slope_1_slider = slope(slope_1_slider);
+    slope_2_slider = slope(slope_2_slider);
+    slope_3_slider = slope(slope_3_slider);
+
+//
+    //Linkwitz-Riley (Minimum Phase)
+        mode_slider === 0 ? (
+            0;
+        ) :
+    //Linkwitz-Riley (Linear Phase) / Sinc (Linear Phase) (1000000 dB/oct Linkwitz-Riley)
+        mode_slider === 1 || mode_slider === 3 ? (
+            //var
+                FreqRespSize = 32768;
+                //mem
+                    tempFreqResp = 0;
+                    Kernel1 = 65536*1;
+                    Kernel2 = 65536*2;
+                    Kernel3 = 65536*3;
+                    ConvWorkspace1 = 65536*4;
+                    ConvWorkspace2 = 65536*6;
+                    ConvWorkspace3 = 65536*8;
+                    delaymem = 65536*10;
+                //slider
+                    kernel_size = clamp(ef(srate*0.001*len_slider),5,2^14 - 1);
+                    size = 2^(ceil(log2(kernel_size)) + 1);
+            
+            //make kernel
+                //Band 1
+                    band_slider >= 0 ? (
+                        memset(tempFreqResp,0,FreqRespSize);
+                        i = 0;
+                        loop(FreqRespSize/2 + 1,//[0]:DC ~ [FreqRespSize/2 - 1]:ナイキスト一個前 + [1]:Nyquist
+                            band_slider >= 0 ? tempFreqResp[i === FreqRespSize/2 ? 1 : i*2]  = CONVOLTION_freqresp_LR(srate/FreqRespSize*i,frequency_1_slider,mode_slider === 3 ? 1000000 : slope_1_slider);
+                            band_slider >= 1 ? tempFreqResp[i === FreqRespSize/2 ? 1 : i*2] *= CONVOLTION_freqresp_LR(srate/FreqRespSize*i,frequency_2_slider,mode_slider === 3 ? 1000000 : slope_2_slider);
+                            band_slider >= 2 ? tempFreqResp[i === FreqRespSize/2 ? 1 : i*2] *= CONVOLTION_freqresp_LR(srate/FreqRespSize*i,frequency_3_slider,mode_slider === 3 ? 1000000 : slope_3_slider);
+                            i += 1;
+                        );
+                        CONVOLTION_freqresp_to_kernel(tempFreqResp,FreqRespSize,Kernel1,size,kernel_size,win_slider);
+                        conv1.CONVOLTION_set(Kernel1,ConvWorkspace1,size);
+                    );
+                //Band 2
+                    band_slider >= 1 ? (
+                        memset(tempFreqResp,0,FreqRespSize);
+                        i = 0;
+                        loop(FreqRespSize/2 + 1,//[0]:DC ~ [FreqRespSize/2 - 1]:ナイキスト一個前 + [1]:Nyquist
+                            band_slider >= 0 ? tempFreqResp[i === FreqRespSize/2 ? 1 : i*2]  = CONVOLTION_freqresp_LR(srate/FreqRespSize*i,frequency_1_slider,mode_slider === 3 ? -1000000 : -slope_1_slider);
+                            band_slider >= 1 ? tempFreqResp[i === FreqRespSize/2 ? 1 : i*2] *= CONVOLTION_freqresp_LR(srate/FreqRespSize*i,frequency_2_slider,mode_slider === 3 ? 1000000 : slope_2_slider);
+                            band_slider >= 2 ? tempFreqResp[i === FreqRespSize/2 ? 1 : i*2] *= CONVOLTION_freqresp_LR(srate/FreqRespSize*i,frequency_3_slider,mode_slider === 3 ? 1000000 : slope_3_slider);
+                            i += 1;
+                        );
+                        CONVOLTION_freqresp_to_kernel(tempFreqResp,FreqRespSize,Kernel2,size,kernel_size,win_slider);
+                        conv2.CONVOLTION_set(Kernel2,ConvWorkspace2,size);
+                    );
+                //Band 3
+                    band_slider >= 2 ? (
+                        memset(tempFreqResp,0,FreqRespSize);
+                        i = 0;
+                        loop(FreqRespSize/2 + 1,//[0]:DC ~ [FreqRespSize/2 - 1]:ナイキスト一個前 + [1]:Nyquist
+                          //band_slider >= 0 ? tempFreqResp[i === FreqRespSize/2 ? 1 : i*2]  = CONVOLTION_freqresp_LR(srate/FreqRespSize*i,frequency_1_slider,mode_slider === 3 ? -1000000 : -slope_1_slider);
+                            band_slider >= 1 ? tempFreqResp[i === FreqRespSize/2 ? 1 : i*2]  = CONVOLTION_freqresp_LR(srate/FreqRespSize*i,frequency_2_slider,mode_slider === 3 ? -1000000 : -slope_2_slider);
+                            band_slider >= 2 ? tempFreqResp[i === FreqRespSize/2 ? 1 : i*2] *= CONVOLTION_freqresp_LR(srate/FreqRespSize*i,frequency_3_slider,mode_slider === 3 ? 1000000 : slope_3_slider);
+                            i += 1;
+                        );
+                        CONVOLTION_freqresp_to_kernel(tempFreqResp,FreqRespSize,Kernel3,size,kernel_size,win_slider);
+                        conv3.CONVOLTION_set(Kernel3,ConvWorkspace3,size);
+                    );
+            
+            //pdc
+                pdc_delay = size/2 - 1 + (kernel_size - 1)/2;
+                pdc_bot_ch = 0;
+                pdc_top_ch = 7 + 1;
+        ) :
+    //Butterworth (Minimum Phase)
+        mode_slider === 2 ? (
+            0;
+        ) :
+    //ReaX
+        mode_slider === 4 ? (
+            0;
+        ) :
+    //Inflator
+        mode_slider === 5 ? (
+            spl0.inflator_band_split_set(frequency_1_slider,frequency_2_slider);
+            spl1.inflator_band_split_set(frequency_1_slider,frequency_2_slider);
+        ) :
+    //StudioRack (Waves)
+        mode_slider === 6 ? (
+            frequency_1 = min(frequency_1_slider,18000)*1.1837;
+            frequency_2 = min(frequency_2_slider,18000)*1.1837;
+            frequency_3 = min(frequency_3_slider,18000)*1.1837;
+            SR_Q1 = 0.61;
+            //SR_Q2 = 0.568;
+            SR_Q2 = 0.61;
+            SR_Q3 = 0.61;
+        ) :
+        0;
+
+//clear band (最後にx.1~x.4をまとめて出力するようにしてるから　使わないbandはここで0を入れておく)
+    spl0.1 = 0;
+    spl1.1 = 0;
+    spl0.2 = 0;
+    spl1.2 = 0;
+    spl0.3 = 0;
+    spl1.3 = 0;
+    spl0.4 = 0;
+    spl1.4 = 0;
+
+
+
+@sample //----------------------------------------------------------------
+
+//proc
+//Linkwitz-Riley (Minimum Phase)
+    mode_slider === 0 ? (
+        spl0.LR_MP(spl0);
+        spl1.LR_MP(spl1);
+    ) :
+//Linkwitz-Riley (Linear Phase) / Sinc (Linear Phase) (1000000 dB/oct Linkwitz-Riley)
+    mode_slider === 1 || mode_slider === 3 ? (
+        band_slider >= 0 ? conv1.CONVOLTION2(spl0,spl1);
+        band_slider >= 1 ? conv2.CONVOLTION2(spl0,spl1);
+        band_slider >= 2 ? conv3.CONVOLTION2(spl0,spl1);
+        splDry.delay2(spl0,spl1,delaymem,pdc_delay);
+        
+        spl0.1 = conv1.y0;
+        spl1.1 = conv1.y1;
+        band_slider === 0 ? (
+            spl0.2 = splDry.delay0 - conv1.y0;
+            spl1.2 = splDry.delay1 - conv1.y1;
+        ) :
+        band_slider === 1 ? (
+            spl0.2 = conv2.y0;
+            spl1.2 = conv2.y1;
+            spl0.3 = splDry.delay0 - (conv1.y0 + conv2.y0);
+            spl1.3 = splDry.delay1 - (conv1.y1 + conv2.y1);
+        ) :
+        band_slider === 2 ? (
+            spl0.2 = conv2.y0;
+            spl1.2 = conv2.y1;
+            spl0.3 = conv3.y0;
+            spl1.3 = conv3.y1;
+            spl0.4 = splDry.delay0 - (conv1.y0 + conv2.y0 + conv3.y0);
+            spl1.4 = splDry.delay1 - (conv1.y1 + conv2.y1 + conv3.y1);
+        );
+    ) :
+//Butterworth (Minimum Phase)
+    mode_slider === 2 ? (
+        spl0.BW_MP(spl0);
+        spl1.BW_MP(spl1);
+    ) :
+//ReaX
+    mode_slider === 4 ? (
+        spl0.ReaX(spl0);
+        spl1.ReaX(spl1);
+    ) :
+//Inflator
+    mode_slider === 5 ? (
+        spl0.inflator_band_split(spl0);
+        spl1.inflator_band_split(spl1);
+    ) :
+//StudioRack (Waves)
+    mode_slider === 6 ? (
+        spl0.studiorack_waves(spl0);
+        spl1.studiorack_waves(spl1);
+    ) :
+    0;
+
+//output
+    spl0 = spl0.1;
+    spl1 = spl1.1;
+    spl2 = spl0.2;
+    spl3 = spl1.2;
+    spl4 = spl0.3;
+    spl5 = spl1.3;
+    spl6 = spl0.4;
+    spl7 = spl1.4;
+
+
+
+/*@gfx //----------------------------------------------------------------
+
+gfx_ext_retina = 1;
+//Back proc
+    //mouse
+        //function
+            function mouse()
+            local(
+                mouse_x_d0,mouse_x_d1,
+                mouse_y_d0,mouse_y_d1,
+                mc1,mc1_d0,mc1_d1,
+                mc2,mc2_d0,mc2_d1,
+                mc4,mc4_d0,mc4_d1,
+                mc8,mc8_d0,mc8_d1,
+                mc16,mc16_d0,mc16_d1,
+                mc32,mc32_d0,mc32_d1,
+                mc64,mc64_d0,mc64_d1,
+            )
+            //global: mouse_x_,mouse_y_,mouse_cap_
+            (
+                //move
+                    mouse_x_ = (mouse_x_d1 = mouse_x_d0) - (mouse_x_d0 = mouse_x/gfx_ext_retina);
+                    mouse_y_ = (mouse_y_d1 = mouse_y_d0) - (mouse_y_d0 = mouse_y/gfx_ext_retina);
+                //cap
+                    mc1 = (mc1_d1 = mc1_d0) < (mc1_d0 = mouse_cap&1) ? 1 : 0;
+                    mc2 = (mc2_d1 = mc2_d0) < (mc2_d0 = mouse_cap&2) ? 2 : 0;
+                    mc4 = (mc4_d1 = mc4_d0) < (mc4_d0 = mouse_cap&4) ? 4 : 0;
+                    mc8 = (mc8_d1 = mc8_d0) < (mc8_d0 = mouse_cap&8) ? 8 : 0;
+                    mc16 = (mc16_d1 = mc16_d0) < (mc16_d0 = mouse_cap&16) ? 16 : 0;
+                    mc32 = (mc32_d1 = mc32_d0) < (mc32_d0 = mouse_cap&32) ? 32 : 0;
+                    mc64 = (mc64_d1 = mc64_d0) < (mc64_d0 = mouse_cap&64) ? 64 : 0;
+                    mouse_cap_ = mc1 + mc2 + mc4 + mc8 + mc16 + mc32 + mc64;
+                //mouse_wheel
+                    mouse_wheel_ = mouse_wheel/120;
+                    mouse_wheel = 0;
+            );
+        //
+            mouse();
+        //for mouse_cap
+            gfx_getchar();
+        //main
+            touchTargets(0,15,gfx_w,gfx_h) && mouse_cap_&1 ? (
+                drag = 1;
+            );
+            drag && mouse_cap&1 ? (
+                mouse_cap&4 && mouse_cap_&1 ? (
+                    x_slider = 15;
+                    y_slider = 15;
+                    w_slider = 512;
+                    h_slider = 288;
+                    drag = 0;
+                ) :
+                (
+                    x_slider -= mouse_x_;
+                    y_slider -= mouse_y_;
+                );
+            ) : (
+                drag = 0;
+            );
+            mouse_wheel_ ? (
+                !(mouse_cap&4) ? (
+                    w_slider = fc(w_slider*(2^(mouse_wheel_*0.2)));
+                    x_slider = fc(centermulti(x_slider,mouse_x,2^(mouse_wheel_*0.2)));
+                );
+                !(mouse_cap&16) ? (
+                    h_slider = fc(h_slider*(2^(mouse_wheel_*0.2)));
+                    y_slider = fc(centermulti(y_slider,mouse_y,2^(mouse_wheel_*0.2)));
+                );
+            );
+
+__x = x_slider;
+__y = y_slider;
+__w = w_slider;
+__h = h_slider;
+
+gfx_set(0.1);
+gfx_rect(__x,__y,__w,__h);
+
+gfx_set(1);
+__i = 0;
+loop(65536,
+    gfx_aarect_gs(
+        __i*0.0001*__w + __x,
+        (1 - 0[__i*4])*__h + __y,
+        1,
+        1
+    );
+    __i += 1;
+);

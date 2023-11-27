@@ -1,0 +1,304 @@
+NoIndex: true
+desc:Sinc Frequency Splitter (lewloiwc)
+tags: frequency splitter
+version: 1.0.0
+author: lewloiwc
+changelog: Initial Release
+License: CC0
+about:
+  # Sinc Splitter
+  Sinc (Linear Phase) is the frequency splitter with the sharpest slope. The shape of the slope varies considerably depending on the frequency of the crossover point, the IR Length, and the Window used. Since this is a Linear Phase, pre ringing and latency will occur.
+  [Screenshot](https://i.imgur.com/eZGw1vS.png)
+
+slider1:mode_slider=0<0,1,1{Linkwitz-Riley,Sinc}>Mode
+
+slider3:frequency_a_slider=90<20,20000,1>Frequency A [Hz]
+slider4:slope_a_slider=12<0.1,120,0.1>Slope A [dB/oct]
+slider5:frequency_b_slider=2500<20,20000,1>Frequency B [Hz]
+slider6:slope_b_slider=12<0.1,120,0.1>Slope B [dB/oct]
+
+slider8:len_slider=100<0,500,0.01>IR Length [ms]
+
+in_pin:Input L
+in_pin:Input R
+out_pin:Output Low L
+out_pin:Output Low R
+out_pin:Output Mid L
+out_pin:Output Mid R
+out_pin:Output High L
+out_pin:Output High R
+
+//options:no_meter
+import more_math_functions.jsfx-inc
+//import more_graphics.jsfx-inc
+
+
+
+@init //----------------------------------------------------------------
+
+ext_nodenorm = 1;
+
+//kernelはkernelがあるメモリの位置を指定　kernelの最大許容サイズはsize/2のr+i配置　toのメモリ位置にfft結果を送る(size*2個のメモリを使う)
+function conv_set(kernel,ws,size)
+(
+    this.conv.ws0 = kernel;
+    this.conv.ws2 = ws;
+    this.conv.ws3 = size + ws;
+    this.conv.ws4 = 65536 + ws;
+    this.conv.size = size;
+);
+
+//kernelはkernelがあるメモリの位置を指定　kernelの最大許容サイズはsize/2のr+i配置　toのメモリ位置にfft結果を送る(size*2個のメモリを使う)
+function conv_kernel_set(kernel,to,size)
+local(i)
+(
+    //proc
+        memcpy(to,kernel,size);
+        memset(to + size,0,size);//前回のFFT結果をclear
+        fft(to,size);
+    //normalize
+        i = 0;
+        loop(size*2,
+            to[i] /= size;
+            i += 1;
+        );
+);
+
+function conv(x)
+(
+    this.conv.cnt[this.conv.ws3] = x;
+    (this.conv.cnt += 2) >= this.conv.size ? (
+        memcpy    (this.conv.ws4, this.conv.ws3, this.conv.size);//copy b3 -> b4 //b4 ni hinan
+        fft       (this.conv.ws2,                this.conv.size);//fft  b2~b3
+        convolve_c(this.conv.ws2, this.conv.ws0, this.conv.size);//conv b2 = b0*b2
+        ifft      (this.conv.ws2,                this.conv.size);//ifft b2
+        memcpy    (this.conv.ws2, this.conv.ws4, this.conv.size);//copy b4 -> b2 
+        this.conv.cnt = 0;
+    );
+    this.conv.cnt[this.conv.ws3];
+);
+
+//https://www.desmos.com/calculator/nknvpcqfcm
+function ideal_n_dB_oct_lr_and_sinc(x,cutoff,n_dB_oct,mode)
+(
+    mode ? (
+        sign(cutoff - x)*0.5 + 0.5;
+    ) : (
+        1/(1 + (x/cutoff)^(n_dB_oct/6));
+    );
+);
+
+____MM_temp_output_kernel_bottom = 0;
+____MM_make_kernel_workspace_bottom = 65536*1;
+____MM_make_kernel_memshift_ws_bottom = 65536*2;
+
+____MM_conv_kernel_1_bottom = 65536*4;
+____MM_conv_kernel_2_bottom = 65536*5;
+
+____MM_conv_proc_ws_1_L_bottom = 65536*6;
+____MM_conv_proc_ws_1_R_bottom = 65536*8;
+____MM_conv_proc_ws_2_L_bottom = 65536*10;
+____MM_conv_proc_ws_2_R_bottom = 65536*12;
+
+____MM_dry_delay_bottom = 65536*14;
+
+
+
+@slider //----------------------------------------------------------------
+
+mode_slider ? (
+    slider_show(40,0);
+) : (
+    slider_show(40,1);
+);
+
+//convolution
+    //init
+        kernel_size = clamp(ef(srate*0.001*len_slider),5,2^14 - 1);
+        size = 2^(ceil(log2(kernel_size)) + 1);
+    //make kernel
+        //init
+            memset(____MM_make_kernel_workspace_bottom,0,65536);
+        //bin
+            i = 0;
+            loop(16385,//なんで16385?　→　[16384](Nyquist)を編集するのと、Nyquist以降に信号を入れると反応が折り返して異常が出るのを防止しているから
+                ____MM_make_kernel_workspace_bottom[i*2] = ideal_n_dB_oct_lr_and_sinc(srate/32768*i,frequency_a_slider,slope_a_slider,mode_slider);
+                ____MM_make_kernel_workspace_bottom[i*2] *= ideal_n_dB_oct_lr_and_sinc(srate/32768*i,frequency_b_slider,slope_b_slider,mode_slider);
+                i === 0 || i === 16384 ? (
+                    ____MM_make_kernel_workspace_bottom[i*2] *= 0.5;
+                );
+                i += 1;
+            );
+        //ifft?
+            fft_ipermute(____MM_make_kernel_workspace_bottom,32768);
+            iFFT(____MM_make_kernel_workspace_bottom,32768);
+            memshift(____MM_make_kernel_workspace_bottom,65536,____MM_make_kernel_memshift_ws_bottom,32768);
+        //clear, normalize, window, cpy
+            memset(____MM_temp_output_kernel_bottom,0,size);
+            i = 0;
+            loop(kernel_size,
+                ____MM_temp_output_kernel_bottom[i*2] = ____MM_make_kernel_workspace_bottom[32768 - (kernel_size - 1) + i*2]/16384;
+                ____MM_temp_output_kernel_bottom[i*2] *= -cos(2*$pi*i/(kernel_size - 1))*0.5 + 0.5;//Apply Hann Window
+                ____MM_temp_output_kernel_bottom[i*2 + 1] = 0;
+                i += 1;
+            );
+    //set
+        conv_kernel_set(____MM_temp_output_kernel_bottom,____MM_conv_kernel_1_bottom,size);
+        conv_1_L.conv_set(____MM_conv_kernel_1_bottom,____MM_conv_proc_ws_1_L_bottom,size);
+        conv_1_R.conv_set(____MM_conv_kernel_1_bottom,____MM_conv_proc_ws_1_R_bottom,size);
+    
+    
+    
+    //make kernel
+        //init
+            memset(____MM_make_kernel_workspace_bottom,0,65536);
+        //bin
+            i = 0;
+            loop(16385,//なんで16385?　→　[16384](Nyquist)を編集するのと、Nyquist以降に信号を入れると反応が折り返して異常が出るのを防止しているから
+                ____MM_make_kernel_workspace_bottom[i*2] = ideal_n_dB_oct_lr_and_sinc(srate/32768*i,frequency_b_slider,slope_b_slider,mode_slider);
+                i === 0 || i === 16384 ? (
+                    ____MM_make_kernel_workspace_bottom[i*2] *= 0.5;
+                );
+                i += 1;
+            );
+        //ifft?
+            fft_ipermute(____MM_make_kernel_workspace_bottom,32768);
+            iFFT(____MM_make_kernel_workspace_bottom,32768);
+            memshift(____MM_make_kernel_workspace_bottom,65536,____MM_make_kernel_memshift_ws_bottom,32768);
+        //clear, normalize, window, cpy
+            memset(____MM_temp_output_kernel_bottom,0,size);
+            i = 0;
+            loop(kernel_size,
+                ____MM_temp_output_kernel_bottom[i*2] = ____MM_make_kernel_workspace_bottom[32768 - (kernel_size - 1) + i*2]/16384;
+                ____MM_temp_output_kernel_bottom[i*2] *= -cos(2*$pi*i/(kernel_size - 1))*0.5 + 0.5;//Apply Hann Window
+                ____MM_temp_output_kernel_bottom[i*2 + 1] = 0;
+                i += 1;
+            );
+    //set
+        conv_kernel_set(____MM_temp_output_kernel_bottom,____MM_conv_kernel_2_bottom,size);
+        conv_2_L.conv_set(____MM_conv_kernel_2_bottom,____MM_conv_proc_ws_2_L_bottom,size);
+        conv_2_R.conv_set(____MM_conv_kernel_2_bottom,____MM_conv_proc_ws_2_R_bottom,size);
+    
+    
+
+//pdc
+    pdc_delay = size/2 - 1 + (kernel_size - 1)/2;
+    pdc_bot_ch = 0;
+    pdc_top_ch = 5 + 1;
+
+
+
+@sample //----------------------------------------------------------------
+
+dry.delay2(spl0,spl1,____MM_dry_delay_bottom,pdc_delay);
+Low_L = conv_1_L.conv(spl0);
+Low_R = conv_1_R.conv(spl1);
+High_L = conv_2_L.conv(spl0);
+High_R = conv_2_R.conv(spl1);
+
+spl0 = Low_L;
+spl1 = Low_R;
+spl2 = High_L - Low_L;
+spl3 = High_R - Low_R;
+spl4 = dry.delay0 - High_L;
+spl5 = dry.delay1 - High_R;
+
+
+
+@gfx
+gfx_set(1);
+gfx_x = 2;
+gfx_y = 2;
+gfx_drawstr(sprintf(#,"IR Length: %.0f spls",kernel_size));
+gfx_set(0.5);
+gfx_drawstr(" <= 16383 spls");
+
+/*@gfx
+
+gfx_ext_retina = 1;
+//Back proc
+    //mouse
+        //function
+            function mouse()
+            local(
+                mouse_x_d0,mouse_x_d1,
+                mouse_y_d0,mouse_y_d1,
+                mc1,mc1_d0,mc1_d1,
+                mc2,mc2_d0,mc2_d1,
+                mc4,mc4_d0,mc4_d1,
+                mc8,mc8_d0,mc8_d1,
+                mc16,mc16_d0,mc16_d1,
+                mc32,mc32_d0,mc32_d1,
+                mc64,mc64_d0,mc64_d1,
+            )
+            //global: mouse_x_,mouse_y_,mouse_cap_
+            (
+                //move
+                    mouse_x_ = (mouse_x_d1 = mouse_x_d0) - (mouse_x_d0 = mouse_x/gfx_ext_retina);
+                    mouse_y_ = (mouse_y_d1 = mouse_y_d0) - (mouse_y_d0 = mouse_y/gfx_ext_retina);
+                //cap
+                    mc1 = (mc1_d1 = mc1_d0) < (mc1_d0 = mouse_cap&1) ? 1 : 0;
+                    mc2 = (mc2_d1 = mc2_d0) < (mc2_d0 = mouse_cap&2) ? 2 : 0;
+                    mc4 = (mc4_d1 = mc4_d0) < (mc4_d0 = mouse_cap&4) ? 4 : 0;
+                    mc8 = (mc8_d1 = mc8_d0) < (mc8_d0 = mouse_cap&8) ? 8 : 0;
+                    mc16 = (mc16_d1 = mc16_d0) < (mc16_d0 = mouse_cap&16) ? 16 : 0;
+                    mc32 = (mc32_d1 = mc32_d0) < (mc32_d0 = mouse_cap&32) ? 32 : 0;
+                    mc64 = (mc64_d1 = mc64_d0) < (mc64_d0 = mouse_cap&64) ? 64 : 0;
+                    mouse_cap_ = mc1 + mc2 + mc4 + mc8 + mc16 + mc32 + mc64;
+                //mouse_wheel
+                    mouse_wheel_ = mouse_wheel/120;
+                    mouse_wheel = 0;
+            );
+        //
+            mouse();
+        //for mouse_cap
+            gfx_getchar();
+        //main
+            touchTargets(0,15,gfx_w,gfx_h) && mouse_cap_&1 ? (
+                drag = 1;
+            );
+            drag && mouse_cap&1 ? (
+                mouse_cap&4 && mouse_cap_&1 ? (
+                    x_slider = 15;
+                    y_slider = 15;
+                    w_slider = 512;
+                    h_slider = 288;
+                    drag = 0;
+                ) :
+                (
+                    x_slider -= mouse_x_;
+                    y_slider -= mouse_y_;
+                );
+            ) : (
+                drag = 0;
+            );
+            mouse_wheel_ ? (
+                !(mouse_cap&4) ? (
+                    w_slider = fc(w_slider*(2^(mouse_wheel_*0.2)));
+                    x_slider = fc(centermulti(x_slider,mouse_x,2^(mouse_wheel_*0.2)));
+                );
+                !(mouse_cap&16) ? (
+                    h_slider = fc(h_slider*(2^(mouse_wheel_*0.2)));
+                    y_slider = fc(centermulti(y_slider,mouse_y,2^(mouse_wheel_*0.2)));
+                );
+            );
+
+__x = x_slider;
+__y = y_slider;
+__w = w_slider;
+__h = h_slider;
+
+gfx_set(0.1);
+gfx_rect(__x,__y,__w,__h);
+
+gfx_set(1);
+__i = 0;
+loop(32768,
+    gfx_aarect_gs(
+        __i*0.0001*__w + __x,
+        (1 - 0[__i])*__h + __y,
+        1,
+        1
+    );
+    __i += 1;
+);

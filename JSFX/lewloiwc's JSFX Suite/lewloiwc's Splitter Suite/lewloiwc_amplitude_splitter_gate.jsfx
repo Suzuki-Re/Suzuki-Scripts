@@ -1,0 +1,305 @@
+NoIndex: true
+desc:Amplitude Splitter - Gate (lewloiwc)
+tags: amplitude splitter, gate
+version: 1.0.0
+author: lewloiwc
+changelog: Initial Release
+about:
+  # Gate Splitter
+  Gate divides the signal by the amplitude. [Screenshot](https://i.imgur.com/rIOR1cm.png)
+  ### License
+  Lookahead is based on the idealPeakHoldFast by Takamitsu Endo [here](https://ryukau.github.io/filter_notes/peak_hold_envelope/peak_hold_envelope.html)
+License: CC0
+
+//The idealPeakHoldFast() function is:
+
+//Copyright (C) 2021 Takamitsu Endo
+
+//Released under the MIT license
+//https://opensource.org/license/mit/
+
+slider1:t_slider=0<-120,20,0.01>Threshold [dB]
+slider2:ratio_slider=90<0,100,0.1>Ratio [%]
+slider3:knee_slider=5<0,40,.01>Knee [dB]
+slider4:lookahead_slider=5<0,50,.01}>Lookahead [ms]
+slider5:a_slider=5<0,1000,0.1>Attack [ms]
+slider6:hold_slider=20<0,1000,0.1>Hold [ms]
+slider7:r_slider=50<0,1000,0.1>Release [ms]
+
+in_pin:Input L
+in_pin:Input R
+out_pin:Output A L
+out_pin:Output A R
+out_pin:Output B L
+out_pin:Output B R
+
+//options:no_meter
+import more_math_functions.jsfx-inc
+import more_graphics.jsfx-inc
+
+
+
+@init //----------------------------------------------------------------
+
+//queue
+    function queue_set(mem_offset,max_len)
+    (
+        queue_mem_offset = mem_offset;
+        queue_max_len = max_len;
+        queue_sippo = queue_max_len - 1;
+    );
+    function queue_add_sippo(x)
+    (
+        queue_len !== queue_max_len ? (
+            queue_sippo = fracper(queue_sippo + 1,queue_max_len);
+            queue_mem_offset[queue_sippo] = x;
+            queue_len += 1;
+        );
+    );
+    function queue_del_sippo()
+    (
+        queue_len ? (
+            queue_mem_offset[queue_sippo] = 0;
+            queue_sippo = fracper(queue_sippo - 1,queue_max_len);
+            queue_len -= 1;
+        );
+    );
+    function queue_del_atama()
+    (
+        queue_len ? (
+            queue_mem_offset[queue_atama] = 0;
+            queue_atama = fracper(queue_atama + 1,queue_max_len);
+            queue_len -= 1;
+        );
+    );
+//hold
+    function idealPeakHoldFast_set(queue_mem,delay_mem,hold_time)
+    (
+        queue_set(queue_mem,hold_time + 2);
+        this.delay_mem = delay_mem;
+        this.delay_time = hold_time + 1;
+        
+        memset(queue_mem,0,hold_time + 2);
+        this.delay1_init(this.delay_mem,this.delay_time);
+        queue_len = 0;
+        queue_atama = 0;
+    );
+    function idealPeakHoldFast(x)
+    local(
+        local.loop
+        local.i
+        local.break
+    )
+    (
+        //1: queueの最後尾がx以上の値になるまで　queueの最後尾を繰り返し除去
+            queue_len ? (
+                local.loop = queue_len;
+                local.i = 0;
+                local.break = 0;
+                while(
+                    queue_mem_offset[queue_sippo] < x ? (
+                        queue_del_sippo();
+                        local.i += 1;
+                    ) : (
+                        local.break = 1;
+                    );
+                    !local.break && local.i < local.loop;
+                );
+            );
+        //2: xをqueueの後ろに追加
+            queue_add_sippo(x);
+        //3: xをdelayにいれる | 4: delayのoutput === queueの先頭 ? queueから値を取り出す
+            this.delay1(x,this.delay_mem,this.delay_time) === queue_mem_offset[queue_atama] ? (
+                queue_del_atama();
+            );
+        //5: output = (len(queue) ? queueの先頭 : 0)
+            queue_len ? queue_mem_offset[queue_atama] : 0;
+    );
+//curve
+    function compression_curve_set()
+    instance(
+        T,R,s,s_div
+        a,i1,i2,i3,if
+    )
+    (
+        T = log(to_linear(t_slider));
+        R = clamp(1/(1 - ratio_slider/100),2^-32 + 1,2^32);
+        
+        s = log(to_linear(max(knee_slider,2^-32)));
+        s_div = 1/s;
+        
+        a = 1 - (1 - 1/R);
+        i1 = 2*(1 - a);
+        i2 = 1/(a - 1);
+        i3 = 0.5*(a + 1)/(a - 1);
+        if = -0.5*a;
+    );
+    
+    function compression_curve(x)
+    instance(
+        T,R,s,s_div
+        a,i1,i2,i3,if
+    )
+    (
+        x = (x - T)*s_div;
+        
+        x <= if ? (
+            x *= R;
+        ) :
+        0.5 <= x ? (
+            x = x;
+        ) :
+        (
+            x = i3 - i2*sqrt(i1*x + a);;
+        );
+        
+        x = x*s + T;
+    );
+
+//env
+    function logenv(in,out,at,rel)
+    (
+        out > in ? (
+            rel*out + (1 - rel)*in;
+        ) : (
+            at*out + (1 - at)*in;
+        );
+    );
+
+
+
+@slider //----------------------------------------------------------------
+
+//hold & Lookahead
+    lookahead_time = fc(srate*0.001*lookahead_slider);
+    hold_time = fc(srate*0.001*hold_slider);
+    //hold1.idealPeakHoldFast_set(163840,180224,lookahead_time + hold_time);
+    hold1.idealPeakHoldFast_set(65536*4,65536*8,lookahead_time + hold_time);
+
+ws.compression_curve_set();
+
+atk = exp(-$pi/(srate*0.0005*a_slider));
+rel = exp(-$pi/(srate*0.0005*r_slider));
+
+//PDC
+    pdc_delay = lookahead_time;
+    pdc_bot_ch = 0;
+    pdc_top_ch = 3 + 1;
+
+
+
+@sample //----------------------------------------------------------------
+
+//max, log
+    maxlog =
+        log(
+            max(
+                abs(spl0),
+                abs(spl1)
+            )
+        );
+
+//delay
+    dry.delay2(spl0,spl1,0,lookahead_time);
+
+//hold & Lookahead
+    hold = hold1.idealPeakHoldFast(maxlog);
+
+//ws, dif, exp
+    DIF = exp(ws.compression_curve(hold) - hold);
+
+//env
+    DIFENV = logenv(DIF,DIFENV,atk,rel);
+
+//output
+    spl0 = dry.delay0*DIFENV;
+    spl1 = dry.delay1*DIFENV;
+    spl2 = dry.delay0*(1 - DIFENV);
+    spl3 = dry.delay1*(1 - DIFENV);
+
+
+
+@gfx 0 120 //----------------------------------------------------------------
+
+__x = 10;
+__y = 10;
+__w = 100;
+__h = 100;
+
+//plot
+    gfx_set(0.1);
+    gfx_rect(__x,__y,__w,__h);
+    __min = log(to_linear(-120));
+    __max = log(to_linear(20));
+    __loop = 100;//__loop ha vertex no kazu
+        //grid
+            gfx_set(0.2);
+            __i = -1;
+            loop(8,
+                gfx_rect(
+                    __x,
+                    fc(
+                        remap(
+                            log(to_linear(__i*-20)),
+                            __min,
+                            __max,
+                            __h + __y - 1,
+                            __y
+                        )
+                    ),
+                    __w,
+                    1
+                );
+                gfx_rect(
+                    fc(
+                        remap(
+                            log(to_linear(__i*-20)),
+                            __min,
+                            __max,
+                            __y,
+                            __h + __y - 1
+                        )
+                    ),
+                    __y,
+                    1,
+                    __h
+                );
+                __i += 1;
+            );
+    gfx_set(0.8);
+    __i = 0;
+    loop(__loop,
+        __line1.gfx_EFthickline_gs(
+            remap(__i,0,__loop - 1,__x,__w + __x - 1),
+            clamp(
+                remap(
+                    ws.compression_curve(
+                        remap(__i,0,__loop - 1,__min,__max)
+                    ),
+                    __min,
+                    __max,
+                    __h + __y - 1,
+                    __y
+                ),
+                __y - 5,
+                __h + __y + 5
+            ),
+            1.5,
+            __loop
+        );
+        __i += 1;
+    );
+
+//border_fill
+    hsba(0,0,0,1);
+    __i = 1;
+    loop(10,
+        gfx_rect(
+            __x - __i,
+            __y - __i,
+            __w + __i + __i,
+            __h + __i + __i,
+            0
+        );
+        __i += 1;
+    );

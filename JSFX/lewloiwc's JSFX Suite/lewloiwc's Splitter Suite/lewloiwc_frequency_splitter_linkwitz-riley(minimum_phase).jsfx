@@ -1,0 +1,143 @@
+NoIndex: true
+desc:Frequency Splitter - Linkwitz-Riley (lewloiwc)
+tags: minimum phase frequency splitter
+version: 1.0.0
+author: lewloiwc
+changelog: Initial Release
+License: CC0
+about: 
+  # Linkwitz-Riley (Minimum Phase)
+  Linkwitz-Riley has a consistent band-by-band frequency response and does not peak or dip when summed, but does cause phase rotation at the crossover point when created with Minimum Phase.
+  Most vst frequency splitters probably use this method.
+  [12 dB/oct](https://i.imgur.com/bh3NGly.png), [24 dB/oct](https://i.imgur.com/IAdX651.png), [36 dB/oct](https://i.imgur.com/XdL569r.png), and [48 dB/oct](https://i.imgur.com/1Zv21an.png).
+  Different slopes can be set for each crossover point, for example [12 dB/oct and 36 dB/oct](https://i.imgur.com/3LkoJlo.png).
+
+slider1:frequency_a_slider=90<20,20000,1>Crossover Frequency A [Hz]
+slider2:slope_a_slider=1<0,3,1{12,24,36,48}>Slope A
+slider3:frequency_b_slider=2500<20,20000,1>Crossover Frequency B [Hz]
+slider4:slope_b_slider=1<0,3,1{12,24,36,48}>Slope B
+
+slider41:ext_nodenorm_slider=0<0,0,{0,1}>ext_nodenorm
+
+in_pin:Input L
+in_pin:Input R
+out_pin:Output Low L
+out_pin:Output Low R
+out_pin:Output Mid L
+out_pin:Output Mid R
+out_pin:Output High L
+out_pin:Output High R
+
+import more_math_functions.jsfx-inc
+//import more_graphics.jsfx-inc
+
+
+
+@init //--------------------------------
+
+ext_nodenorm = ext_nodenorm_slider;
+
+function LR_LPF(x,freq,slope)
+(
+    //12
+        slope === 0 ? (
+            x = this.SVFlow(x,freq,0.5);
+        ) :
+    //24
+        slope === 1 ? (
+            x = this.1.SVFlow(x,freq,q24);
+            x = this.2.SVFlow(x,freq,q24);
+        ) :
+    //36
+        slope === 2 ? (
+            x = this.1.SVFlow(x,freq,1);
+            x = this.2.SVFlow(x,freq,1);
+            x = this.3.SVFlow(x,freq,0.5);
+        ) :
+    //48
+        slope === 3 ? (
+            x = this.1.SVFlow(x,freq,q48_1);
+            x = this.2.SVFlow(x,freq,q48_2);
+            x = this.3.SVFlow(x,freq,q48_1);
+            x = this.4.SVFlow(x,freq,q48_2);
+        );
+);
+
+function LR_HPF(x,freq,slope)
+(
+    //12
+        slope === 0 ? (
+            x = this.SVFhigh(-x,freq,0.5);
+        ) :
+    //24
+        slope === 1 ? (
+            x = this.1.SVFhigh(x,freq,q24);
+            x = this.2.SVFhigh(x,freq,q24);
+        ) :
+    //36
+        slope === 2 ? (
+            x = this.1.SVFhigh(-x,freq,1);
+            x = this.2.SVFhigh(x,freq,1);
+            x = this.3.SVFhigh(x,freq,0.5);
+        ) :
+    //48
+        slope === 3 ? (
+            x = this.1.SVFhigh(x,freq,q48_1);
+            x = this.2.SVFhigh(x,freq,q48_2);
+            x = this.3.SVFhigh(x,freq,q48_1);
+            x = this.4.SVFhigh(x,freq,q48_2);
+        );
+);
+
+function APF(x,freq,slope)
+(
+    //12 (6)
+        slope === 0 ? (
+            x = this.SVFOPapf_temp(-x,freq);
+        ) :
+    //24 (12)
+        slope === 1 ? (
+            x = this.SVFall(x,freq,q24);
+        ) :
+    //36 (18)
+        slope === 2 ? (
+            x = this.SVFall(-x,freq,1);
+            x = this.SVFOPapf_temp(x,freq);
+        ) :
+    //48 (24)
+        slope === 3 ? (
+            x = this.1.SVFall(x,freq,q48_1);
+            x = this.2.SVFall(x,freq,q48_2);
+        );
+);
+
+function frequency_splitter(x)
+(
+    //Low
+        this.L = this.Low_A.LR_LPF(x,frequency_a_slider,slope_a_slider);
+        this.L = this.Low_B.LR_LPF(this.L,frequency_b_slider,slope_b_slider);
+    //Mid
+        this.M = this.Mid_A.LR_HPF(x,frequency_a_slider,slope_a_slider);
+        this.M = this.Mid_B.LR_LPF(this.M,frequency_b_slider,slope_b_slider);
+    //High
+        this.H = this.High_A.APF(x,frequency_a_slider,slope_a_slider);
+        this.H = this.High_B.LR_HPF(this.H,frequency_b_slider,slope_b_slider);
+);
+
+q24 = sqrt(0.5);
+q48_1 = 0.5/cos($pi/8*1);
+q48_2 = 0.5/cos($pi/8*3);
+
+
+
+@sample //--------------------------------
+
+spl0.frequency_splitter(spl0);
+spl1.frequency_splitter(spl1);
+
+spl0 = spl0.L;
+spl1 = spl1.L;
+spl2 = spl0.M;
+spl3 = spl1.M;
+spl4 = spl0.H;
+spl5 = spl1.H;

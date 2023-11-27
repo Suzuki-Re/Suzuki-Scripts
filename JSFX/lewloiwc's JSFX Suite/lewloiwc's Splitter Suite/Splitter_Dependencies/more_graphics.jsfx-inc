@@ -1,0 +1,2667 @@
+@init
+
+function rgb(r,g,b)(gfx_r=r;gfx_g=g;gfx_b=b);
+
+function rgba(r,g,b,a)(gfx_r=r;gfx_g=g;gfx_b=b;gfx_a=a);
+
+function r(r)(gfx_r=r);
+function g(g)(gfx_g=g);
+function b(b)(gfx_b=b);
+function a(a)(gfx_a=a);
+
+function x(x)(gfx_x=x);
+function y(y)(gfx_y=y);
+
+/*function hsb(h,s,b)local(m1n)
+(
+h = h%360;//modulo
+s = min(max(s/100,0),1);
+b = min(max(b/100,0),1);
+m1n = b-(s*b);
+(0<=h&&h<60)?(gfx_r=b;gfx_g=((h/60)*(b-m1n)+m1n);gfx_b=m1n);
+(60<=h&&h<120)?(gfx_r=(((120-h)/60)*(b-m1n)+m1n);gfx_g=b;gfx_b=m1n);
+(120<=h&&h<180)?(gfx_r=m1n;gfx_g=b;gfx_b=(((h-120)/60)*(b-m1n)+m1n));
+(180<=h&&h<240)?(gfx_r=m1n;gfx_g=(((240-h)/60)*(b-m1n)+m1n);gfx_b=b);
+(240<=h&&h<300)?(gfx_r=(((h-240)/60)*(b-m1n)+m1n);gfx_g=m1n;gfx_b=b);
+(300<=h&&h<360)?(gfx_r=b;gfx_g=m1n;gfx_b=(((360-h)/60)*(b-m1n)+m1n));
+);*/
+
+/*function hsba(h,s,b,a)local(m1n)
+(
+h = h%360;//modulo
+s = min(max(s/100,0),1);
+b = min(max(b/100,0),1);
+m1n = b-(s*b);
+(0<=h&&h<60)?(gfx_r=b;gfx_g=((h/60)*(b-m1n)+m1n);gfx_b=m1n);
+(60<=h&&h<120)?(gfx_r=(((120-h)/60)*(b-m1n)+m1n);gfx_g=b;gfx_b=m1n);
+(120<=h&&h<180)?(gfx_r=m1n;gfx_g=b;gfx_b=(((h-120)/60)*(b-m1n)+m1n));
+(180<=h&&h<240)?(gfx_r=m1n;gfx_g=(((240-h)/60)*(b-m1n)+m1n);gfx_b=b);
+(240<=h&&h<300)?(gfx_r=(((h-240)/60)*(b-m1n)+m1n);gfx_g=m1n;gfx_b=b);
+(300<=h&&h<360)?(gfx_r=b;gfx_g=m1n;gfx_b=(((360-h)/60)*(b-m1n)+m1n));
+gfx_a=a
+);*/
+
+/*function hsba(h,s,b,a)local(min)
+(
+    h = (h/360 - floor(h/360))*360;
+    s = min(max(s/100,0),1);
+    b = min(max(b/100,0),1);
+    min = b - s*b;
+      0 <= h && h <  60 ? ( gfx_r = b; gfx_g = ((h/60)*(b - min) + min); gfx_b = min; );
+     60 <= h && h < 120 ? ( gfx_r = (((120 - h)/60)*(b - min) + min); gfx_g = b; gfx_b = min; );
+    120 <= h && h < 180 ? ( gfx_r = min; gfx_g = b; gfx_b = (((h - 120)/60)*(b - min) + min); );
+    180 <= h && h < 240 ? ( gfx_r = min; gfx_g = (((240 - h)/60)*(b - min) + min); gfx_b = b; );
+    240 <= h && h < 300 ? ( gfx_r = (((h - 240)/60)*(b - min) + min); gfx_g = min; gfx_b = b; );
+    300 <= h && h < 360 ? ( gfx_r = b; gfx_g = min; gfx_b = (((360 - h)/60)*(b - min) + min); );
+    gfx_a = a;
+);*/
+
+/*function hsba(h,s,b,a)local(min)
+(
+    h = (h/360 - floor(h/360))*360;
+    s = min(max(s/100,0),1);
+    b = min(max(b/100,0),1);
+    min = b - s*b;
+      0 <= h && h <  60 ? gfx_set(b,((h/60)*(b - min) + min),min,a) :
+     60 <= h && h < 120 ? gfx_set((((120 - h)/60)*(b - min) + min),b,min,a) :
+    120 <= h && h < 180 ? gfx_set(min,b,(((h - 120)/60)*(b - min) + min),a) :
+    180 <= h && h < 240 ? gfx_set(min,(((240 - h)/60)*(b - min) + min),b,a) :
+    240 <= h && h < 300 ? gfx_set((((h - 240)/60)*(b - min) + min),min,b,a) :
+    300 <= h && h < 360 ? gfx_set(b,min,(((360 - h)/60)*(b - min) + min),a);
+);*/
+
+/*function hsba(h,s,b,a)local(min)
+(
+    h = (h/360 - floor(h/360))*6;
+    s = min(max(s*0.01,0),1);
+    b = min(max(b*0.01,0),1);
+    min = b - s*b;
+    0 <= h && h < 1 ? gfx_set(b,(h*(b - min) + min),min,a) :
+    1 <= h && h < 2 ? gfx_set(((2 - h)*(b - min) + min),b,min,a) :
+    2 <= h && h < 3 ? gfx_set(min,b,((h - 2)*(b - min) + min),a) :
+    3 <= h && h < 4 ? gfx_set(min,((4 - h)*(b - min) + min),b,a) :
+    4 <= h && h < 5 ? gfx_set(((h - 4)*(b - min) + min),min,b,a) :
+    5 <= h && h < 6 ? gfx_set(b,min,((6 - h)*(b - min) + min),a);
+);*/
+
+function hsba(h,s,b,a)local(min)
+(
+    h = (h/360 - floor(h/360))*6;
+    s = min(max(s*0.01,0),1);
+    b = min(max(b*0.01,0),1);
+    min = b - s*b;
+    h < 1 ? gfx_set(b,(h*(b - min) + min),min,a) :
+    h < 2 ? gfx_set(((2 - h)*(b - min) + min),b,min,a) :
+    h < 3 ? gfx_set(min,b,((h - 2)*(b - min) + min),a) :
+    h < 4 ? gfx_set(min,((4 - h)*(b - min) + min),b,a) :
+    h < 5 ? gfx_set(((h - 4)*(b - min) + min),min,b,a) :
+            gfx_set(b,min,((6 - h)*(b - min) + min),a);
+);
+
+function hsb(h,s,b)local(min)
+(
+    h = (h/360 - floor(h/360))*6;
+    s = min(max(s*0.01,0),1);
+    b = min(max(b*0.01,0),1);
+    min = b - s*b;
+    h < 1 ? gfx_set(b,(h*(b - min) + min),min) :
+    h < 2 ? gfx_set(((2 - h)*(b - min) + min),b,min) :
+    h < 3 ? gfx_set(min,b,((h - 2)*(b - min) + min)) :
+    h < 4 ? gfx_set(min,((4 - h)*(b - min) + min),b) :
+    h < 5 ? gfx_set(((h - 4)*(b - min) + min),min,b) :
+            gfx_set(b,min,((6 - h)*(b - min) + min));
+);
+
+function hsba_set(h,s,b,a)
+local(local.min)
+(
+    h = (h/360 - floor(h/360))*6;
+    //s = local.min(max(s*0.01,0),1);
+    s *= 0.01;
+    //b = local.min(max(b*0.01,0),1);
+    b *= 0.01;
+    local.min = b - s*b;
+    h < 1 ? (
+        this.gfx_r = b;
+        this.gfx_g = h*(b - local.min) + local.min;
+        this.gfx_b = local.min;
+    ) :
+    h < 2 ? (
+        this.gfx_r = (2 - h)*(b - local.min) + local.min;
+        this.gfx_g = b;
+        this.gfx_b = local.min;
+    ) :
+    h < 3 ? (
+        this.gfx_r = local.min;
+        this.gfx_g = b;
+        this.gfx_b = (h - 2)*(b - local.min) + local.min;
+    ) :
+    h < 4 ? (
+        this.gfx_r = local.min;
+        this.gfx_g = (4 - h)*(b - local.min) + local.min;
+        this.gfx_b = b;
+    ) :
+    h < 5 ? (
+        this.gfx_r = (h - 4)*(b - local.min) + local.min;
+        this.gfx_g = local.min;
+        this.gfx_b = b;
+    ) :
+    (
+        this.gfx_r = b;
+        this.gfx_g = local.min;
+        this.gfx_b = (6 - h)*(b - local.min) + local.min;
+    );
+    a === -1 ? (
+        this.gfx_a = -1;
+    ) : (
+        this.gfx_a = a;
+    );
+);
+
+/*function hsba()
+(
+    this.gfx_a === -1 ? gfx_set(this.gfx_r,this.gfx_g,this.gfx_b,gfx_a) : gfx_set(this.gfx_r,this.gfx_g,this.gfx_b,this.gfx_a);
+);*/
+
+/*function hsba()
+(
+    gfx_set(this.gfx_r,this.gfx_g,this.gfx_b,this.gfx_a);
+);
+
+function hsb()
+(
+    gfx_set(this.gfx_r,this.gfx_g,this.gfx_b);
+);*/
+
+function rgba_set(h,s,b,a)
+(
+    this.gfx_r = b;
+    this.gfx_g = g;
+    this.gfx_b = b;
+    this.gfx_a = a;
+);
+
+function rgba()
+(
+    gfx_set(this.gfx_r,this.gfx_g,this.gfx_b,this.gfx_a);
+);
+
+function rgb()
+(
+    gfx_set(this.gfx_r,this.gfx_g,this.gfx_b);
+);
+
+//https://www.rapidtables.com/convert/color/rgb-to-hsv.html
+function to_hsb(R,G,B)
+local(Cmax,Cmin,delta)
+(
+    Cmax = max(max(R,G),B);
+    Cmin = min(min(R,G),B);
+    delta = Cmax - Cmin;
+    this.H = 
+        delta === 0 ? (
+            0;
+        ) :
+        Cmax === R ? (
+            60*modulo((G - B)/delta,6);
+        ) :
+        Cmax === G ? (
+            60*((B - R)/delta + 2);
+        ) : (
+            60*((R - G)/delta + 4);
+        );
+    this.S = 
+        Cmax === 0 ? (
+            0;
+        ) : (
+            delta/Cmax*100;
+        );
+    this.B = Cmax*100;
+);
+
+function gfx_aathicklineto(x1,y1,wd)local(x0,y0,x1,y1,dx,sx,dy,sy,err,e2,x2,y2,ed,break,a,oa,ox,oy)
+(
+    oa=gfx_a;/*looplimit*/__looplimit=0;/*looplimit*/
+    ox=x1;oy=y1;//Position reset for ****to
+    a=gfx_a;
+    x0=floor(gfx_x+0.5);
+    y0=floor(gfx_y+0.5);
+    x1=floor(x1+0.5);
+    y1=floor(y1+0.5);
+
+    dx = abs(x1-x0);
+    sx = x0 < x1 ? 1 : -1; 
+    dy = abs(y1-y0);
+    sy = y0 < y1 ? 1 : -1; 
+    err = dx-dy;
+    e2;
+    x2;
+    y2;//error value e_xy
+    ed = ((dx+dy) == 0) ? (
+        1
+        ) : (
+        sqrt(dx*dx+dy*dy)
+    );
+   
+    wd = (wd+1)/2;
+    break=0;
+    while(break === 0)(//pixel loop
+        gfx_x=x0;
+        gfx_y=y0;
+        gfx_a=(1-max(0,1*(abs(err-dx+dy)/ed-wd+1)))*a;
+        gfx_setPixel(gfx_r,gfx_g,gfx_b);
+        e2 = err;
+        x2 = x0;
+        (2*e2 >= -dx) ? (//x step
+            e2 += dy;//----for syoki
+            y2 = y0;//----for syoki
+            while( e2 < ed*wd && (y1 != y2 || dx > dy) ) (
+                gfx_x=x0;
+                gfx_y=y2 += sy;
+                gfx_a=(1-max(0,1*(abs(e2)/ed-wd+1)))*a;
+                gfx_setPixel(gfx_r,gfx_g,gfx_b);
+                e2 += dx;//----for henka
+            );
+            (x0 == x1) ? break = 1;//break
+            break === 0 ? (
+                e2 = err;
+                err -= dy;
+                x0 += sx;
+            );
+        );
+        (2*e2 <= dy) ? (//y step
+            e2 = dx-e2;//----for syoki
+            while( e2 < ed*wd && (x1 != x2 || dx < dy) ) (
+                gfx_x=x2 += sx;
+                gfx_y=y0;
+                gfx_a=(1-max(0,1*(abs(e2)/ed-wd+1)))*a;
+                gfx_setPixel(gfx_r,gfx_g,gfx_b);
+                e2 += dy//----for henka
+            );
+            (y0 == y1) ? break = 1;//break
+            break === 0 ? (
+                err += dx;
+                y0 += sy; 
+            );
+        );/*looplimit*/(__looplimit+=1)>1024?break = 1;/*looplimit*/
+    );
+    gfx_a=oa;
+    gfx_x=ox;gfx_y=oy;//Position reset for ****to
+);
+
+function gfx_aathicklineto_p(x1,y1,wd)local(x0,y0,x1,y1,dx,sx,dy,sy,err,e2,x2,y2,ed,break,a,oa,ox,oy)
+(
+    oa=gfx_a;/*looplimit*/__looplimit=0;/*looplimit*/
+    ox=x1;oy=y1;//Position reset for ****to
+    a=gfx_a;
+    x0=floor(gfx_x+0.5);
+    y0=floor(gfx_y+0.5);
+    x1=floor(x1+0.5);
+    y1=floor(y1+0.5);
+
+    dx = abs(x1-x0);
+    sx = x0 < x1 ? 1 : -1; 
+    dy = abs(y1-y0);
+    sy = y0 < y1 ? 1 : -1; 
+    err = dx-dy;
+    e2;
+    x2;
+    y2;//error value e_xy
+    ed = ((dx+dy) == 0) ? (
+        1
+        ) : (
+        sqrt(dx*dx+dy*dy)
+    );
+   
+    wd = (wd+1)/2;
+    break=0;
+    while(break === 0)(//pixel loop
+        gfx_x=x0;
+        gfx_y=y0;
+        gfx_x_break=x0;
+        gfx_y_break=y0;
+        gfx_a_break=(1-max(0,1*(abs(err-dx+dy)/ed-wd+1)))*a;
+        e2 = err;
+        x2 = x0;
+        (2*e2 >= -dx) ? (//x step
+            e2 += dy;//----for syoki
+            y2 = y0;//----for syoki
+            while( e2 < ed*wd && (y1 != y2 || dx > dy) ) (
+                gfx_x=x0;
+                gfx_y=y2 += sy;
+                gfx_a=(1-max(0,1*(abs(e2)/ed-wd+1)))*a;
+                gfx_setPixel(gfx_r,gfx_g,gfx_b);
+                e2 += dx;//----for henka
+            );
+            (x0 == x1) ? break = 1;//break
+            break === 0 ? (
+                e2 = err;
+                err -= dy;
+                x0 += sx;
+            );
+        );
+        (2*e2 <= dy) ? (//y step
+            e2 = dx-e2;//----for syoki
+            while( e2 < ed*wd && (x1 != x2 || dx < dy) ) (
+                gfx_x=x2 += sx;
+                gfx_y=y0;
+                gfx_a=(1-max(0,1*(abs(e2)/ed-wd+1)))*a;
+                gfx_setPixel(gfx_r,gfx_g,gfx_b);
+                e2 += dy//----for henka
+            );
+            (y0 == y1) ? break = 1;//break
+            break === 0 ? (
+                err += dx;
+                y0 += sy; 
+            );
+        );/*looplimit*/(__looplimit+=1)>1024?break = 1;/*looplimit*/
+        !break ? (
+            gfx_x = gfx_x_break;
+            gfx_y = gfx_y_break;
+            gfx_a = gfx_a_break;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);
+        );
+    );
+    gfx_a=oa;
+    gfx_x=ox;gfx_y=oy;//Position reset for ****to
+);
+
+function setPixelAA(x,y,r,g,b,a)
+(
+    //setPixelAA
+        gfx_x = x;
+        gfx_y = y;
+        gfx_a = a;
+        gfx_setPixel(r,g,b);
+);
+//ttp://members.chello.at/~easyfilter/bresenham.html
+/*function gfx_lineto(x1,y1)
+    local(
+        oa,ox,oy,
+        __looplimit,break,
+        x0,y0,x1,y1,
+        dx,sx,dy,sy,
+        err,e2,x2,y2,ed
+    )
+(
+    //original wo save
+        oa = gfx_a;
+        ox = x1;
+        oy = y1;
+    //five ceil
+        x0 = floor(gfx_x + 0.5);
+        y0 = floor(gfx_y + 0.5);
+        x1 = floor(x1 + 0.5);
+        y1 = floor(y1 + 0.5);
+    //init looplimit
+        __looplimit = 0;
+    //main
+        dx = abs(x1-x0); sx = x0<x1 ? 1 : -1;
+        dy = abs(y1-y0); sy = y0<y1 ? 1 : -1;
+        err = dx-dy;// error value e_xy
+        ed = dx+dy == 0 ? 1 : sqrt(dx*dx+dy*dy);
+       
+        break = 0;
+        while(// pixel loop
+            setPixelAA(x0,y0,gfx_r,gfx_g,gfx_b,(1 - abs(err-dx+dy)/ed)*oa);
+            e2 = err; x2 = x0;
+            2*e2 >= -dx ? (// x step
+                x0 == x1 ? break = 1;
+                !break ? e2+dy < ed ? setPixelAA(x0,y0+sy,gfx_r,gfx_g,gfx_b,(1 - abs(e2+dy)/ed)*oa);
+                !break ? err -= dy; x0 += sx;
+            );
+            !break ? 2*e2 <= dy ? (// y step
+                y0 == y1 ? break = 1;
+                !break ? dx-e2 < ed ? setPixelAA(x2+sx,y0,gfx_r,gfx_g,gfx_b,(1 - abs(dx-e2)/ed)*oa);
+                !break ? err += dx; y0 += sy;
+            );
+            //looplimit
+                (__looplimit += 1) > (1024) - 1 ? break = 1;
+            (break === 0)
+        );
+    //set original
+        gfx_a = oa;
+        gfx_x = ox;
+        gfx_y = oy;
+);*/
+//ttp://members.chello.at/~easyfilter/bresenham.html
+function gfx_Llineto(x1,y1,x,y,w,h)
+    local(
+        oa,ox,oy,
+        __looplimit,break,
+        x0,y0,x1,y1,
+        dx,sx,dy,sy,
+        err,e2,x2,y2,ed
+    )
+(
+    //original wo save
+        oa = gfx_a;
+        ox = x1;
+        oy = y1;
+    //five ceil
+        x0 = floor(gfx_x + 0.5);
+        y0 = floor(gfx_y + 0.5);
+        x1 = floor(x1 + 0.5);
+        y1 = floor(y1 + 0.5);
+    //init looplimit
+        __looplimit = 0;
+    //main
+        dx = abs(x1-x0); sx = x0<x1 ? 1 : -1;
+        dy = abs(y1-y0); sy = y0<y1 ? 1 : -1;
+        err = dx-dy;// error value e_xy
+        ed = dx+dy == 0 ? 1 : sqrt(dx*dx+dy*dy);
+       
+        break = 0;
+        while(// pixel loop
+            gfx_x = x0;
+            gfx_y = y0;
+            x <= gfx_x && gfx_x <= w && y <= gfx_y && gfx_y <= h ? setPixelAA(gfx_x,gfx_y,gfx_r,gfx_g,gfx_b,(1 - abs(err-dx+dy)/ed)*oa);
+            e2 = err; x2 = x0;
+            2*e2 >= -dx ? (// x step
+                x0 == x1 ? break = 1;
+                !break ? e2+dy < ed ? (
+                    gfx_x = x0;
+                    gfx_y = y0+sy;
+                    x <= gfx_x && gfx_x <= w && y <= gfx_y && gfx_y <= h ? setPixelAA(gfx_x,gfx_y,gfx_r,gfx_g,gfx_b,(1 - abs(e2+dy)/ed)*oa);
+                );
+                !break ? err -= dy; x0 += sx;
+            );
+            !break ? 2*e2 <= dy ? (// y step
+                y0 == y1 ? break = 1;
+                !break ? dx-e2 < ed ? (
+                    gfx_x = x2+sx;
+                    gfx_y = y0;
+                    x <= gfx_x && gfx_x <= w && y <= gfx_y && gfx_y <= h ? setPixelAA(gfx_x,gfx_y,gfx_r,gfx_g,gfx_b,(1 - abs(dx-e2)/ed)*oa);
+                );
+                !break ? err += dx; y0 += sy;
+            );
+            //looplimit
+                (__looplimit += 1) > (1024) - 1 ? break = 1;
+            (break === 0)
+        );
+    //set original
+        gfx_a = oa;
+        gfx_x = ox;
+        gfx_y = oy;
+);
+
+function gfx_aarect(x,y,w,h)local(x,y,w,h,xdot,ydot,wdot,hdot,a,gamma,oa,ox,oy)
+(
+    !(w === 0 || h === 0) ? (
+        
+        oa=gfx_a;
+        ox=gfx_x;oy=gfx_y;//Position reset for ****to
+        gfx_aarect_gamma === 0 ? (
+            gfx_aarect_gamma=0.45454545;//_debug=0;
+            ) : (
+            gamma = gfx_aarect_gamma;
+        );
+        
+        a=gfx_a;
+        
+        w < 0 ? (
+            x+=w;
+            w=-w;
+        );
+        
+        h < 0 ? (
+            y+=h;
+            h=-h;
+        );
+        
+        w < 1 ? (
+            a=gfx_a*w;
+            w=1;
+        );
+        
+        h < 1 ? (
+            a=gfx_a*h;
+            h=1;
+        );
+        
+        //ceil_x=ceil(x);
+        
+        
+        xdot=ceil(x)-x;
+        ydot=ceil(y)-y;
+        wdot=(x+w)-floor(x+w);
+        hdot=(y+h)-floor(y+h);
+        
+        (xdot !== 0 && ydot !== 0 ) ? (
+            gfx_x=floor(x);//UL
+            gfx_y=floor(y);
+            gfx_a=(xdot*ydot)^gamma*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=100000000;
+        );
+        
+        (ydot !== 0 && wdot !== 0 ) ? (
+            gfx_x=floor(x+w);//UR
+            gfx_y=floor(y);
+            gfx_a=(ydot*wdot)^gamma*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=20000000;
+        );
+        
+        (xdot !== 0 && hdot !== 0 ) ? (
+            gfx_x=floor(x);//DL
+            gfx_y=floor(y+h);
+            gfx_a=(xdot*hdot)^gamma*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=3000000;
+        );
+            
+        (wdot !== 0 && hdot !== 0 ) ? (
+            gfx_x=floor(x+w);//DR
+            gfx_y=floor(y+h);
+            gfx_a=(wdot*hdot)^gamma*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=400000;
+        );
+            
+        (ydot !== 0) ? (
+            gfx_x=ceil(x);//U
+            gfx_y=floor(y);
+            gfx_a=(ydot)^gamma*a;
+            gfx_rectto(floor(x+w),ceil(y));//_debug+=50000;
+        );
+            
+        (xdot !== 0) ? (
+            gfx_x=floor(x);//L
+            gfx_y=ceil(y);
+            gfx_a=(xdot)^gamma*a;
+            gfx_rectto(ceil(x),floor(y+h));//_debug+=6000;
+        );
+            
+        (wdot !== 0) ? (
+            gfx_x=floor(x+w);//R
+            gfx_y=ceil(y);
+            gfx_a=(wdot)^gamma*a;
+            gfx_rectto(ceil(x+w),floor(y+h));//_debug+=700;
+        );
+        
+        (hdot !== 0) ? (
+            gfx_x=ceil(x);//D
+            gfx_y=floor(y+h);
+            gfx_a=(hdot)^gamma*a;
+            gfx_rectto(floor(x+w),ceil(y+h));//_debug+=80;
+        );
+        
+        (w >= 1 && h >= 1 ) ? (
+            gfx_x=ceil(x);//C
+            gfx_y=ceil(y);
+            gfx_a=(a);//^gamma*a;
+            gfx_rectto(floor(x+w),floor(y+h));//_debug+=9;
+        );
+        gfx_a=oa;
+        gfx_x=ox;gfx_y=oy;//Position reset for ****to
+    );
+);
+
+/*function gfx_aarect_gs(x,y,w,h)
+local(x,y,w,h,xdot,ydot,wdot,hdot,a,oa,ox,oy)
+(
+    !(!w || !h) ? (
+        //for ****to
+            //alpha reset
+                oa = gfx_a;
+            //Position reset
+                ox = gfx_x;
+                oy = gfx_y;
+        
+        //init
+            a = gfx_a;
+            
+            w < 0 ? (
+                x += w;
+                w =- w;
+            );
+            
+            h < 0 ? (
+                y += h;
+                h =- h;
+            );
+            
+            w < 1 ? (
+                a = gfx_a*w;
+                w = 1;
+            );
+            
+            h < 1 ? (
+                a = gfx_a*h;
+                h = 1;
+            );
+            
+            xdot = ceil(x) - x;
+            ydot = ceil(y) - y;
+            wdot = (x + w) - floor(x + w);
+            hdot = (y + h) - floor(y + h);
+        
+        //draw
+            xdot && ydot ? (
+                gfx_x = floor(x);//UL
+                gfx_y = floor(y);
+                gfx_a = (xdot*ydot)*a;
+                gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=100000000;
+            );
+            
+            ydot && wdot ? (
+                gfx_x = floor(x + w);//UR
+                gfx_y = floor(y);
+                gfx_a = (ydot*wdot)*a;
+                gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=20000000;
+            );
+            
+            xdot && hdot ? (
+                gfx_x = floor(x);//DL
+                gfx_y = floor(y + h);
+                gfx_a = (xdot*hdot)*a;
+                gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=3000000;
+            );
+                
+            wdot && hdot ? (
+                gfx_x = floor(x + w);//DR
+                gfx_y = floor(y + h);
+                gfx_a = (wdot*hdot)*a;
+                gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=400000;
+            );
+                
+            ydot ? (
+                gfx_x = ceil(x);//U
+                gfx_y = floor(y);
+                gfx_a = (ydot)*a;
+                gfx_rectto(floor(x + w),ceil(y));//_debug+=50000;
+            );
+                
+            xdot ? (
+                gfx_x = floor(x);//L
+                gfx_y = ceil(y);
+                gfx_a = (xdot)*a;
+                gfx_rectto(ceil(x),floor(y + h));//_debug+=6000;
+            );
+                
+            wdot ? (
+                gfx_x = floor(x+w);//R
+                gfx_y = ceil(y);
+                gfx_a = (wdot)*a;
+                gfx_rectto(ceil(x + w),floor(y + h));//_debug+=700;
+            );
+            
+            hdot ? (
+                gfx_x = ceil(x);//D
+                gfx_y = floor(y + h);
+                gfx_a = (hdot)*a;
+                gfx_rectto(floor(x + w),ceil(y + h));//_debug+=80;
+            );
+            
+            (w >= 1 && h >= 1 ) ? (
+                gfx_x = ceil(x);//C
+                gfx_y = ceil(y);
+                gfx_a = (a);
+                gfx_rectto(floor(x + w),floor(y + h));//_debug+=9;
+            );
+        
+        //for ****to
+            gfx_a = oa;
+            gfx_x = ox;
+            gfx_y = oy;
+    );
+);*/
+
+function gfx_aarect_gs(x,y,w,h)
+local(x,y,w,h,xdot,ydot,wdot,hdot,a,oa,ox,oy)
+(
+    w || h ? (
+        //for ****to
+            //alpha reset
+                oa = gfx_a;
+            //Position reset
+                ox = gfx_x;
+                oy = gfx_y;
+        //init
+            a = gfx_a;
+            w < 0 ? (
+                x += w;
+                w =- w;
+            );
+            h < 0 ? (
+                y += h;
+                h =- h;
+            );
+            w < 1 ? (
+                a = gfx_a*w;
+                w = 1;
+            );
+            h < 1 ? (
+                a = gfx_a*h;
+                h = 1;
+            );
+            xdot = ceil(x) - x;
+            ydot = ceil(y) - y;
+            wdot = (x + w) - floor(x + w);
+            hdot = (y + h) - floor(y + h);
+        //draw
+            xdot && ydot ? (
+                gfx_x = floor(x);//UL
+                gfx_y = floor(y);
+                gfx_a = xdot*ydot*a;
+                gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=100000000;
+            );
+            ydot && wdot ? (
+                gfx_x = floor(x + w);//UR
+                gfx_y = floor(y);
+                gfx_a = ydot*wdot*a;
+                gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=20000000;
+            );
+            xdot && hdot ? (
+                gfx_x = floor(x);//DL
+                gfx_y = floor(y + h);
+                gfx_a = xdot*hdot*a;
+                gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=3000000;
+            );
+            wdot && hdot ? (
+                gfx_x = floor(x + w);//DR
+                gfx_y = floor(y + h);
+                gfx_a = wdot*hdot*a;
+                gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=400000;
+            );
+            ydot ? (
+                gfx_x = ceil(x);//U
+                gfx_y = floor(y);
+                gfx_a = ydot*a;
+                gfx_rectto(floor(x + w),ceil(y));//_debug+=50000;
+            );
+            xdot ? (
+                gfx_x = floor(x);//L
+                gfx_y = ceil(y);
+                gfx_a = xdot*a;
+                gfx_rectto(ceil(x),floor(y + h));//_debug+=6000;
+            );
+            wdot ? (
+                gfx_x = floor(x+w);//R
+                gfx_y = ceil(y);
+                gfx_a = wdot*a;
+                gfx_rectto(ceil(x + w),floor(y + h));//_debug+=700;
+            );
+            hdot ? (
+                gfx_x = ceil(x);//D
+                gfx_y = floor(y + h);
+                gfx_a = hdot*a;
+                gfx_rectto(floor(x + w),ceil(y + h));//_debug+=80;
+            );
+            (w >= 1 && h >= 1) ? (
+                gfx_x = ceil(x);//C
+                gfx_y = ceil(y);
+                gfx_a = a;
+                gfx_rectto(floor(x + w),floor(y + h));//_debug+=9;
+            );
+        //for ****to
+            gfx_a = oa;
+            gfx_x = ox;
+            gfx_y = oy;
+    );
+);
+
+//antialias rect vertex gammaspace
+/*function gfx_aarectv_gs(x1,y1,x2,y2)
+local(
+    oa,ox,oy,
+    a,
+    TL,T ,TR,
+    L ,C ,R ,
+    BL,B ,BR
+)
+(
+    //save
+        oa = gfx_a;
+        ox = gfx_x;
+        oy = gfx_y;
+    //init
+        a = gfx_a;
+        
+        _dbg_21 = L = 1;
+        _dbg_22 = T = 1;
+        _dbg_23 = R = 1;
+        _dbg_24 = B = 1;
+        _dbg_25 = TL = 1;
+        _dbg_26 = TR = 1;
+        _dbg_27 = BL = 1;
+        _dbg_28 = BR = 1;
+        _dbg_29 = C = 1;
+        
+        //_dbg_31 = floor(x1);
+        //_dbg_32 = ceil(x2);
+        //_dbg_33 = ceil(x2) - floor(x1);
+        ceil(x2) - floor(x1) < 2 ? (
+            TL = 0;
+            TR = 0;
+            L = 0;
+            R = 0;
+            BL = 0;
+            BR = 0;
+        ) :
+        ceil(x2) - floor(x1) < 3 ? (
+            T = 0;
+            C = 0;
+            B = 0;
+        );
+        ceil(y2) - floor(y1) < 2 ? (
+            TL = 0;
+            T = 0;
+            TR = 0;
+            BL = 0;
+            B = 0;
+            BR = 0;
+        ) :
+        ceil(y2) - floor(y1) < 3 ? (
+            L = 0;
+            C = 0;
+            R = 0;
+        );
+    //draw
+        _dbg_1_TL=0;
+        _dbg_2_TR=0;
+        _dbg_3_BL=0;
+        _dbg_4_BR=0;
+        _dbg_5_T=0;
+        _dbg_6_L=0;
+        _dbg_7_R=0;
+        _dbg_8_B=0;
+        _dbg_9_C=0;
+        TL ? (
+            gfx_x = floor(x1);
+            gfx_y = floor(y1);
+            gfx_a = (ceil(y1) - y1)*(ceil(x1) - x1)*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);_dbg_1_TL=1;
+        );
+        TR ? (
+            gfx_x = floor(x2);
+            gfx_y = floor(y1);
+            gfx_a = (ceil(y1) - y1)*(x2 - floor(x2))*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);_dbg_2_TR=1;
+        );
+        BL ? (
+            gfx_x = floor(x1);
+            gfx_y = floor(y2);
+            gfx_a = (y2 - floor(y2))*(ceil(x1) - x1)*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);_dbg_3_BL=1;
+        );
+        BR ? (
+            gfx_x = floor(x2);
+            gfx_y = floor(y2);
+            gfx_a = (y2 - floor(y2))*(x2 - floor(x2))*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);_dbg_4_BR=1;
+        );
+        T ? (
+            gfx_x = ceil(x1);
+            gfx_y = floor(y1);
+            gfx_a = (ceil(y1) - y1)*a;
+            gfx_rectto(floor(x2),ceil(y1));_dbg_5_T=1;
+        );
+        L ? (
+            gfx_x = floor(x1);
+            gfx_y = ceil(y1);
+            gfx_a = (ceil(x1) - x1)*a;
+            gfx_rectto(ceil(x1),floor(y2));_dbg_6_L=1;
+        );
+        R ? (
+            gfx_x = floor(x2);
+            gfx_y = ceil(y1);
+            gfx_a = (x2 - floor(x2))*a;
+            gfx_rectto(ceil(x2),floor(y2));_dbg_7_R=1;
+        );
+        B ? (
+            gfx_x = ceil(x1);
+            gfx_y = floor(y2);
+            gfx_a = (y2 - floor(y2))*a;
+            gfx_rectto(floor(x2),ceil(y2));_dbg_8_B=1;
+        );
+        C ? (
+            gfx_x = ceil(x1);
+            gfx_y = ceil(y1);
+            gfx_a = a;
+            gfx_rectto(floor(x2),floor(y2));_dbg_9_C=1;
+        );
+    //for ****to
+        gfx_a = oa;
+        gfx_x = ox;
+        gfx_y = oy;
+);*/
+
+//antialias rect vertex gammaspace
+/*function gfx_aarectv_gs(x1,y1,x2,y2)
+local(
+    oa,ox,oy,
+    a,
+    TL,T ,TR,
+    L ,C ,R ,
+    BL,B ,BR,
+    C2
+)
+(
+    //save
+        oa = gfx_a;
+        ox = gfx_x;
+        oy = gfx_y;
+    //init
+        !(x1 - floor(x1)) ? x1 += 0.00000001;
+        !(y1 - floor(y1)) ? y1 += 0.00000001;
+    
+        a = gfx_a;
+        
+        _dbg_21 = L = 1;
+        _dbg_22 = T = 1;
+        _dbg_23 = R = 1;
+        _dbg_24 = B = 1;
+        _dbg_25 = TL = 1;
+        _dbg_26 = TR = 1;
+        _dbg_27 = BL = 1;
+        _dbg_28 = BR = 1;
+        _dbg_29 = C = 1;
+        _dbg_29 = C2 = 1;
+        
+        //_dbg_31 = floor(x1);
+        //_dbg_32 = ceil(x2);
+        //_dbg_33 = ceil(x2) - floor(x1);
+        ceil(x2) - floor(x1) < 2 ? (
+            TL = 0;
+            T  = 2;
+            TR = 0;
+            L  = 0;
+            C2  += 2;
+            R  = 0;
+            BL = 0;
+            B  = 2;
+            BR = 0;
+        ) :
+        ceil(x2) - floor(x1) < 3 ? (
+            T = 0;
+            C = 0;
+            B = 0;
+        );
+        ceil(y2) - floor(y1) < 2 ? (
+            TL = 0;
+            T = 0;
+            TR = 0;
+            L = 2;
+            C2 += 4;
+            R = 2;
+            BL = 0;
+            B = 0;
+            BR = 0;
+        ) :
+        ceil(y2) - floor(y1) < 3 ? (
+            L = 0;
+            C = 0;
+            R = 0;
+        );
+        ceil(x2) - floor(x1) < 2 && ceil(y2) - floor(y1) < 2 ? (
+            TL = 0;
+            T  = 0;
+            TR = 0;
+            L  = 0;
+            C  = 7;
+            R  = 0;
+            BL = 0;
+            B  = 0;
+            BR = 0;
+        );
+    //draw
+        _dbg_1_TL=0;
+        _dbg_2_TR=0;
+        _dbg_3_BL=0;
+        _dbg_4_BR=0;
+        _dbg_5_T=0;
+        _dbg_6_L=0;
+        _dbg_7_R=0;
+        _dbg_8_B=0;
+        _dbg_9_C=0;
+        TL ? (
+            gfx_x = floor(x1);
+            gfx_y = floor(y1);
+            gfx_a = (ceil(y1) - y1)*(ceil(x1) - x1)*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);_dbg_1_TL=1;
+        );
+        TR ? (
+            gfx_x = floor(x2);
+            gfx_y = floor(y1);
+            gfx_a = (ceil(y1) - y1)*(x2 - floor(x2))*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);_dbg_2_TR=1;
+        );
+        BL ? (
+            gfx_x = floor(x1);
+            gfx_y = floor(y2);
+            gfx_a = (y2 - floor(y2))*(ceil(x1) - x1)*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);_dbg_3_BL=1;
+        );
+        BR ? (
+            gfx_x = floor(x2);
+            gfx_y = floor(y2);
+            gfx_a = (y2 - floor(y2))*(x2 - floor(x2))*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);_dbg_4_BR=1;
+        );
+        T ? (
+            gfx_x = ceil(x1);
+            gfx_y = floor(y1);
+            T === 2 ? (
+                gfx_a = (ceil(y1) - y1)*(x2 - x1)*a;
+            ) : (
+                gfx_a = (ceil(y1) - y1)*a;
+            );
+            gfx_rectto(floor(x2),ceil(y1));_dbg_5_T=1;
+        );
+        L ? (
+            gfx_x = floor(x1);
+            gfx_y = ceil(y1);
+            L === 2 ? (
+                gfx_a = (ceil(x1) - x1)*(y2 - y1)*a;
+            ) : (
+                gfx_a = (ceil(x1) - x1)*a;
+            );
+            gfx_rectto(ceil(x1),floor(y2));_dbg_6_L=1;
+        );
+        R ? (
+            gfx_x = floor(x2);
+            gfx_y = ceil(y1);
+            R === 2 ? (
+                gfx_a = (x2 - floor(x2))*(y2 - y1)*a;
+            ) : (
+                gfx_a = (x2 - floor(x2))*a;
+            );
+            gfx_rectto(ceil(x2),floor(y2));_dbg_7_R=1;
+        );
+        B ? (
+            gfx_x = ceil(x1);
+            gfx_y = floor(y2);
+            B === 2 ? (
+                gfx_a = (y2 - floor(y2))*(x2 - x1)*a;
+            ) : (
+                gfx_a = (y2 - floor(y2))*a;
+            );
+            gfx_rectto(floor(x2),ceil(y2));_dbg_8_B=1;
+        );
+        C ? (
+            gfx_x = ceil(x1);
+            gfx_y = ceil(y1);
+            gfx_a = (C2&2?x2-x1:1)*(C2&4?y2-y1:1)*a;
+            gfx_rectto(floor(x2),floor(y2));_dbg_9_C=1;
+        );
+    //for ****to
+        gfx_a = oa;
+        gfx_x = ox;
+        gfx_y = oy;
+);*/
+
+//antialias rect vertex gammaspace
+function gfx_aarectv_gs(x1,y1,x2,y2)
+local(
+    oa,ox,oy,
+    a,
+    TL,T ,TR,
+    L ,C ,R ,
+    BL,B ,BR,
+    C2
+)
+(
+    //save
+        oa = gfx_a;
+        ox = gfx_x;
+        oy = gfx_y;
+    //init
+        !(x1 - floor(x1)) ? x1 += 0.00000001;
+        !(y1 - floor(y1)) ? y1 += 0.00000001;
+        !(x2 - floor(x2)) ? x2 -= 0.00000001;
+        !(y2 - floor(y2)) ? y2 -= 0.00000001;
+    
+        a = gfx_a;
+        
+        L = 1;
+        T = 1;
+        R = 1;
+        B = 1;
+        TL = 1;
+        TR = 1;
+        BL = 1;
+        BR = 1;
+        C = 1;
+        C2 = 1;
+        
+        ceil(x2) - floor(x1) < 2 ? (
+            TL = 0;
+            T  = 2;
+            TR = 0;
+            L  = 0;
+            C2  += 2;
+            R  = 0;
+            BL = 0;
+            B  = 2;
+            BR = 0;
+        ) :
+        ceil(x2) - floor(x1) < 3 ? (
+            T = 0;
+            C = 0;
+            B = 0;
+        );
+        ceil(y2) - floor(y1) < 2 ? (
+            TL = 0;
+            T = 0;
+            TR = 0;
+            L = 2;
+            C2 += 4;
+            R = 2;
+            BL = 0;
+            B = 0;
+            BR = 0;
+        ) :
+        ceil(y2) - floor(y1) < 3 ? (
+            L = 0;
+            C = 0;
+            R = 0;
+        );
+        ceil(x2) - floor(x1) < 2 && ceil(y2) - floor(y1) < 2 ? (
+            TL = 0;
+            T  = 0;
+            TR = 0;
+            L  = 0;
+            C  = 7;
+            R  = 0;
+            BL = 0;
+            B  = 0;
+            BR = 0;
+        );
+    //draw
+        TL ? (
+            gfx_x = floor(x1);
+            gfx_y = floor(y1);
+            gfx_a = (ceil(y1) - y1)*(ceil(x1) - x1)*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);
+        );
+        TR ? (
+            gfx_x = floor(x2);
+            gfx_y = floor(y1);
+            gfx_a = (ceil(y1) - y1)*(x2 - floor(x2))*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);
+        );
+        BL ? (
+            gfx_x = floor(x1);
+            gfx_y = floor(y2);
+            gfx_a = (y2 - floor(y2))*(ceil(x1) - x1)*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);
+        );
+        BR ? (
+            gfx_x = floor(x2);
+            gfx_y = floor(y2);
+            gfx_a = (y2 - floor(y2))*(x2 - floor(x2))*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);
+        );
+        T ? (
+            gfx_x = ceil(x1);
+            gfx_y = floor(y1);
+            T === 2 ? (
+                gfx_a = (ceil(y1) - y1)*(x2 - x1)*a;
+            ) : (
+                gfx_a = (ceil(y1) - y1)*a;
+            );
+            gfx_rectto(floor(x2),ceil(y1));
+        );
+        L ? (
+            gfx_x = floor(x1);
+            gfx_y = ceil(y1);
+            L === 2 ? (
+                gfx_a = (ceil(x1) - x1)*(y2 - y1)*a;
+            ) : (
+                gfx_a = (ceil(x1) - x1)*a;
+            );
+            gfx_rectto(ceil(x1),floor(y2));
+        );
+        R ? (
+            gfx_x = floor(x2);
+            gfx_y = ceil(y1);
+            R === 2 ? (
+                gfx_a = (x2 - floor(x2))*(y2 - y1)*a;
+            ) : (
+                gfx_a = (x2 - floor(x2))*a;
+            );
+            gfx_rectto(ceil(x2),floor(y2));
+        );
+        B ? (
+            gfx_x = ceil(x1);
+            gfx_y = floor(y2);
+            B === 2 ? (
+                gfx_a = (y2 - floor(y2))*(x2 - x1)*a;
+            ) : (
+                gfx_a = (y2 - floor(y2))*a;
+            );
+            gfx_rectto(floor(x2),ceil(y2));
+        );
+        C ? (
+            gfx_x = ceil(x1);
+            gfx_y = ceil(y1);
+            gfx_a = (C2&2?x2-x1:1)*(C2&4?y2-y1:1)*a;
+            gfx_rectto(floor(x2),floor(y2));
+        );
+    //for ****to
+        gfx_a = oa;
+        gfx_x = ox;
+        gfx_y = oy;
+);
+
+function gfx_aarectto(x,y)local(x,y,w,h,xdot,ydot,wdot,hdot,a,gamma,oa,ox,oy)
+(
+    w = x - gfx_x;
+    h = y - gfx_y;
+    !(w === 0 || h === 0) ? (
+        
+        oa=gfx_a;
+        ox=gfx_x;oy=gfx_y;//Position reset for ****to
+        x = gfx_x;
+        y = gfx_y;
+        gfx_aarect_gamma === 0 ? (
+            gfx_aarect_gamma=0.45454545;//_debug=0;
+            ) : (
+            gamma = gfx_aarect_gamma;
+        );
+        
+        a=gfx_a;
+        
+        w < 0 ? (
+            x+=w;
+            w=-w;
+        );
+        
+        h < 0 ? (
+            y+=h;
+            h=-h;
+        );
+        
+        w < 1 ? (
+            a=gfx_a*w;
+            w=1;
+        );
+        
+        h < 1 ? (
+            a=gfx_a*h;
+            h=1;
+        );
+        
+        //ceil_x=ceil(x);
+        
+        
+        xdot=ceil(x)-x;
+        ydot=ceil(y)-y;
+        wdot=(x+w)-floor(x+w);
+        hdot=(y+h)-floor(y+h);
+        
+        (xdot !== 0 && ydot !== 0 ) ? (
+            gfx_x=floor(x);//UL
+            gfx_y=floor(y);
+            gfx_a=(xdot*ydot)^gamma*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=100000000;
+        );
+        
+        (ydot !== 0 && wdot !== 0 ) ? (
+            gfx_x=floor(x+w);//UR
+            gfx_y=floor(y);
+            gfx_a=(ydot*wdot)^gamma*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=20000000;
+        );
+        
+        (xdot !== 0 && hdot !== 0 ) ? (
+            gfx_x=floor(x);//DL
+            gfx_y=floor(y+h);
+            gfx_a=(xdot*hdot)^gamma*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=3000000;
+        );
+            
+        (wdot !== 0 && hdot !== 0 ) ? (
+            gfx_x=floor(x+w);//DR
+            gfx_y=floor(y+h);
+            gfx_a=(wdot*hdot)^gamma*a;
+            gfx_setPixel(gfx_r,gfx_g,gfx_b);//_debug+=400000;
+        );
+            
+        (ydot !== 0) ? (
+            gfx_x=ceil(x);//U
+            gfx_y=floor(y);
+            gfx_a=(ydot)^gamma*a;
+            gfx_rectto(floor(x+w),ceil(y));//_debug+=50000;
+        );
+            
+        (xdot !== 0) ? (
+            gfx_x=floor(x);//L
+            gfx_y=ceil(y);
+            gfx_a=(xdot)^gamma*a;
+            gfx_rectto(ceil(x),floor(y+h));//_debug+=6000;
+        );
+            
+        (wdot !== 0) ? (
+            gfx_x=floor(x+w);//R
+            gfx_y=ceil(y);
+            gfx_a=(wdot)^gamma*a;
+            gfx_rectto(ceil(x+w),floor(y+h));//_debug+=700;
+        );
+        
+        (hdot !== 0) ? (
+            gfx_x=ceil(x);//D
+            gfx_y=floor(y+h);
+            gfx_a=(hdot)^gamma*a;
+            gfx_rectto(floor(x+w),ceil(y+h));//_debug+=80;
+        );
+        
+        (w >= 1 && h >= 1 ) ? (
+            gfx_x=ceil(x);//C
+            gfx_y=ceil(y);
+            gfx_a=(a);//^gamma*a;
+            gfx_rectto(floor(x+w),floor(y+h));//_debug+=9;
+        );
+        gfx_a=oa;
+        gfx_x=ox;gfx_y=oy;//Position reset for ****to
+    );
+);
+/*
+function gfx_thicklineto(x1,y1,wd)local(ox,oy,x0,y0,xdist,ydist,maxdist,x_one_step,y_one_step,center,loop,loop_count)
+(
+    x0=gfx_x;
+    y0=gfx_y;
+    xdist = abs(x0-x1);
+    ydist = abs(y0-y1);
+    
+    xdist >= ydist ? (
+        maxdist = xdist;
+        ) : (
+        maxdist = ydist;
+    );
+    
+    x_one_step = (x1-x0)/maxdist;
+    y_one_step = (y1-y0)/maxdist;
+    maxdist > 1.000000000001 ? (
+        loop = ceil(maxdist);
+        ) : (
+        loop = 1;
+    );
+    
+    wd > 1 ? (
+        center = (wd-1)/2;
+        ) : (
+        center = 0;
+    );
+    
+    loop_count = 0;
+    while(
+        gfx_aarect( gfx_x-center, gfx_y-center, wd, wd );
+        gfx_x+=x_one_step;
+        gfx_y+=y_one_step;
+        loop_count += 1;
+        (loop > loop_count && (0 <= gfx_x && gfx_x <= gfx_w && 0 <= gfx_y && gfx_y <= gfx_h));
+    );
+    
+    gfx_x=x1;
+    gfx_y=y1;
+);
+*/
+function gfx_thicklineto(x1,y1,wd)local(ox,oy,x0,y0,xdist,ydist,maxdist,x_one_step,y_one_step,center,loop)
+(
+    x0=gfx_x;
+    y0=gfx_y;
+    xdist = abs(x0-x1);
+    ydist = abs(y0-y1);
+    
+    xdist >= ydist ? (
+        maxdist = xdist;
+        ) : (
+        maxdist = ydist;
+    );
+    
+    x_one_step = (x1-x0)/maxdist;
+    y_one_step = (y1-y0)/maxdist;
+    maxdist > (1.000000000001)/*error %?*/ ? (
+        loop = ceil(maxdist);
+        ) : (
+        loop = 1;
+    );
+    
+    wd > 1 ? (
+        center = (wd-1)/2;
+        ) : (
+        center = 0;
+    );
+    
+    loop(min(loop,(2048)),//max loop: 2048
+        (0 <= gfx_x && gfx_x <= gfx_w && 0 <= gfx_y && gfx_y <= gfx_h) ? (
+            gfx_aarect( gfx_x-center, gfx_y-center, wd, wd );
+        );
+        gfx_x+=x_one_step;
+        gfx_y+=y_one_step;
+    );
+    
+    gfx_x=x1;
+    gfx_y=y1;
+);
+
+function gfx_thickline(x0,y0,x1,y1,wd)local(ox,oy,xdist,ydist,maxdist,x_one_step,y_one_step,center,loop,ox,oy)
+(
+    ox = gfx_x = x0;
+    oy = gfx_y = y0;
+    xdist = abs(x0-x1);
+    ydist = abs(y0-y1);
+    
+    xdist >= ydist ? (
+        maxdist = xdist;
+        ) : (
+        maxdist = ydist;
+    );
+    
+    x_one_step = (x1-x0)/maxdist;
+    y_one_step = (y1-y0)/maxdist;
+    maxdist > (1.000000000001)/*error %?*/ ? (
+        loop = ceil(maxdist);
+        ) : (
+        loop = 1;
+    );
+    
+    wd > 1 ? (
+        center = (wd-1)/2;
+        ) : (
+        center = 0;
+    );
+    
+    loop(min(loop,(1024)),//max loop: 1024
+        (0 <= gfx_x && gfx_x <= gfx_w && 0 <= gfx_y && gfx_y <= gfx_h) ? (
+            gfx_aarect( gfx_x-center, gfx_y-center, wd, wd );
+        );
+        gfx_x += x_one_step;
+        gfx_y += y_one_step;
+    );
+    
+    gfx_x = ox;
+    gfx_y = oy;
+);
+
+//gfx_thicklineto_x , gfx_thicklineto_y , gfx_thicklineto_w , gfx_thicklineto_h
+//gfx_thicklineto_x=gfx_thicklineto_y=0;gfx_thicklineto_w=gfx_w;gfx_thicklineto_h=gfx_h;
+function gfx_thicklinetoarea(x1,y1,wd)local(ox,oy,x0,y0,xdist,ydist,maxdist,x_one_step,y_one_step,center,loop)
+(
+    x0=gfx_x;
+    y0=gfx_y;
+    xdist = abs(x0-x1);
+    ydist = abs(y0-y1);
+    
+    xdist >= ydist ? (
+        maxdist = xdist;
+        ) : (
+        maxdist = ydist;
+    );
+    
+    x_one_step = (x1-x0)/maxdist;
+    y_one_step = (y1-y0)/maxdist;
+    maxdist > (1.000000000001)/*error %?*/ ? (
+        loop = ceil(maxdist);
+        ) : (
+        loop = 1;
+    );
+    
+    wd > 1 ? (
+        center = (wd-1)/2;
+        ) : (
+        center = 0;
+    );
+    
+    loop(min(loop,(1024)),
+        (gfx_thicklineto_x <= gfx_x && gfx_x <= (gfx_thicklineto_x + gfx_thicklineto_w) && gfx_thicklineto_y <= gfx_y && gfx_y <= (gfx_thicklineto_y + gfx_thicklineto_h)) ? (
+            gfx_aarect( gfx_x-center, gfx_y-center, wd, wd );
+        );
+        gfx_x+=x_one_step;
+        gfx_y+=y_one_step;
+    );
+    
+    gfx_x=x1;
+    gfx_y=y1;
+);
+
+function gfx_thicklineres(x0,y0,x1,y1,res,wd)local(x_one_step,y_one_step,center)
+(
+    //disy/res de one step wo tukuru
+        x_one_step = (x1-x0)/(res - 1);
+        y_one_step = (y1-y0)/(res - 1);
+    //wd de center no iti wo tyousei
+        wd > 1 ? (
+            center = (wd-1)/2;
+            ) : (
+            center = 0;
+        );
+    //draw
+        gfx_x = x0;
+        gfx_y = y0;
+        loop(res,
+            gfx_aarect( gfx_x - center, gfx_y - center, wd, wd );
+            gfx_x += x_one_step;
+            gfx_y += y_one_step;
+        );
+    //reset
+    gfx_x=x1;
+    gfx_y=y1;
+);
+
+//discrete curve
+function gfx_thicklineresdc(x0,y0,x1,y1,res,wd)local(x_one_step,y_one_step,center)
+(
+    //disy/res de one step wo tukuru
+        x_one_step = (x1-x0)/res;
+        y_one_step = (y1-y0)/res;
+    //wd de center no iti wo tyousei
+        wd > 1 ? (
+            center = (wd-1)/2;
+            ) : (
+            center = 0;
+        );
+    //draw
+        gfx_x = x0;
+        gfx_y = y0;
+        loop(res,
+            gfx_aarect( gfx_x - center, gfx_y - center, wd, wd );
+            gfx_x += x_one_step;
+            gfx_y += y_one_step;
+        );
+    //reset
+    gfx_x=x1;
+    gfx_y=y1;
+);
+
+//Equally divided Polyline curve (polygonal curve) thick line to : EPthicklineto
+function gfx_EPthicklineto(x1,y1,wd)local(x0,y0,loop,x_one_step,y_one_step,center,dist,oa)
+(
+    //save original
+        oa = gfx_a;
+    //kyori to loop
+        dist = sqrt((x1 - gfx_x)^2 + (y1 - gfx_y)^2);
+        loop = ceil(dist);
+    
+    //dist/res de one step wo tukuru
+        x_one_step = (x1 - gfx_x)/loop;
+        y_one_step = (y1 - gfx_y)/loop;
+    //kyori no gosa wo gfx_a de cover
+        dist < 1 ? (
+            gfx_a *= dist;
+        ) : (
+            gfx_a *= dist/loop;//sqrt(x_one_step^2 + y_one_step^2)
+        );
+    //wd de center no iti wo tyousei
+        wd > 1 ? (
+            center = (wd - 1)/2;
+        ) : (
+            center = 0;
+        );
+    //draw
+        loop(min(loop,4096),
+            //loop === 2 ? (hsba(0,100,100,1));
+            gfx_aarect( gfx_x - center, gfx_y - center, wd, wd );
+            //loop === 2 ? (hsba(0,0,100,1));
+            gfx_x += x_one_step;
+            gfx_y += y_one_step;
+        );
+    //reset
+        gfx_x=x1;
+        gfx_y=y1;
+        gfx_a=oa;
+);
+//Equally divided Polyline curve (polygonal curve) thick line to (gamma space) : EPthicklineto
+/*function gfx_EPthicklineto_gs(x1,y1,wd)local(x0,y0,loop,x_one_step,y_one_step,center,dist,oa)
+(
+    //save original
+        oa = gfx_a;
+    //kyori to loop
+        dist = sqrt((x1 - gfx_x)^2 + (y1 - gfx_y)^2);
+        loop = ceil(dist);
+    
+    //dist/res de one step wo tukuru
+        x_one_step = (x1 - gfx_x)/loop;
+        y_one_step = (y1 - gfx_y)/loop;
+    //kyori no gosa wo gfx_a de cover
+        dist < 1 ? (
+            gfx_a *= dist;
+        ) : (
+            gfx_a *= dist/loop;//sqrt(x_one_step^2 + y_one_step^2)
+        );
+    //wd de center no iti wo tyousei
+        wd > 1 ? (
+            center = (wd - 1)/2;
+        ) : (
+            center = 0;
+        );
+    //draw
+        loop(min(loop,4096),
+            //loop === 2 ? (hsba(0,100,100,1));
+            gfx_aarect_gs( gfx_x - center, gfx_y - center, wd, wd );
+            //loop === 2 ? (hsba(0,0,100,1));
+            gfx_x += x_one_step;
+            gfx_y += y_one_step;
+        );
+    //reset
+        gfx_x=x1;
+        gfx_y=y1;
+        gfx_a=oa;
+);*/
+//Equally divided Polyline curve (polygonal curve) thick line to (gamma space) : EPthicklineto
+function gfx_EPthicklineto_gs(x1,y1,wd)
+local(x0,y0,loop,x_one_step,y_one_step,center,dist,oa)
+(
+    //save original
+        oa = gfx_a;
+    //kyori to loop
+        dist = sqrt(sqr(x1 - gfx_x) + sqr(y1 - gfx_y));
+        loop = ceil(dist);
+    //dist/res de one step wo tukuru
+        x_one_step = (x1 - gfx_x)/loop;
+        y_one_step = (y1 - gfx_y)/loop;
+    //kyori no gosa wo gfx_a de cover
+        dist < 1 ? (
+            gfx_a *= dist;
+        ) : (
+            gfx_a *= dist/loop;//sqrt(x_one_step^2 + y_one_step^2)
+        );
+    //wd de center no iti wo tyousei
+        wd > 1 ? (
+            center = (wd - 1)*0.5;
+        ) : (
+            center = 0;
+        );
+    //draw
+        loop(min(loop,4096),
+            //loop === 2 ? (hsba(0,100,100,1));
+            gfx_aarect_gs( gfx_x - center, gfx_y - center, wd, wd );
+            //loop === 2 ? (hsba(0,0,100,1));
+            gfx_x += x_one_step;
+            gfx_y += y_one_step;
+        );
+    //reset
+        gfx_x=x1;
+        gfx_y=y1;
+        gfx_a=oa;
+);
+//Equally divided Full Thick line (gamma space)
+function gfx_EFthickline_gs(x,y,wd,loop)
+local(
+    local.gfx_a
+    local.dist,local.loop,
+    local.x_one_step,local.y_one_step,
+    local.center,
+    local.delay_x,local.delay_y
+)
+(
+    this.i ? (
+    //init
+        //save original
+            local.gfx_a = gfx_a;
+        //kyori to loop
+            local.dist = sqrt(sqr(x - this.delay_x) + sqr(y - this.delay_y));
+            local.loop = ceil(local.dist);
+        //local.dist/res de one step wo tukuru
+            local.x_one_step = (x - this.delay_x)/local.loop;
+            local.y_one_step = (y - this.delay_y)/local.loop;
+        //kyori no gosa wo gfx_a de cover
+            local.dist < 1 ? (
+                gfx_a *= local.dist;
+            ) : (
+                gfx_a *= local.dist/local.loop;//sqrt(x_one_step^2 + y_one_step^2)
+            );
+        //wd de center no iti wo tyousei
+            wd > 1 ? (
+                local.center = (wd - 1)*0.5;
+            ) : (
+                local.center = 0;
+            );
+    //draw
+        this.i === loop - 1 ? (
+            local.loop += 1;
+            this.i = -1;
+        );
+        local.delay_x = this.delay_x - local.center - local.x_one_step;
+        local.delay_y = this.delay_y - local.center - local.y_one_step;
+        loop(min(local.loop,4096),
+            gfx_aarect_gs(
+                local.delay_x += local.x_one_step,
+                local.delay_y += local.y_one_step,
+                wd,
+                wd
+            );
+        );
+    //reset
+        gfx_a = local.gfx_a;
+    );
+    this.delay_x = x;
+    this.delay_y = y;
+    this.i += 1;
+);
+//byougahanniLimit Equally divided Polyline curve (polygonal curve) thick line to : EPthicklineto
+function gfx_LEPthicklineto(x1,y1,wd)local(x0,y0,loop,x_one_step,y_one_step,center,dist,oa)
+(
+    //save original
+        oa = gfx_a;
+    //kyori to loop
+        dist = sqrt((x1 - gfx_x)^2 + (y1 - gfx_y)^2);
+        loop = ceil(dist);
+    
+    //dist/res de one step wo tukuru
+        x_one_step = (x1 - gfx_x)/loop;
+        y_one_step = (y1 - gfx_y)/loop;
+    //kyori no gosa wo gfx_a de cover
+        dist < 1 ? (
+            gfx_a *= dist;
+        ) : (
+            gfx_a *= dist/loop;//sqrt(x_one_step^2 + y_one_step^2)
+        );
+    //wd de center no iti wo tyousei
+        wd > 1 ? (
+            center = (wd - 1)/2;
+        ) : (
+            center = 0;
+        );
+    //draw
+        loop(min(loop,4096),
+            (gfx_LEPthicklineto_x <= gfx_x && gfx_x <= (gfx_LEPthicklineto_x + gfx_LEPthicklineto_w) && gfx_LEPthicklineto_y <= gfx_y && gfx_y <= (gfx_LEPthicklineto_y + gfx_LEPthicklineto_h)) ? (
+                //loop === 2 ? (hsba(0,100,100,1));
+                gfx_aarect( gfx_x - center, gfx_y - center, wd, wd );
+                //loop === 2 ? (hsba(0,0,100,1));
+            );
+            gfx_x += x_one_step;
+            gfx_y += y_one_step;
+        );
+    //reset
+        gfx_x=x1;
+        gfx_y=y1;
+        gfx_a=oa;
+);
+//Equally divided thick line to : Ethicklineto
+function gfx_Ethicklineto(x1,y1,wd)local(x0,y0,loop,x_one_step,y_one_step,center)
+(
+    //save original
+        oa = gfx_a;
+    //kyori to loop
+        //dist = sqrt((x1 - gfx_x)^2 + (y1 - gfx_y)^2);
+        dist = sqrt(sqr(x1 - gfx_x) + sqr(y1 - gfx_y));
+        loop = ceil(dist);
+    //dist/res de one step wo tukuru
+        x_one_step = (x1 - gfx_x)/loop;
+        y_one_step = (y1 - gfx_y)/loop;
+    //kyori ga 1 ika no toki, kyori no gosa wo gfx_a de cover
+        dist < 1 ? (
+            gfx_a *= dist;
+        ) : (
+            gfx_a *= dist/loop;//sqrt(x_one_step^2 + y_one_step^2)
+        );
+    //wd > 2 ? naname wo hosei
+        wd > 2 ? (
+            //kakudo
+                d = atan(x_one_step/y_one_step)*180/$pi;
+            //0 ~ 45 dake ni suru
+                df = abs(floor((d + 45)/90) - (d + 45)/90 + 0.5)*90;
+            //s
+                //s = ((45 - df)/45)^3.2*(1 - sqrt(0.5)) + sqrt(0.5);
+                //s = ((45 - df)/45)^3.2*(1 - 0.82) + 0.82;
+                s = ((45 - df)/45)^3.2*(1 - 0.88) + 0.88;
+            //return wd
+                wd *= s;
+        );
+    //wd de center no iti wo tyousei
+        wd > 1 ? (
+            center = (wd - 1)*0.5;
+        ) : (
+            center = 0;
+        );
+    //draw
+        loop(min(loop + 1,4096),
+            gfx_aarect( gfx_x - center, gfx_y - center, wd, wd );
+            gfx_x += x_one_step;
+            gfx_y += y_one_step;
+        );
+    //reset
+        gfx_x=x1;
+        gfx_y=y1;
+        gfx_a=oa;
+);
+
+//Equally divided thick line to : Ethicklineto
+function gfx_Ethicklineto_gs(x1,y1,wd)
+local(
+    x0,y0,loop,x_one_step,y_one_step,center
+    d,df,dist,oa,s
+)
+(
+    //save original
+        oa = gfx_a;
+    //kyori to loop
+        dist = sqrt(sqr(x1 - gfx_x) + sqr(y1 - gfx_y));
+        loop = ceil(dist);
+    //dist/res de one step wo tukuru
+        x_one_step = (x1 - gfx_x)/loop;
+        y_one_step = (y1 - gfx_y)/loop;
+    //kyori ga 1 ika no toki, kyori no gosa wo gfx_a de cover
+        dist < 1 ? (
+            gfx_a *= dist;
+        ) : (
+            gfx_a *= dist/loop;//sqrt(x_one_step^2 + y_one_step^2)
+        );
+    //wd > 2 ? naname wo hosei
+        /*wd > 2 ? (
+            //kakudo
+                d = atan(x_one_step/y_one_step)*180/$pi;
+            //0 ~ 45 dake ni suru
+                df = abs(floor((d + 45)/90) - (d + 45)/90 + 0.5)*90;
+            //s
+                //s = ((45 - df)/45)^3.2*(1 - sqrt(0.5)) + sqrt(0.5);
+                //s = ((45 - df)/45)^3.2*(1 - 0.82) + 0.82;
+                s = ((45 - df)/45)^3.2*(1 - 0.88) + 0.88;
+            //return wd
+                wd *= s;
+        );*/
+    //wd de center no iti wo tyousei
+        wd > 1 ? (
+            center = (wd - 1)*0.5;
+        ) : (
+            center = 0;
+        );
+    //draw
+        loop(min(loop + 1,4096),
+            gfx_aarect_gs( gfx_x - center, gfx_y - center, wd, wd );
+            gfx_x += x_one_step;
+            gfx_y += y_one_step;
+        );
+    //reset
+        gfx_x = x1;
+        gfx_y = y1;
+        gfx_a = oa;
+);
+
+function gfx_minimumlinerect(x,y,w,h)
+(
+    w = x + w - 1;
+    h = y + h - 1;
+    gfx_line(x,y,w,y);
+    gfx_line(x,y + 1,x,h);
+    gfx_line(x + 1,h,w,h);
+    gfx_line(w,y + 1,w,h - 1);
+);
+
+function touchTargets(x,y,w,h)
+(
+    (
+        mouse_x >= x
+        &&
+        mouse_y >= y
+        &&
+        mouse_x <  x + w
+        &&
+        mouse_y <  y + h
+    );
+);
+//CHECK touchTargets BOX
+/*function touchTargets(x,y,w,h)
+(
+    save_r = gfx_r;
+    save_g = gfx_g;
+    save_b = gfx_b;
+    save_a = gfx_a;
+    hsba(120,100,100,0.2);
+    gfx_rect(x,y,w,h);
+    gfx_r = save_r;
+    gfx_g = save_g;
+    gfx_b = save_b;
+    gfx_a = save_a;
+    (
+        mouse_x >= x
+        &&
+        mouse_y >= y
+        &&
+        mouse_x <  x + w
+        &&
+        mouse_y <  y + h
+    );
+);*/
+
+function mouseHoverMin(x,y,w,h,wd)
+(
+    min(
+        clamp(
+            remap(
+                abs(mouse_x - (x+w/2)),
+                0,
+                w/2 + wd,
+                1/(1 - w/(w+wd*2)),
+                0
+            ),
+            0,
+            1
+        )
+        ,
+        clamp(
+            remap(
+                abs(mouse_y - (y+h/2)),
+                0,
+                h/2 + wd,
+                1/(1 - h/(h+wd*2)),
+                0
+            ),
+            0,
+            1
+        );
+    );
+);
+
+function mouseHoverMP(x,y,w,h,wd)
+(
+    clamp(
+        remap(
+            abs(mouse_x - (x+w/2)),
+            0,
+            w/2 + wd,
+            1/(1 - w/(w+wd*2)),
+            0
+        ),
+        0,
+        1
+    )
+    *
+    clamp(
+        remap(
+            abs(mouse_y - (y+h/2)),
+            0,
+            h/2 + wd,
+            1/(1 - h/(h+wd*2)),
+            0
+        ),
+        0,
+        1
+    );
+);
+
+//clean thickline arc
+    function gfx_arcf(x,y,s,ang1,ang2,wd)
+    local(n)
+    (
+        s & 1 ? (
+            //odd
+                xo = x + (s - 1)*0.5;
+                yo = y + (s - 1)*0.5;
+                r = s*0.5 - 0.5;
+        ) : (
+            //even
+                xo = x + s*0.5 - 1;
+                yo = y + s*0.5 - 1;
+                r = s*0.5 - 1;
+        );
+        n = 0;
+        loop(wd*2 - 1,
+            gfx_arc(
+                xo,
+                yo,
+                r - (n)*0.5,
+                ang1,
+                ang2
+            );
+            n += 1;
+        );
+    );
+
+function gfx_roundrectf(x,y,w,h,radius)
+    local(shift)
+(
+    radius === 0.5 ||
+    radius >= 4.5 && (radius - floor(radius)) === 0.5 ? (
+        shift = 2;
+    ) : (
+        shift = 1;
+    );
+    //Top Left
+        gfx_circle(
+            x + radius
+        ,
+            y + radius
+        ,
+            radius
+        ,
+            1
+        );
+    //Top Left r - 1 fill
+        gfx_circle(
+            x + radius
+        ,
+            y + radius
+        ,
+            radius - 1
+        ,
+            1
+        );
+    //Top Right
+        gfx_circle(
+            w + x - radius - shift
+        ,
+            y + radius
+        ,
+            radius
+        ,
+            1
+        );
+    //Top Right r - 1 fill
+        gfx_circle(
+            w + x - radius - shift
+        ,
+            y + radius
+        ,
+            radius - 1
+        ,
+            1
+        );
+    //Bottom Left
+        gfx_circle(
+            x + radius
+        ,
+            h + y - radius - shift
+        ,
+            radius
+        ,
+            1
+        );
+    //Bottom Left r - 1 fill
+        gfx_circle(
+            x + radius
+        ,
+            h + y - radius - shift
+        ,
+            radius - 1
+        ,
+            1
+        );
+    //Bottom Right
+        gfx_circle(
+            w + x - radius - shift
+        ,
+            h + y - radius - shift
+        ,
+            radius
+        ,
+            1
+        );
+    //Bottom Right r - 1 fill
+        gfx_circle(
+            w + x - radius - shift
+        ,
+            h + y - radius - shift
+        ,
+            radius - 1
+        ,
+            1
+        );
+    //rect v
+        gfx_rect(
+            x + radius
+        ,
+            y
+        ,
+            w - radius*2
+        ,
+            h
+        );
+    //rect h
+        gfx_rect(
+            x
+        ,
+            y + radius
+        ,
+            w
+        ,
+            h - radius*2
+        );
+);
+//flag xxx*=TL xx*x=TR x*xx=BL *xxx=BR
+function gfx_roundrectf(x,y,w,h,radius,flag)
+    local(shift)
+(
+    radius === 0.5 ||
+    radius >= 4.5 && (radius - floor(radius)) === 0.5 ? (
+        shift = 2;
+    ) : (
+        shift = 1;
+    );
+    flag & 1 ? (
+        //Top Left
+            gfx_circle(
+                x + radius
+            ,
+                y + radius
+            ,
+                radius
+            ,
+                1
+            );
+        //Top Left r - 1 fill
+            gfx_circle(
+                x + radius
+            ,
+                y + radius
+            ,
+                radius - 1
+            ,
+                1
+            );
+    ) : (
+        gfx_rect(x,y,ceil(radius),ceil(radius));
+    );
+    flag & 2 ? (
+        //Top Right
+            gfx_circle(
+                w + x - radius - shift
+            ,
+                y + radius
+            ,
+                radius
+            ,
+                1
+            );
+        //Top Right r - 1 fill
+            gfx_circle(
+                w + x - radius - shift
+            ,
+                y + radius
+            ,
+                radius - 1
+            ,
+                1
+            );
+    ) : (
+        gfx_rect(x + w - ceil(radius),y,ceil(radius),ceil(radius));
+    );
+    flag & 4 ? (
+        //Bottom Left
+            gfx_circle(
+                x + radius
+            ,
+                h + y - radius - shift
+            ,
+                radius
+            ,
+                1
+            );
+        //Bottom Left r - 1 fill
+            gfx_circle(
+                x + radius
+            ,
+                h + y - radius - shift
+            ,
+                radius - 1
+            ,
+                1
+            );
+    ) : (
+        gfx_rect(x,y + h - ceil(radius),ceil(radius),ceil(radius));
+    );
+    flag & 8 ? (
+        //Bottom Right
+            gfx_circle(
+                w + x - radius - shift
+            ,
+                h + y - radius - shift
+            ,
+                radius
+            ,
+                1
+            );
+        //Bottom Right r - 1 fill
+            gfx_circle(
+                w + x - radius - shift
+            ,
+                h + y - radius - shift
+            ,
+                radius - 1
+            ,
+                1
+            );
+    ) : (
+        gfx_rect(x + w - ceil(radius),y + h - ceil(radius),ceil(radius),ceil(radius));
+    );
+    //rect v
+        gfx_rect(
+            x + radius
+        ,
+            y
+        ,
+            w - radius*2
+        ,
+            h
+        );
+    //rect h
+        gfx_rect(
+            x
+        ,
+            y + radius
+        ,
+            w
+        ,
+            h - radius*2
+        );
+);
+//TL:0 TC:1 TR:2 ML:4 MC:5 MR:6 BL:8 BC:9 BR:10
+/*function gfx_drawstr_align(str,f,x,y,w,h,m)
+(
+    f === 0 ? (
+        gfx_x = x;
+        gfx_y = y;
+        gfx_drawstr(
+            str
+        ,
+            0
+        ,
+            w + x + margin
+        ,
+            h + y + margin
+        );
+    ) :
+    f === 1 ? (
+        gfx_x = x - m;
+        gfx_y = y;
+        gfx_drawstr(
+            str
+        ,
+            1
+        ,
+            w + x + m
+        ,
+            h + y + m
+        );
+    ) :
+    f === 4 ? (
+        gfx_x = x;
+        gfx_y = y - m;
+        gfx_drawstr(
+            str
+        ,
+            4
+        ,
+            w + x + m
+        ,
+            h + y + m
+        );
+    ) :
+    f === 5 ? (
+        gfx_x = x - m;
+        gfx_y = y - m;
+        gfx_drawstr(
+            str
+        ,
+            5
+        ,
+            w + x + m
+        ,
+            h + y + m
+        );
+    ) :
+    f === 6 ? (
+        gfx_x = x - m;
+        gfx_y = y - m;
+        gfx_drawstr(
+            str
+        ,
+            6
+        ,
+            w + x
+        ,
+            h + y + m
+        );
+    ) :
+    f === 9 ? (
+        gfx_x = x - m;
+        gfx_y = y - m;
+        gfx_drawstr(
+            str
+        ,
+            9
+        ,
+            w + x + m
+        ,
+            h + y
+        );
+    ) :
+    0
+);*/
+//TL:0 TC:1 TR:2 ML:4 MC:5 MR:6 BL:8 BC:9 BR:10
+function gfx_drawstr_align(str,f,x,y,w,h,m)
+(
+    f == 0 ? (
+        gfx_x = x;
+        gfx_y = y;
+        gfx_drawstr(
+            str
+        ,
+            0
+        ,
+            w + x + m
+        ,
+            h + y + m
+        );
+    ) :
+    f == 1 ? (
+        gfx_x = x - m;
+        gfx_y = y;
+        gfx_drawstr(
+            str
+        ,
+            1
+        ,
+            w + x + m
+        ,
+            h + y + m
+        );
+    ) :
+    f == 2 ? (
+        gfx_x = x - m;
+        gfx_y = y;
+        gfx_drawstr(
+            str
+        ,
+            2
+        ,
+            w + x
+        ,
+            h + y + m
+        );
+    ) :
+    f == 4 ? (
+        gfx_x = x;
+        gfx_y = y - m;
+        gfx_drawstr(
+            str
+        ,
+            4
+        ,
+            w + x + m
+        ,
+            h + y + m
+        );
+    ) :
+    f == 5 ? (
+        gfx_x = x - m;
+        gfx_y = y - m;
+        gfx_drawstr(
+            str
+        ,
+            5
+        ,
+            w + x + m
+        ,
+            h + y + m
+        );
+    ) :
+    f == 6 ? (
+        gfx_x = x - m;
+        gfx_y = y - m;
+        gfx_drawstr(
+            str
+        ,
+            6
+        ,
+            w + x
+        ,
+            h + y + m
+        );
+    ) :
+    f == 8 ? (
+        gfx_x = x;
+        gfx_y = y - m;
+        gfx_drawstr(
+            str
+        ,
+            8
+        ,
+            w + x + m
+        ,
+            h + y
+        );
+    ) :
+    f == 9 ? (
+        gfx_x = x - m;
+        gfx_y = y - m;
+        gfx_drawstr(
+            str
+        ,
+            9
+        ,
+            w + x + m
+        ,
+            h + y
+        );
+    ) :
+    f == 10 ? (
+        gfx_x = x - m;
+        gfx_y = y - m;
+        gfx_drawstr(
+            str
+        ,
+            10
+        ,
+            w + x
+        ,
+            h + y
+        );
+    );
+);
+
+//dsaは仮の名前(DrawStringAlign)
+//gfx_dsa_set(1,"Roboto Bold",20,0.5399,-0.255);
+function gfx_dsa_set(index,font,size,height,offset)
+local(local.size)
+(
+    local.size = fc(size/height);
+    gfx_setfont(index,font,local.size);
+    ____gfx_dsa_set.size = 
+        index == 1 ? ____gfx_dsa_set.index1_size = size :
+        index == 2 ? ____gfx_dsa_set.index2_size = size :
+        index == 3 ? ____gfx_dsa_set.index3_size = size :
+        index == 4 ? ____gfx_dsa_set.index4_size = size;
+    ____gfx_dsa_set.offset = 
+        index == 1 ? ____gfx_dsa_set.index1_offset = fc(local.size*offset) :
+        index == 2 ? ____gfx_dsa_set.index2_offset = fc(local.size*offset) :
+        index == 3 ? ____gfx_dsa_set.index3_offset = fc(local.size*offset) :
+        index == 4 ? ____gfx_dsa_set.index4_offset = fc(local.size*offset);
+);
+
+function gfx_dsa_set(index)
+(
+    gfx_setfont(index);
+    ____gfx_dsa_set.size = 
+        index == 1 ? ____gfx_dsa_set.index1_size :
+        index == 2 ? ____gfx_dsa_set.index2_size :
+        index == 3 ? ____gfx_dsa_set.index3_size :
+        index == 4 ? ____gfx_dsa_set.index4_size;
+    ____gfx_dsa_set.offset = 
+        index == 1 ? ____gfx_dsa_set.index1_offset :
+        index == 2 ? ____gfx_dsa_set.index2_offset :
+        index == 3 ? ____gfx_dsa_set.index3_offset :
+        index == 4 ? ____gfx_dsa_set.index4_offset;
+);
+
+//gfx_dsa("Makeup",0,__x,__y,__w,__h);
+/*function gfx_dsa(str,frag,x,y,w,h)
+local(msr.w,msr.h)
+(
+    gfx_measurestr(str, msr.w, msr.h);
+    frag == 0 ? (
+        gfx_x = x;
+        gfx_y = y + ____gfx_dsa_set.offset;
+        gfx_drawstr(str);
+    ) :
+    frag == 1 ? (
+        gfx_x = x + floor((w - msr.w)*0.5);
+        gfx_y = y + ____gfx_dsa_set.offset;
+        gfx_drawstr(str);
+    ) :
+    frag == 2 ? (
+        gfx_x = x + w - msr.w;
+        gfx_y = y + ____gfx_dsa_set.offset;
+        gfx_drawstr(str);
+    ) :
+    frag == 4 ? (
+        gfx_x = x;
+        gfx_y = y + floor((h - ____gfx_dsa_set.size)*0.5) + ____gfx_dsa_set.offset;
+        gfx_drawstr(str);
+    ) :
+    frag == 5 ? (
+        gfx_x = x + floor((w - msr.w)*0.5);
+        gfx_y = y + floor((h - ____gfx_dsa_set.size)*0.5) + ____gfx_dsa_set.offset;
+        gfx_drawstr(str);
+    ) :
+    frag == 6 ? (
+        gfx_x = x + w - msr.w;
+        gfx_y = y + floor((h - ____gfx_dsa_set.size)*0.5) + ____gfx_dsa_set.offset;
+        gfx_drawstr(str);
+    ) :
+    frag == 8 ? (
+        gfx_x = x;
+        gfx_y = y + h - ____gfx_dsa_set.size + ____gfx_dsa_set.offset;
+        gfx_drawstr(str);
+    ) :
+    frag == 9 ? (
+        gfx_x = x + floor((w - msr.w)*0.5);
+        gfx_y = y + h - ____gfx_dsa_set.size + ____gfx_dsa_set.offset;
+        gfx_drawstr(str);
+    ) :
+    frag == 10 ? (
+        gfx_x = x + w - msr.w;
+        gfx_y = y + h - ____gfx_dsa_set.size + ____gfx_dsa_set.offset;
+        gfx_drawstr(str);
+    ) :
+    0;
+);*/
+/*function gfx_dsa(str,frag,x,y,w,h)
+local(msr.w,msr.h)
+(
+    //msr
+        gfx_measurestr(str, msr.w, msr.h);
+    //frag x
+        //left
+            frag == 0 || frag == 4 || frag == 8 ? (
+                gfx_x = x;
+            ) :
+        //center
+            frag == 1 || frag == 5 || frag == 9 ? (
+                gfx_x = x + floor((w - msr.w)*0.5);
+            ) :
+        //right
+            frag == 2 || frag == 6 || frag == 10 ? (
+                gfx_x = x + w - msr.w;
+            );
+    //frag y
+        //top
+            frag == 0 || frag == 1 || frag == 2 ? (
+                gfx_y = y + ____gfx_dsa_set.offset;
+            ) :
+        //middle
+            frag == 4 || frag == 5 || frag == 6 ? (
+                gfx_y = y + floor((h - ____gfx_dsa_set.size)*0.5) + ____gfx_dsa_set.offset;
+            ) :
+        //bottom
+            frag == 8 || frag == 9 || frag == 10 ? (
+                gfx_y = y + h - ____gfx_dsa_set.size + ____gfx_dsa_set.offset;
+            );
+    //ds
+        gfx_drawstr(str);
+);*/
+function gfx_dsa(str,frag,x,y,w,h)
+local(
+    local.w,local.h
+    local.flag
+)
+(
+    //msr
+        strlen(str) ? (
+            gfx_measurestr(str, local.w, local.h);
+        ) : (
+            //gfx_measurestr(str, local.w, local.h);
+            local.w = 0;
+        );
+    //frag x
+        //pre
+            local.flag = frag&3;
+        //left
+            local.flag == 0 ? (
+                gfx_x = x;
+            ) :
+        //center
+            local.flag == 1 ? (
+                gfx_x = x + floor((w - local.w)*0.5);
+            ) :
+        //right
+            local.flag == 2 ? (
+                gfx_x = x + w - local.w;
+            );
+    //frag y
+        //pre
+            local.flag = frag&12;
+        //top
+            local.flag == 0 ? (
+                gfx_y = y + ____gfx_dsa_set.offset;
+            ) :
+        //middle
+            local.flag == 4 ? (
+                gfx_y = y + floor((h - ____gfx_dsa_set.size)*0.5) + ____gfx_dsa_set.offset;
+            ) :
+        //bottom
+            local.flag == 8 ? (
+                gfx_y = y + h - ____gfx_dsa_set.size + ____gfx_dsa_set.offset;
+            );
+    //ds
+        gfx_drawstr(str);
+);
+
+//mouse
+    function mouse()
+    local(
+        mouse_x_d0,mouse_x_d1,
+        mouse_y_d0,mouse_y_d1,
+        mc1,mc1_d0,mc1_d1,
+        mc2,mc2_d0,mc2_d1,
+        mc4,mc4_d0,mc4_d1,
+        mc8,mc8_d0,mc8_d1,
+        mc16,mc16_d0,mc16_d1,
+        mc32,mc32_d0,mc32_d1,
+        mc64,mc64_d0,mc64_d1
+    )
+    //global: mouse_x_,mouse_y_,mouse_cap_
+    (
+        //move
+            mouse_x_ = (mouse_x_d1 = mouse_x_d0) - (mouse_x_d0 = mouse_x/gfx_ext_retina);
+            mouse_y_ = (mouse_y_d1 = mouse_y_d0) - (mouse_y_d0 = mouse_y/gfx_ext_retina);
+        //cap
+            mc1 = (mc1_d1 = mc1_d0) < (mc1_d0 = mouse_cap&1) ? 1 : 0;
+            mc2 = (mc2_d1 = mc2_d0) < (mc2_d0 = mouse_cap&2) ? 2 : 0;
+            mc4 = (mc4_d1 = mc4_d0) < (mc4_d0 = mouse_cap&4) ? 4 : 0;
+            mc8 = (mc8_d1 = mc8_d0) < (mc8_d0 = mouse_cap&8) ? 8 : 0;
+            mc16 = (mc16_d1 = mc16_d0) < (mc16_d0 = mouse_cap&16) ? 16 : 0;
+            mc32 = (mc32_d1 = mc32_d0) < (mc32_d0 = mouse_cap&32) ? 32 : 0;
+            mc64 = (mc64_d1 = mc64_d0) < (mc64_d0 = mouse_cap&64) ? 64 : 0;
+            mouse_cap_ = mc1 + mc2 + mc4 + mc8 + mc16 + mc32 + mc64;
+    );
+    
+    function mouse2()
+    local(
+        mouse_x_d0,mouse_x_d1,
+        mouse_y_d0,mouse_y_d1,
+        mc1,mc1_d0,mc1_d1,
+        mc2,mc2_d0,mc2_d1,
+        mc4,mc4_d0,mc4_d1,
+        mc8,mc8_d0,mc8_d1,
+        mc16,mc16_d0,mc16_d1,
+        mc32,mc32_d0,mc32_d1,
+        mc64,mc64_d0,mc64_d1
+    )
+    (
+        //move
+            mouse_x_ = (mouse_x_d1 = mouse_x_d0) - (mouse_x_d0 = mouse_x);
+            mouse_y_ = (mouse_y_d1 = mouse_y_d0) - (mouse_y_d0 = mouse_y);
+        //cap
+            mc1 = (mc1_d1 = mc1_d0) < (mc1_d0 = mouse_cap&1) ? 1 : 0;
+            mc2 = (mc2_d1 = mc2_d0) < (mc2_d0 = mouse_cap&2) ? 2 : 0;
+            mc4 = (mc4_d1 = mc4_d0) < (mc4_d0 = mouse_cap&4) ? 4 : 0;
+            mc8 = (mc8_d1 = mc8_d0) < (mc8_d0 = mouse_cap&8) ? 8 : 0;
+            mc16 = (mc16_d1 = mc16_d0) < (mc16_d0 = mouse_cap&16) ? 16 : 0;
+            mc32 = (mc32_d1 = mc32_d0) < (mc32_d0 = mouse_cap&32) ? 32 : 0;
+            mc64 = (mc64_d1 = mc64_d0) < (mc64_d0 = mouse_cap&64) ? 64 : 0;
+            mouse_cap_ = mc1 + mc2 + mc4 + mc8 + mc16 + mc32 + mc64;
+        //mouse_wheel
+            mouse_wheel_ = mouse_wheel/120;
+            mouse_wheel = 0;
+    );
