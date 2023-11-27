@@ -1,0 +1,2021 @@
+@init
+
+function one_minus(n)
+(
+    -n + 1
+);
+
+function frac(n)
+(
+    n - floor(n)
+);
+
+function fracper(x,per)
+(
+    x < 0 ? (
+        per - 1 - floor(x + 1)%per;
+    ) : (
+        x%per;
+    );
+);
+
+function modulo(n,m)
+(
+    (n/m - floor(n/m))*m
+);
+
+/*function lerp(a,b,t)
+(
+    a + (b - a)*t
+);*/
+//新記法
+function lerp(a,b,t)
+(
+    (1 - t)*a + t*b;
+);
+
+function CosineInterpolation(a,b,t)
+(
+    a+(b-a)*(-cos(t*$pi)/2+.5)
+);
+
+/*function clamp(n,min,max)
+(
+    min(max(n,min),max)
+);*/
+
+function clamp(x,min,max)
+(
+    x < min ? min : x > max ? max : x;
+);
+
+function log2(x)
+(
+    log(x)/log(2)
+);
+
+function ln(x)
+(
+    log(x)
+);
+
+function log_lim(x)
+(
+    max(log(x),-1000);
+);
+
+/*function cexp(r,i)local(ex)
+(
+    ex = exp(1)^r[];
+    r[] = ex*cos(i[]);
+    i[] = ex*sin(i[]);
+);*/
+
+function cexp(r,i)local(ex)
+(
+    ex = exp(r[]);
+    r[] = ex*cos(i[]);
+    i[] = ex*sin(i[]);
+);
+
+function nthroot(x,n)
+(
+    x^(1/n)
+);
+
+function remap(n,from0,to0,from1,to1)
+(
+    (n - from0)/(to0 - from0)*(to1 - from1) + from1;
+);
+
+function remap_set(x0,x1,y0,y1)
+(
+    this.b = 1/(x1 - x0)*(y1 - y0);
+    this.a = -x0 + y0/this.b;
+);
+
+function remap(x)
+(
+    (x + this.a)*this.b;
+);
+
+function centermulti(n,center,multi)
+(
+    (n - center)*multi + center;
+);
+
+/*function saw(n)
+(
+    n /= $pi*2;
+    n += .5;
+    (n - floor(n))*2 - 1;
+);*/
+
+/*function saw(x)
+(
+    x = x*0.5/$pi + 0.5;
+    (x - floor(x))*2 - 1;
+);*/
+
+function saw(x)
+(
+    ((x*(0.5/$pi) + 0.5) - floor((x*(0.5/$pi) + 0.5)))*2 - 1;
+);
+
+/*function tri(n)
+(
+    n /= $pi*2;
+    n += .75;
+    abs(n - floor(n) - .5)*4 - 1;
+);*/
+
+function tri(x)
+(
+    x = x*0.5/$pi + 0.75;
+    abs(x - floor(x) - 0.5)*4 - 1;
+);
+
+/*function rect(n)//wip
+(
+    n /= $pi*2;
+    n += .75;
+    sign(abs(n - floor(n) - .5)*4 - 1);
+);*/
+
+/*function rect(x)
+(
+    x = x*0.5/$pi + 0.75;
+    sign(abs(x - floor(x) - 0.5)*4 - 1);
+);*/
+//xが0の時yが0になるバグを修正　問題が発生したら↑のrectに戻す
+//あとこのことを書いてたメモどこにいった?　メモが散乱しすぎてもうだめだ
+function rect(x)
+(
+    x*(0.5/$pi) - floor(x*(0.5/$pi)) < 0.5 ? 1 : -1;
+);
+
+function pwm(x,duty)
+(
+    x = x*0.5/$pi;
+    x - floor(x) < duty ? 1 : -1;
+);
+
+function ms_to_Hz(x)
+(
+    //1/x*1000;
+    1000/x;
+);
+
+function Hz_to_ms(x)
+(
+    1000/x;
+);
+
+function ms_to_sample(x)
+(
+    x*0.001*srate;
+);
+
+function max(a,b,c)
+(
+    max(max(a,b),c);
+);
+
+function ramp(x)
+(
+    x <= 0 ? 0 : x;
+);
+
+function pwl(x,x0,y0,x1,y1)
+(
+    x < x0 ? y0 :
+    x < x1 ? remap(x,x0,x1,y0,y1) :
+    y1;
+);
+
+function pwl(x,x0,y0,x1,y1,x2,y2)
+(
+    x < x0 ? y0 :
+    x < x1 ? remap(x,x0,x1,y0,y1) :
+    x < x2 ? remap(x,x1,x2,y1,y2) :
+    y2;
+);
+
+function pwl(x,x0,y0,x1,y1,x2,y2,x3,y3)
+(
+    x < x0 ? y0 :
+    x < x1 ? remap(x,x0,x1,y0,y1) :
+    x < x2 ? remap(x,x1,x2,y1,y2) :
+    x < x3 ? remap(x,x2,x3,y2,y3) :
+    y3;
+);
+
+function pwl(x,x0,y0,x1,y1,x2,y2,x3,y3,x4,y4)
+(
+    x < x0 ? y0 :
+    x < x1 ? remap(x,x0,x1,y0,y1) :
+    x < x2 ? remap(x,x1,x2,y1,y2) :
+    x < x3 ? remap(x,x2,x3,y2,y3) :
+    x < x4 ? remap(x,x3,x4,y3,y4) :
+    y4;
+);
+
+function pwl(x,x0,y0,x1,y1,x2,y2,x3,y3,x4,y4,x5,y5)
+(
+    x < x0 ? y0 :
+    x < x1 ? remap(x,x0,x1,y0,y1) :
+    x < x2 ? remap(x,x1,x2,y1,y2) :
+    x < x3 ? remap(x,x2,x3,y2,y3) :
+    x < x4 ? remap(x,x3,x4,y3,y4) :
+    x < x5 ? remap(x,x4,x5,y4,y5) :
+    y5;
+);
+
+function pwl(x,x0,y0,x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
+(
+    x < x0 ? y0 :
+    x < x1 ? remap(x,x0,x1,y0,y1) :
+    x < x2 ? remap(x,x1,x2,y1,y2) :
+    x < x3 ? remap(x,x2,x3,y2,y3) :
+    x < x4 ? remap(x,x3,x4,y3,y4) :
+    x < x5 ? remap(x,x4,x5,y4,y5) :
+    x < x6 ? remap(x,x5,x6,y5,y6) :
+    y6;
+);
+
+function pwl(x,x0,y0,x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6,x7,y7)
+(
+    x < x0 ? y0 :
+    x < x1 ? remap(x,x0,x1,y0,y1) :
+    x < x2 ? remap(x,x1,x2,y1,y2) :
+    x < x3 ? remap(x,x2,x3,y2,y3) :
+    x < x4 ? remap(x,x3,x4,y3,y4) :
+    x < x5 ? remap(x,x4,x5,y4,y5) :
+    x < x6 ? remap(x,x5,x6,y5,y6) :
+    x < x7 ? remap(x,x6,x7,y6,y7) :
+    y7;
+);
+
+function pwl(x,x0,y0,x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6,x7,y7,x8,y8)
+(
+    x < x0 ? y0 :
+    x < x1 ? remap(x,x0,x1,y0,y1) :
+    x < x2 ? remap(x,x1,x2,y1,y2) :
+    x < x3 ? remap(x,x2,x3,y2,y3) :
+    x < x4 ? remap(x,x3,x4,y3,y4) :
+    x < x5 ? remap(x,x4,x5,y4,y5) :
+    x < x6 ? remap(x,x5,x6,y5,y6) :
+    x < x7 ? remap(x,x6,x7,y6,y7) :
+    x < x8 ? remap(x,x7,x8,y7,y8) :
+    y8;
+);
+
+// Rounding --------------------------------
+function fc(n)//five ceil
+(
+    floor(n+0.5)
+);
+//five ceil (round)
+function fc(x,a)
+local(b)
+(
+    b = 1/a;
+    floor(x*b + 0.5)*a;
+);
+
+function fcr(n,dp)local(s)//five ceil round
+(
+    s = 10^dp;
+    floor((n + 0.5/s)*s)/s
+);
+
+function ff(n)//five floor
+(
+    ceil(n-0.5)
+);
+
+function ec(n)//even ceil
+(
+    floor(n/2)*2 + 1
+);
+
+function ef(n)//even floor
+(
+    ceil(n/2)*2 - 1
+);
+//odd floor
+function of(x)
+(
+    ceil((x - 1)*0.5)*2;
+);
+//odd ceil
+function oc(x)
+(
+    floor((x + 1)*0.5)*2;
+);
+
+// linear <=> dB --------------------------------
+function to_linear(n)
+(
+    10^(n/20)
+);
+
+function to_dB(n)
+(
+    20*log10(n)
+);
+
+// Hyperbolic functions --------------------------------
+function cosh(x)
+(
+    (exp(x) + exp(-x))/2
+);
+
+function acosh(x)
+(
+    log(x + sqrt(x^2 - 1))
+);
+
+function tanh(x)
+(
+    2/(1 + exp(-x*2)) - 1;
+);
+
+function atanh(x)
+(
+    0.5*log((1 + x)/(1 - x));
+);
+
+// cross-fade --------------------------------
+function eglincf(x,y,a)//Equal gain linear crossfade
+(
+    x*(1-a) + y*(a)
+);
+
+function egsincf(x,y,a)local(z)//Equal gain sine crossfade
+(
+    x*(z=cos(a*$pi)*0.5+0.5) + y*(1-z)
+);
+
+function eplincf(x,y,a)//Equal power linear crossfade
+(
+    x*sqrt(1-a) + y*sqrt(a)
+);
+
+function epsincf(x,y,a)//Equal power sine crossfade
+(
+    x*(cos(a*$pi/2)*1) + y*(sin(a*$pi/2)*1)
+);
+
+// Memory operation --------------------------------
+function memshift(start_index,size,shift)local(n)
+(
+    memcpy(7000000,start_index,size);
+    n = 0;
+    loop(size,
+        n[start_index] = (modulo(n - shift,size))[7000000];
+        n += 1;
+    );
+);
+
+function memshift(start,len,ws,shift)
+local(fracshift)
+(
+    //wsに移動
+        memcpy(ws,start,len);
+    //startより高くなるshiftの位置
+        fracshift = fracper(shift,len);
+    //startより高い方のシフト
+        memcpy(start + fracshift,ws,len - fracshift);
+    //startより高い方のシフトで切れた部分のシフト
+        memcpy(start,ws + fracper(len - shift,len),fracshift);
+);
+
+function gmemset(offset,value,length)
+local(i)
+(
+    i = offset;
+    loop(length,
+        gmem[i] = value;
+        i += 1;
+    );
+);
+
+// Memory Interpolation --------------------------------
+function memory_lerp(index,start_index)
+(
+    lerp(floor(index)[start_index],ceil(index)[start_index],index - floor(index));
+);
+
+function memory_cos(index,start_index)
+(
+    CosineInterpolation(floor(index)[start_index],ceil(index)[start_index],index - floor(index));
+);
+
+function Lagrange3(fraction,_)local(delta,d0,d1,d2,s)
+(
+    delta = 1 + fraction;
+
+    d0 = 3[_] - 2[_];
+    d1 = d0 - (2[_] - 1[_]);
+    d2 = d1 - ((2[_] - 1[_]) - (1[_] - 0[_]));
+
+    s = 0;
+    s = (2 - delta) / 3 * (d2 + s);
+    s = (1 - delta) / 2 * (d1 + s);
+    s = (0 - delta) / 1 * (d0 + s);
+    s = 3[_] + s;
+);
+
+function memory_Lagrange3(f,start_index)
+(
+    Lagrange3(1-frac(f),start_index + floor(f) - 1);
+);
+
+function Lagrange3PointInterpolation(input,fraction,buffer)local(diff,xd)
+(
+    diff = buffer;//0~5 6spls
+    xd = buffer + 3;
+    
+    delta = 1 + fraction;
+
+    diff[0] = input - xd[0];
+    diff[1] = diff[0] - xd[1];
+    diff[2] = diff[1] - xd[2];
+
+    xd[0] = input;
+    xd[1] = diff[0];
+    xd[2] = diff[1];
+
+    sig = 0;
+    sig = (2 - delta) / 3 * (diff[2] + sig);
+    sig = (1 - delta) / 2 * (diff[1] + sig);
+    sig = (0 - delta) / 1 * (diff[0] + sig);
+    sig = input + sig;
+);
+
+function Lagrange3z(z_0,z_1,z_2,z_3,fraction)local(delta,d0,d1,d2,s)
+(
+    delta = 1 + fraction;
+
+    d0 = z_0[] - z_1[];
+    d1 = d0 - (z_1[] - z_2[]);
+    d2 = d1 - ((z_1[] - z_2[]) - (z_2[] - z_3[]));
+
+    s = 0;
+    s = (2 - delta) / 3 * (d2 + s);
+    s = (1 - delta) / 2 * (d1 + s);
+    s = (0 - delta) / 1 * (d0 + s);
+    s = z_0[] + s;
+);
+
+function Lagrange3m(delayminus1,delay0,delay1,delay2,fraction)local(delta,d0,d1,d2,s)
+(
+    delta = 1 + fraction;
+
+    d0 = delayminus1 - delay0;
+    d1 = d0 - (delay0 - delay1);
+    d2 = d1 - ((delay0 - delay1) - (delay1 - delay2));
+
+    s = 0;
+    s = (2 - delta) / 3 * (d2 + s);
+    s = (1 - delta) / 2 * (d1 + s);
+    s = (0 - delta) / 1 * (d0 + s);
+    s = delayminus1 + s;
+);
+
+//https://www.paulinternet.nl/?page=bicubic
+function Cubic_interpolation(p0,p1,p2,p3,x)
+(
+    (-1/2*p0 + 3/2*p1 - 3/2*p2 + 1/2*p3)*x^3 + (p0 - 5/2*p1 + 2*p2 - 1/2*p3)*x^2 + (-1/2*p0 + 1/2*p2)*x + p1
+);
+
+// SINC --------------------------------
+function sinc(m,n,f0)local(x)
+(
+    m = m - 1;
+    n = n - 1;
+    f0 = f0/srate;
+    x = $pi*(m - n/2);
+    m === n/2 ? 2*f0 : sin(2*f0*x)/x;
+);
+// PRNG --------------------------------
+function xorshift32(y)
+(
+    y ~= y << 13;
+    y ~= y >> 17;
+    y ~= y << 5;
+);
+//-2147483648 ~ 2147483648 gurai
+function xorshift32n0(seed)
+instance(xs32n_switch,xs32n_y,xs32n_seedreturn)
+(
+    xs32n_switch === 0 ? (
+        xs32n_seedreturn = seed;
+        xs32n_switch = 1;
+    );
+    
+    xs32n_y = xs32n_seedreturn;
+    
+    xs32n_y ~= xs32n_y << 13;
+    xs32n_y ~= xs32n_y >> 17;
+    xs32n_y ~= xs32n_y << 5;
+    
+    xs32n_seedreturn = xs32n_y;
+);
+//0 ~ 1
+function xorshift32n(seed)
+instance(xs32n_switch,xs32n_y,xs32n_seedreturn)
+(
+    xs32n_switch === 0 ? (
+        xs32n_seedreturn = seed;
+        xs32n_switch = 1;
+    );
+    
+    xs32n_y = xs32n_seedreturn;
+    
+    xs32n_y ~= xs32n_y << 13;
+    xs32n_y ~= xs32n_y >> 17;
+    xs32n_y ~= xs32n_y << 5;
+    
+    xs32n_seedreturn = xs32n_y;
+    
+    (xs32n_y + 0x80000000)/0xFFFFFFFF;
+);
+//-1 ~ 1
+function xorshift32n2(seed)
+instance(xs32n_switch,xs32n_y,xs32n_seedreturn)
+(
+    !xs32n_switch ? (
+        xs32n_seedreturn = seed;
+        xs32n_switch = 1;
+    );
+    
+    xs32n_y = xs32n_seedreturn;
+    
+    xs32n_y ~= xs32n_y << 13;
+    xs32n_y ~= xs32n_y >> 17;
+    xs32n_y ~= xs32n_y << 5;
+    
+    xs32n_seedreturn = xs32n_y;
+    
+    xs32n_y/0x80000000;
+);
+
+function xorshift32_n1_to_1(seed)
+(
+    this === 0 ? this = seed;
+    
+    this ~= this << 13;
+    this ~= this >> 17;
+    (this ~= this << 5)/0x80000000;
+);
+// Time --------------------------------
+//must prefix
+function delay(in,delay,memselect)
+instance(delaycount)
+(
+    delaycount[memselect] = in;
+    delaycount < delay ? (
+        delaycount += 1;
+    ) : (
+        delaycount = 0;
+    );
+    delaycount[memselect];
+);
+//must prefix
+/*function delay1(x,mem,delay)
+(
+    mem[this.delay.cnt] = x;
+    this.delay.cnt < delay ? (
+        this.delay.cnt += 1;
+    ) : (
+        this.delay.cnt = 0;
+    );
+    mem[this.delay.cnt];
+);*/
+//must prefix
+function delay1(x,mem,delay)
+(
+    delay <= 0 ? (
+        x;
+    ) : (
+        mem[this.delay.cnt] = x;
+        this.delay.cnt < delay ? (
+            this.delay.cnt += 1;
+        ) : (
+            this.delay.cnt = 0;
+        );
+        mem[this.delay.cnt];
+    );
+);
+//must prefix
+function delay1_init(mem,delay)
+(
+    memset(mem,0,delay + 1);
+    this.delay.cnt = 0;
+);
+//must prefix
+function delay2(x0,x1,mem,delay)
+(
+    delay <= 0 ? (
+        this.delay0 = x0;
+        this.delay1 = x1;
+    ) : (
+        this.cnt[mem] = x0;
+        this.cnt[mem + 1] = x1;
+        this.cnt < delay*2 ? (
+            this.cnt += 2;
+        ) : (
+            this.cnt = 0;
+        );
+        this.delay0 = this.cnt[mem];
+        this.delay1 = this.cnt[mem + 1];
+    );
+);
+//delay = 20の時memが[0]~[19]の20個のはず
+/*function delay(x0,x1,mem,delay)
+(
+    this.0 = mem[this.cnt];
+    this.1 = mem[this.cnt + 1];
+    
+    mem[this.cnt] = x0;
+    mem[this.cnt + 1] = x1;
+    
+    this.cnt < delay*2 - 2 ? (
+        this.cnt += 2;
+    ) : (
+        this.cnt = 0;
+    );
+);*/
+//0の分岐ありバージョン　↑のやつよりちょっとだけ重い
+function delay(x0,x1,mem,delay)
+(
+    delay <= 0 ? (
+        this.0 = x0;
+        this.1 = x1;
+    ) : (
+        this.0 = mem[this.cnt];
+        this.1 = mem[this.cnt + 1];
+        
+        mem[this.cnt] = x0;
+        mem[this.cnt + 1] = x1;
+        
+        this.cnt < delay*2 - 2 ? (
+            this.cnt += 2;
+        ) : (
+            this.cnt = 0;
+        );
+    );
+);
+
+function delay(x0,x1,x2,mem,delay)
+(
+    mem_get_values(
+        mem + this.cnt,
+        this.0,
+        this.1,
+        this.2
+    );
+    
+    mem_set_values(
+        mem + this.cnt,
+        x0,
+        x1,
+        x2
+    );
+    
+    this.cnt < delay*3 - 3 ? (
+        this.cnt += 3;
+    ) : (
+        this.cnt = 0;
+    );
+);
+
+function delay(x0,x1,x2,x3,mem,delay)
+(
+    mem_get_values(
+        mem + this.cnt,
+        this.0,
+        this.1,
+        this.2,
+        this.3
+    );
+    
+    mem_set_values(
+        mem + this.cnt,
+        x0,
+        x1,
+        x2,
+        x3
+    );
+    
+    this.cnt < delay*4 - 4 ? (
+        this.cnt += 4;
+    ) : (
+        this.cnt = 0;
+    );
+);
+//must prefix
+function rc(in,t)
+(
+    this = t*this + (1 - t)*in;
+);
+
+function rc_v2(x,hz)
+(
+    (this.rc_hz_d1 = this.rc_hz_d0) !== (this.rc_hz_d0 = hz) ? this.rc_switch = 0;
+    
+    this.rc_switch === 0 ? (//aaaa_debug_ += 1;
+        this.rc_t = exp(-$pi*2*(hz)/srate);
+        this.rc_switch = 1;
+    );
+    
+    this.rc_return = this.rc_t*this.rc_return + (1 - this.rc_t)*x;
+);
+
+function SVFrc(x,cutoff)
+instance(i)
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff) ? (//this.aaaa_debug_ += 1;
+        c = 1 - exp(-$pi*cutoff/srate);
+    );
+    i = 2*(x = i + c*(x - i)) - i;
+    x;
+);
+
+function OPlpf_temp(x,cutoff)
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff) ? (//this.aaaa_debug_ += 1;
+        this.c = exp(-$pi*2*cutoff/srate);
+    );
+    this.y = this.c*this.y + (1 - this.c)*x;
+);
+
+function OPhpf_temp(x,cutoff)
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff) ? (//this.aaaa_debug_ += 1;
+        this.c = exp(-$pi*2*cutoff/srate);
+    );
+    this.y = this.c*this.y + (1 - this.c)*x;
+    x - this.y;
+);
+//f0|q reset: this.switch = 0;
+/*function bqlpf(in,f0,q)
+local(w0,alpha,b0,b1,b2,a0,a1,a2)
+instance(c0,c1,c2,c3,c4,i_0,i_1,i_2,o_0,o_1,o_2)
+(
+    this.switch === 0 ? (
+        w0 = 2*$pi*(f0)/srate;
+        alpha = sin(w0)/(2*q);
+        
+        b0 =  (1 - cos(w0))/2;
+        b1 =   1 - cos(w0);
+        b2 =  (1 - cos(w0))/2;
+        a0 =   1 + alpha;
+        a1 =  -2*cos(w0);
+        a2 =   1 - alpha;
+        //arakazime keisan
+            c0 = b0/a0;
+            c1 = b1/a0;
+            c2 = b2/a0;
+            c3 = a1/a0;
+            c4 = a2/a0;
+        this.switch = 1;
+    );
+    
+    i_2 = i_1;
+    i_1 = i_0;
+    o_2 = o_1;
+    o_1 = o_0;
+    o_0 = c0*(i_0 = in) + c1*i_1 + c2*i_2
+                        - c3*o_1 - c4*o_2;
+);*/
+//q no auto reswitch mikakunin | name: o_0 -> o0
+function bqlpf(in,f0,q)
+local(w0,alpha,b0,b1,b2,a0,a1,a2)
+instance(c0,c1,c2,c3,c4,i0,i1,i2,o0,o1,o2,f0_d0,f0_d1,q_d0,q_d1)
+(
+    (f0_d1 = f0_d0) !== (f0_d0 = f0) || (q_d1 = q_d0) !== (q_d0 = q) ? this.switch = 0;
+    
+    this.switch === 0 ? (//aaaa_debug_ += 1;
+        w0 = 2*$pi*(f0)/srate;
+        alpha = sin(w0)/(2*q);
+        
+        b0 =  (1 - cos(w0))/2;
+        b1 =   1 - cos(w0);
+        b2 =  (1 - cos(w0))/2;
+        a0 =   1 + alpha;
+        a1 =  -2*cos(w0);
+        a2 =   1 - alpha;
+        //arakazime keisan
+            c0 = b0/a0;
+            c1 = b1/a0;
+            c2 = b2/a0;
+            c3 = a1/a0;
+            c4 = a2/a0;
+        this.switch = 1;
+    );
+    
+    i2 = i1;
+    i1 = i0;
+    o2 = o1;
+    o1 = o0;
+    o0 = c0*(i0 = in) + c1*i1 + c2*i2
+                      - c3*o1 - c4*o2;
+);
+//f0 & q reset: this.switch = 0;
+/*function bqhpf(in,f0,q)
+local(w0,alpha,b0,b1,b2,a0,a1,a2)
+instance(c0,c1,c2,c3,c4,i_0,i_1,i_2,o_0,o_1,o_2)
+(
+    this.switch === 0 ? (
+        w0 = 2*$pi*(f0)/srate;
+        alpha = sin(w0)/(2*q);
+        
+        b0 =  (1 + cos(w0))/2;
+        b1 = -(1 + cos(w0));
+        b2 =  (1 + cos(w0))/2;
+        a0 =   1 + alpha;
+        a1 =  -2*cos(w0);
+        a2 =   1 - alpha;
+        //arakazime keisan
+            c0 = b0/a0;
+            c1 = b1/a0;
+            c2 = b2/a0;
+            c3 = a1/a0;
+            c4 = a2/a0;
+        this.switch = 1;
+    );
+    
+    i_2 = i_1;
+    i_1 = i_0;
+    o_2 = o_1;
+    o_1 = o_0;
+    o_0 = c0*(i_0 = in) + c1*i_1 + c2*i_2
+                        - c3*o_1 - c4*o_2;
+);*/
+//q no auto reswitch mikakunin
+function bqhpf(in,f0,q)
+local(w0,alpha,b0,b1,b2,a0,a1,a2)
+instance(c0,c1,c2,c3,c4,i0,i1,i2,o0,o1,o2,f0_d0,f0_d1,q_d0,q_d1)
+(
+    (f0_d1 = f0_d0) !== (f0_d0 = f0) || (q_d1 = q_d0) !== (q_d0 = q) ? this.switch = 0;
+    
+    this.switch === 0 ? (//aaaa_debug_ += 1;
+        w0 = 2*$pi*(f0)/srate;
+        alpha = sin(w0)/(2*q);
+        
+        b0 =  (1 + cos(w0))/2;
+        b1 = -(1 + cos(w0));
+        b2 =  (1 + cos(w0))/2;
+        a0 =   1 + alpha;
+        a1 =  -2*cos(w0);
+        a2 =   1 - alpha;
+        //arakazime keisan
+            c0 = b0/a0;
+            c1 = b1/a0;
+            c2 = b2/a0;
+            c3 = a1/a0;
+            c4 = a2/a0;
+        this.switch = 1;
+    );
+    
+    i2 = i1;
+    i1 = i0;
+    o2 = o1;
+    o1 = o0;
+    o0 = c0*(i0 = in) + c1*i1 + c2*i2
+                      - c3*o1 - c4*o2;
+);
+//q no auto reswitch mikakunin
+/*function bqapf(in,f0,q)
+local(w0,alpha,b0,b1,b2,a0,a1,a2)
+instance(c0,c1,c2,c3,c4,i0,i1,i2,o0,o1,o2,f0_d0,f0_d1,q_d0,q_d1)
+(
+    (f0_d1 = f0_d0) !== (f0_d0 = f0) || (q_d1 = q_d0) !== (q_d0 = q) ? this.switch = 0;
+    
+    this.switch === 0 ? (//aaaa_debug_ += 1;
+        w0 = 2*$pi*(f0)/srate;
+        alpha = sin(w0)/(2*q);
+        
+        b0 =   1 - alpha;
+        b1 =  -2*cos(w0);
+        b2 =   1 + alpha;
+        a0 =   1 + alpha;
+        a1 =  -2*cos(w0);
+        a2 =   1 - alpha;
+        //arakazime keisan
+            c0 = b0/a0;
+            c1 = b1/a0;
+            c2 = b2/a0;
+            c3 = a1/a0;
+            c4 = a2/a0;
+        this.switch = 1;
+    );
+    
+    i2 = i1;
+    i1 = i0;
+    o2 = o1;
+    o1 = o0;
+    o0 = c0*(i0 = in) + c1*i1 + c2*i2
+                      - c3*o1 - c4*o2;
+);*/
+//q no auto reswitch mikakunin //this.switch haisi
+function bqapf(in,f0,q)
+local(w0,alpha,b0,b1,b2,a0,a1,a2)
+instance(c0,c1,c2,c3,c4,i0,i1,i2,o0,o1,o2,f0_d0,f0_d1,q_d0,q_d1)
+(
+    (f0_d1 = f0_d0) !== (f0_d0 = f0) || (q_d1 = q_d0) !== (q_d0 = q) ? (//aaaa_debug_ += 1;
+        w0 = 2*$pi*(f0)/srate;
+        alpha = sin(w0)/(2*q);
+        
+        b0 =   1 - alpha;
+        b1 =  -2*cos(w0);
+        b2 =   1 + alpha;
+        a0 =   1 + alpha;
+        a1 =  -2*cos(w0);
+        a2 =   1 - alpha;
+        //arakazime keisan
+            c0 = b0/a0;
+            c1 = b1/a0;
+            c2 = b2/a0;
+            c3 = a1/a0;
+            c4 = a2/a0;
+    );
+    
+    i2 = i1;
+    i1 = i0;
+    o2 = o1;
+    o1 = o0;
+    o0 = c0*(i0 = in) + c1*i1 + c2*i2
+                      - c3*o1 - c4*o2;
+);
+//https://cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
+//case = 0:low 1:band 2:high 3:notch 4:peak 5:all 6:bell 7:low shelf 8:high shelf
+function SVF(v0,cutoff,Q,bellgaindB,case)
+    //local(g,k,a1,a2,a3,m0,m1,m2,A,v1,v2,v3)
+    //instance(ic1eq,ic2eq)
+    local(g,k,A,v1,v2,v3)
+    instance(a1,a2,a3,m0,m1,m2,ic1eq,ic2eq)
+(
+    //low ~ all
+    0 <= case && case <= 5 ? (
+        g = tan($pi*cutoff/srate);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+        a3 = g*a2;
+        //low
+        case === 0 ? (
+            m0 = 0;
+            m1 = 0;
+            m2 = 1;
+        ) :
+        //band
+        case === 1 ? (
+            m0 = 0;
+            m1 = 1;
+            m2 = 0;
+        ) :
+        //high
+        case === 2 ? (
+            m0 = 1;
+            m1 = -k;
+            m2 = -1;
+        ) :
+        //notch
+        case === 3 ? (
+            m0 = 1;
+            m1 = -k;
+            m2 = 0;
+        ) :
+        //peak
+        case === 4 ? (
+            m0 = 1;
+            m1 = -k;
+            m2 = -2;
+        ) :
+        //all
+        case === 5 ? (
+            m0 = 1;
+            m1 = -2*k;
+            m2 = 0;
+        );
+    ) :
+    //bell
+    case === 6 ? (
+        A = pow(10, bellgaindB/40);
+        g = tan($pi*cutoff/srate);
+        k = 1/(Q*A);
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+        a3 = g*a2;
+        m0 = 1;
+        m1 = k*(A*A - 1);
+        m2 = 0;
+    ) :
+    //low shelf
+    case === 7 ? (
+        A = pow(10, bellgaindB/40);
+        g = tan($pi*cutoff/srate)/sqrt(A);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+        a3 = g*a2;
+        m0 = 1;
+        m1 = k*(A - 1);
+        m2 = (A*A - 1);
+    ) :
+    //high shelf
+    case === 8 ? (
+        A = pow(10, bellgaindB/40);
+        g = tan($pi*cutoff/srate)*sqrt(A);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+        a3 = g*a2;
+        m0 = A*A;
+        m1 = k*(1 - A)*A;
+        m2 = (1 - A*A);
+    );
+    
+    v3 = v0 - ic2eq;
+    v1 = a1*ic1eq + a2*v3;
+    v2 = ic2eq + a2*ic1eq + a3*v3;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    m0*v0 + m1*v1 + m2*v2;
+);
+//https://cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
+/*function SVFlow(v0,cutoff,Q)
+    local(
+        g,k,
+        v1,v2,v3
+    )
+    instance(
+        a1,a2,a3,
+        ic1eq,ic2eq
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff + Q) ? (//this.aaaa_debug_ += 1;
+        g = tan($pi*cutoff/srate);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+        a3 = g*a2;
+    );
+    
+    v3 = v0 - ic2eq;
+    v1 = a1*ic1eq + a2*v3;
+    v2 = ic2eq + a2*ic1eq + a3*v3;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    v2;
+);*/
+//https://cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
+//static mo dynamic mo kotti no hou ga karui
+function SVFlow(v0,cutoff,Q)
+    local(
+        k,
+        v1,v2
+    )
+    instance(
+        g,a1,a2,
+        ic1eq,ic2eq
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff + Q) ? (//this.aaaa_debug_ += 1;
+        g = tan($pi*cutoff/srate);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+    );
+    
+    v1 = a1*ic1eq + a2*(v0 - ic2eq);
+    v2 = ic2eq + g*v1;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    v2;
+);
+
+function SVFlow_init()
+(
+    this.a1 = 0;
+    this.a2 = 0;
+    this.d0 = 0;
+    this.d1 = 0;
+    this.g = 0;
+    this.ic1eq = 0;
+    this.ic2eq = 0;
+);
+
+function SVFlow_srate(v0,cutoff,Q,srate)
+    local(
+        k,
+        v1,v2
+    )
+    instance(
+        g,a1,a2,
+        ic1eq,ic2eq
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff + Q) ? (//this.aaaa_debug_ += 1;
+        g = tan($pi*cutoff/srate);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+    );
+    
+    v1 = a1*ic1eq + a2*(v0 - ic2eq);
+    v2 = ic2eq + g*v1;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    v2;
+);
+
+function SVFlow_(v0,cutoff,Q)
+    local(
+        k,
+        v1,v2
+    )
+    instance(
+        g,a1,a2,
+        ic1eq,ic2eq
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff + Q) ? (//this.aaaa_debug_ += 1;
+        g = tan($pi*cutoff);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+    );
+    
+    v1 = a1*ic1eq + a2*(v0 - ic2eq);
+    v2 = ic2eq + g*v1;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    v2;
+);
+
+/*function SVFlow4(v0,cutoff0,Q0)
+    local(
+        Q,
+        Q2,
+        vA,vB
+    )
+    instance(
+        g,aA,aB,iA,iB
+        g2,aA2,aB2,iA2,iB2
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff0 + Q0) ? (//this.aaaa_debug_ += 1;
+        Q = 0.5/cos($pi/8);
+        g = tan($pi*cutoff0/srate);
+        aA = 1/(1 + g*(g + 1/Q));
+        aB = g*aA;
+        
+        Q2 = cos($pi/8)*2*Q0;
+        g2 = tan($pi*cutoff0/srate);
+        aA2 = 1/(1 + g2*(g2 + 1/Q2));
+        aB2 = g2*aA2;
+    );
+    
+    vA = aA*iA + aB*(v0 - iB);
+    vB = iB + g*vA;
+    iA = 2*vA - iA;
+    iB = 2*vB - iB;
+    
+    vA = aA2*iA2 + aB2*(vB - iB2);
+    vB = iB2 + g2*vA;
+    iA2 = 2*vA - iA2;
+    iB2 = 2*vB - iB2;
+    
+    vB;
+);
+
+function SVFlow4_init()
+(
+    this.aA = 0;
+    this.aA2 = 0;
+    this.aB = 0;
+    this.aB2 = 0;
+    this.d0 = 0;
+    this.d1 = 0;
+    this.g = 0;
+    this.g2 = 0;
+    this.iA = 0;
+    this.iA2 = 0;
+    this.iB = 0;
+    this.iB2 = 0;
+);*/
+
+//gとg2が同じ値だったのに気づいた
+function SVFlow4(v0,cutoff0,Q0)
+    local(
+        Q,
+        Q2,
+        vA,vB
+    )
+    instance(
+        g,aA,aB,iA,iB
+        aA2,aB2,iA2,iB2
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff0 + Q0) ? (//this.aaaa_debug_ += 1;
+        Q = 0.5/cos($pi/8);
+        g = tan($pi*cutoff0/srate);
+        aA = 1/(1 + g*(g + 1/Q));
+        aB = g*aA;
+        
+        Q2 = cos($pi/8)*2*Q0;
+        aA2 = 1/(1 + g*(g + 1/Q2));
+        aB2 = g*aA2;
+    );
+    
+    vA = aA*iA + aB*(v0 - iB);
+    vB = iB + g*vA;
+    iA = 2*vA - iA;
+    iB = 2*vB - iB;
+    
+    vA = aA2*iA2 + aB2*(vB - iB2);
+    vB = iB2 + g*vA;
+    iA2 = 2*vA - iA2;
+    iB2 = 2*vB - iB2;
+    
+    vB;
+);
+
+function SVFlow4_init()
+(
+    this.aA = 0;
+    this.aA2 = 0;
+    this.aB = 0;
+    this.aB2 = 0;
+    this.d0 = 0;
+    this.d1 = 0;
+    this.g = 0;
+    this.iA = 0;
+    this.iA2 = 0;
+    this.iB = 0;
+    this.iB2 = 0;
+);
+
+/*function SVFlow6(v0,cutoff0,Q0)
+    local(
+        Q,
+        Q2,
+        Q3,
+        vA,vB
+    )
+    instance(
+        g,aA,aB,iA,iB
+        g2,aA2,aB2,iA2,iB2
+        g3,aA3,aB3,iA3,iB3
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff0 + Q0) ? (//this.aaaa_debug_ += 1;
+        Q = 0.5/cos(1*$pi/12);
+        g = tan($pi*cutoff0/srate);
+        aA = 1/(1 + g*(g + 1/Q));
+        aB = g*aA;
+        
+        Q2 = 0.5/cos(3*$pi/12);
+        g2 = tan($pi*cutoff0/srate);
+        aA2 = 1/(1 + g2*(g2 + 1/Q2));
+        aB2 = g2*aA2;
+        
+        Q3 = sqrt(0.5)/cos(5*$pi/12)*Q0;
+        g3 = tan($pi*cutoff0/srate);
+        aA3 = 1/(1 + g3*(g3 + 1/Q3));
+        aB3 = g3*aA3;
+    );
+    
+    vA = aA*iA + aB*(v0 - iB);
+    vB = iB + g*vA;
+    iA = 2*vA - iA;
+    iB = 2*vB - iB;
+    
+    vA = aA2*iA2 + aB2*(vB - iB2);
+    vB = iB2 + g2*vA;
+    iA2 = 2*vA - iA2;
+    iB2 = 2*vB - iB2;
+    
+    vA = aA3*iA3 + aB3*(vB - iB3);
+    vB = iB3 + g3*vA;
+    iA3 = 2*vA - iA3;
+    iB3 = 2*vB - iB3;
+    
+    vB;
+);*/
+
+//gとg2が同じ値だったのに気づいた
+function SVFlow6(v0,cutoff0,Q0)
+    local(
+        Q,
+        Q2,
+        Q3,
+        vA,vB
+    )
+    instance(
+        g,aA,aB,iA,iB
+        aA2,aB2,iA2,iB2
+        aA3,aB3,iA3,iB3
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff0 + Q0) ? (//this.aaaa_debug_ += 1;
+        Q = 0.5/cos(1*$pi/12);
+        g = tan($pi*cutoff0/srate);
+        aA = 1/(1 + g*(g + 1/Q));
+        aB = g*aA;
+        
+        Q2 = 0.5/cos(3*$pi/12);
+        aA2 = 1/(1 + g*(g + 1/Q2));
+        aB2 = g*aA2;
+        
+        Q3 = sqrt(0.5)/cos(5*$pi/12)*Q0;
+        aA3 = 1/(1 + g*(g + 1/Q3));
+        aB3 = g*aA3;
+    );
+    
+    vA = aA*iA + aB*(v0 - iB);
+    vB = iB + g*vA;
+    iA = 2*vA - iA;
+    iB = 2*vB - iB;
+    
+    vA = aA2*iA2 + aB2*(vB - iB2);
+    vB = iB2 + g*vA;
+    iA2 = 2*vA - iA2;
+    iB2 = 2*vB - iB2;
+    
+    vA = aA3*iA3 + aB3*(vB - iB3);
+    vB = iB3 + g*vA;
+    iA3 = 2*vA - iA3;
+    iB3 = 2*vB - iB3;
+    
+    vB;
+);
+
+function SVFlow6_init()
+(
+    this.aA = 0;
+    this.aA2 = 0;
+    this.aA3 = 0;
+    this.aB = 0;
+    this.aB2 = 0;
+    this.aB3 = 0;
+    this.d0 = 0;
+    this.d1 = 0;
+    this.g = 0;
+    this.iA = 0;
+    this.iA2 = 0;
+    this.iA3 = 0;
+    this.iB = 0;
+    this.iB2 = 0;
+    this.iB3 = 0;
+);
+
+function SVFlow8_set(cutoff,Q,samplerate)
+(
+    this.g = tan($pi*cutoff/samplerate);
+    
+    this.a1.1 = 1/(1 + this.g*(this.g + 1/(0.5/cos(1*$pi/16))));
+    this.a2.1 = this.g*this.a1.1;
+    
+    this.a1.2 = 1/(1 + this.g*(this.g + 1/(0.5/cos(3*$pi/16))));
+    this.a2.2 = this.g*this.a1.2;
+    
+    this.a1.3 = 1/(1 + this.g*(this.g + 1/(0.5/cos(5*$pi/16))));
+    this.a2.3 = this.g*this.a1.3;
+    
+    this.a1.4 = 1/(1 + this.g*(this.g + 1/(sqrt(0.5)/cos(7*$pi/16)*Q)));
+    this.a2.4 = this.g*this.a1.4;
+);
+
+function SVFlow8(v0)
+local(
+    v1,v2
+)
+(
+    v2 = v0;
+    
+    v1 = this.a1.1*this.ic1eq.1 + this.a2.1*(v2 - this.ic2eq.1);
+    v2 = this.ic2eq.1 + this.g*v1;
+    this.ic1eq.1 = 2*v1 - this.ic1eq.1;
+    this.ic2eq.1 = 2*v2 - this.ic2eq.1;
+    
+    v1 = this.a1.2*this.ic1eq.2 + this.a2.2*(v2 - this.ic2eq.2);
+    v2 = this.ic2eq.2 + this.g*v1;
+    this.ic1eq.2 = 2*v1 - this.ic1eq.2;
+    this.ic2eq.2 = 2*v2 - this.ic2eq.2;
+    
+    v1 = this.a1.3*this.ic1eq.3 + this.a2.3*(v2 - this.ic2eq.3);
+    v2 = this.ic2eq.3 + this.g*v1;
+    this.ic1eq.3 = 2*v1 - this.ic1eq.3;
+    this.ic2eq.3 = 2*v2 - this.ic2eq.3;
+    
+    v1 = this.a1.4*this.ic1eq.4 + this.a2.4*(v2 - this.ic2eq.4);
+    v2 = this.ic2eq.4 + this.g*v1;
+    this.ic1eq.4 = 2*v1 - this.ic1eq.4;
+    this.ic2eq.4 = 2*v2 - this.ic2eq.4;
+    
+    v2;
+);
+
+function SVFlow16_set(cutoff,Q,samplerate)
+(
+    this.g = tan($pi*cutoff/samplerate);
+    
+    this.a1.1 = 1/(1 + this.g*(this.g + 1/(0.5/cos(1*$pi/32))));
+    this.a2.1 = this.g*this.a1.1;
+    
+    this.a1.2 = 1/(1 + this.g*(this.g + 1/(0.5/cos(3*$pi/32))));
+    this.a2.2 = this.g*this.a1.2;
+    
+    this.a1.3 = 1/(1 + this.g*(this.g + 1/(0.5/cos(5*$pi/32))));
+    this.a2.3 = this.g*this.a1.3;
+    
+    this.a1.4 = 1/(1 + this.g*(this.g + 1/(0.5/cos(7*$pi/32))));
+    this.a2.4 = this.g*this.a1.4;
+    
+    this.a1.5 = 1/(1 + this.g*(this.g + 1/(0.5/cos(9*$pi/32))));
+    this.a2.5 = this.g*this.a1.5;
+    
+    this.a1.6 = 1/(1 + this.g*(this.g + 1/(0.5/cos(11*$pi/32))));
+    this.a2.6 = this.g*this.a1.6;
+    
+    this.a1.7 = 1/(1 + this.g*(this.g + 1/(0.5/cos(13*$pi/32))));
+    this.a2.7 = this.g*this.a1.7;
+    
+    this.a1.8 = 1/(1 + this.g*(this.g + 1/(sqrt(0.5)/cos(15*$pi/32)*Q)));
+    this.a2.8 = this.g*this.a1.8;
+);
+
+function SVFlow16(v0)
+local(
+    v1,v2
+)
+(
+    v2 = this.ic2eq.1 + this.g*(v1 = this.a1.1*this.ic1eq.1 + this.a2.1*(v0 - this.ic2eq.1));
+    this.ic1eq.1 = 2*v1 - this.ic1eq.1;
+    this.ic2eq.1 = 2*v2 - this.ic2eq.1;
+    
+    v2 = this.ic2eq.2 + this.g*(v1 = this.a1.2*this.ic1eq.2 + this.a2.2*(v2 - this.ic2eq.2));
+    this.ic1eq.2 = 2*v1 - this.ic1eq.2;
+    this.ic2eq.2 = 2*v2 - this.ic2eq.2;
+    
+    v2 = this.ic2eq.3 + this.g*(v1 = this.a1.3*this.ic1eq.3 + this.a2.3*(v2 - this.ic2eq.3));
+    this.ic1eq.3 = 2*v1 - this.ic1eq.3;
+    this.ic2eq.3 = 2*v2 - this.ic2eq.3;
+    
+    v2 = this.ic2eq.4 + this.g*(v1 = this.a1.4*this.ic1eq.4 + this.a2.4*(v2 - this.ic2eq.4));
+    this.ic1eq.4 = 2*v1 - this.ic1eq.4;
+    this.ic2eq.4 = 2*v2 - this.ic2eq.4;
+    
+    v2 = this.ic2eq.5 + this.g*(v1 = this.a1.5*this.ic1eq.5 + this.a2.5*(v2 - this.ic2eq.5));
+    this.ic1eq.5 = 2*v1 - this.ic1eq.5;
+    this.ic2eq.5 = 2*v2 - this.ic2eq.5;
+    
+    v2 = this.ic2eq.6 + this.g*(v1 = this.a1.6*this.ic1eq.6 + this.a2.6*(v2 - this.ic2eq.6));
+    this.ic1eq.6 = 2*v1 - this.ic1eq.6;
+    this.ic2eq.6 = 2*v2 - this.ic2eq.6;
+    
+    v2 = this.ic2eq.7 + this.g*(v1 = this.a1.7*this.ic1eq.7 + this.a2.7*(v2 - this.ic2eq.7));
+    this.ic1eq.7 = 2*v1 - this.ic1eq.7;
+    this.ic2eq.7 = 2*v2 - this.ic2eq.7;
+    
+    v2 = this.ic2eq.8 + this.g*(v1 = this.a1.8*this.ic1eq.8 + this.a2.8*(v2 - this.ic2eq.8));
+    this.ic1eq.8 = 2*v1 - this.ic1eq.8;
+    this.ic2eq.8 = 2*v2 - this.ic2eq.8;
+    
+    v2;
+);
+
+function SVFlow20_set(cutoff,Q,samplerate)
+(
+    this.g = tan($pi*cutoff/samplerate);
+    
+    this.a1.1 = 1/(1 + this.g*(this.g + 1/(0.5/cos(1*$pi/40))));
+    this.a2.1 = this.g*this.a1.1;
+    
+    this.a1.2 = 1/(1 + this.g*(this.g + 1/(0.5/cos(3*$pi/40))));
+    this.a2.2 = this.g*this.a1.2;
+    
+    this.a1.3 = 1/(1 + this.g*(this.g + 1/(0.5/cos(5*$pi/40))));
+    this.a2.3 = this.g*this.a1.3;
+    
+    this.a1.4 = 1/(1 + this.g*(this.g + 1/(0.5/cos(7*$pi/40))));
+    this.a2.4 = this.g*this.a1.4;
+    
+    this.a1.5 = 1/(1 + this.g*(this.g + 1/(0.5/cos(9*$pi/40))));
+    this.a2.5 = this.g*this.a1.5;
+    
+    this.a1.6 = 1/(1 + this.g*(this.g + 1/(0.5/cos(11*$pi/40))));
+    this.a2.6 = this.g*this.a1.6;
+    
+    this.a1.7 = 1/(1 + this.g*(this.g + 1/(0.5/cos(13*$pi/40))));
+    this.a2.7 = this.g*this.a1.7;
+    
+    this.a1.8 = 1/(1 + this.g*(this.g + 1/(0.5/cos(15*$pi/40))));
+    this.a2.8 = this.g*this.a1.8;
+    
+    this.a1.9 = 1/(1 + this.g*(this.g + 1/(0.5/cos(17*$pi/40))));
+    this.a2.9 = this.g*this.a1.9;
+    
+    this.a1.10 = 1/(1 + this.g*(this.g + 1/(sqrt(0.5)/cos(19*$pi/40)*Q)));
+    this.a2.10 = this.g*this.a1.10;
+);
+
+function SVFlow20(v0)
+local(
+    v1,v2
+)
+(
+    v2 = this.ic2eq.1 + this.g*(v1 = this.a1.1*this.ic1eq.1 + this.a2.1*(v0 - this.ic2eq.1));
+    this.ic1eq.1 = 2*v1 - this.ic1eq.1;
+    this.ic2eq.1 = 2*v2 - this.ic2eq.1;
+    
+    v2 = this.ic2eq.2 + this.g*(v1 = this.a1.2*this.ic1eq.2 + this.a2.2*(v2 - this.ic2eq.2));
+    this.ic1eq.2 = 2*v1 - this.ic1eq.2;
+    this.ic2eq.2 = 2*v2 - this.ic2eq.2;
+    
+    v2 = this.ic2eq.3 + this.g*(v1 = this.a1.3*this.ic1eq.3 + this.a2.3*(v2 - this.ic2eq.3));
+    this.ic1eq.3 = 2*v1 - this.ic1eq.3;
+    this.ic2eq.3 = 2*v2 - this.ic2eq.3;
+    
+    v2 = this.ic2eq.4 + this.g*(v1 = this.a1.4*this.ic1eq.4 + this.a2.4*(v2 - this.ic2eq.4));
+    this.ic1eq.4 = 2*v1 - this.ic1eq.4;
+    this.ic2eq.4 = 2*v2 - this.ic2eq.4;
+    
+    v2 = this.ic2eq.5 + this.g*(v1 = this.a1.5*this.ic1eq.5 + this.a2.5*(v2 - this.ic2eq.5));
+    this.ic1eq.5 = 2*v1 - this.ic1eq.5;
+    this.ic2eq.5 = 2*v2 - this.ic2eq.5;
+    
+    v2 = this.ic2eq.6 + this.g*(v1 = this.a1.6*this.ic1eq.6 + this.a2.6*(v2 - this.ic2eq.6));
+    this.ic1eq.6 = 2*v1 - this.ic1eq.6;
+    this.ic2eq.6 = 2*v2 - this.ic2eq.6;
+    
+    v2 = this.ic2eq.7 + this.g*(v1 = this.a1.7*this.ic1eq.7 + this.a2.7*(v2 - this.ic2eq.7));
+    this.ic1eq.7 = 2*v1 - this.ic1eq.7;
+    this.ic2eq.7 = 2*v2 - this.ic2eq.7;
+    
+    v2 = this.ic2eq.8 + this.g*(v1 = this.a1.8*this.ic1eq.8 + this.a2.8*(v2 - this.ic2eq.8));
+    this.ic1eq.8 = 2*v1 - this.ic1eq.8;
+    this.ic2eq.8 = 2*v2 - this.ic2eq.8;
+    
+    v2 = this.ic2eq.9 + this.g*(v1 = this.a1.9*this.ic1eq.9 + this.a2.9*(v2 - this.ic2eq.9));
+    this.ic1eq.9 = 2*v1 - this.ic1eq.9;
+    this.ic2eq.9 = 2*v2 - this.ic2eq.9;
+    
+    v2 = this.ic2eq.10 + this.g*(v1 = this.a1.10*this.ic1eq.10 + this.a2.10*(v2 - this.ic2eq.10));
+    this.ic1eq.10 = 2*v1 - this.ic1eq.10;
+    this.ic2eq.10 = 2*v2 - this.ic2eq.10;
+    
+    v2;
+);
+
+function SVFlow24_set(cutoff,Q,samplerate)
+(
+    this.g = tan($pi*cutoff/samplerate);
+    
+    this.a1.1 = 1/(1 + this.g*(this.g + 1/(0.5/cos(1*$pi/48))));
+    this.a2.1 = this.g*this.a1.1;
+    
+    this.a1.2 = 1/(1 + this.g*(this.g + 1/(0.5/cos(3*$pi/48))));
+    this.a2.2 = this.g*this.a1.2;
+    
+    this.a1.3 = 1/(1 + this.g*(this.g + 1/(0.5/cos(5*$pi/48))));
+    this.a2.3 = this.g*this.a1.3;
+    
+    this.a1.4 = 1/(1 + this.g*(this.g + 1/(0.5/cos(7*$pi/48))));
+    this.a2.4 = this.g*this.a1.4;
+    
+    this.a1.5 = 1/(1 + this.g*(this.g + 1/(0.5/cos(9*$pi/48))));
+    this.a2.5 = this.g*this.a1.5;
+    
+    this.a1.6 = 1/(1 + this.g*(this.g + 1/(0.5/cos(11*$pi/48))));
+    this.a2.6 = this.g*this.a1.6;
+    
+    this.a1.7 = 1/(1 + this.g*(this.g + 1/(0.5/cos(13*$pi/48))));
+    this.a2.7 = this.g*this.a1.7;
+    
+    this.a1.8 = 1/(1 + this.g*(this.g + 1/(0.5/cos(15*$pi/48))));
+    this.a2.8 = this.g*this.a1.8;
+    
+    this.a1.9 = 1/(1 + this.g*(this.g + 1/(0.5/cos(17*$pi/48))));
+    this.a2.9 = this.g*this.a1.9;
+    
+    this.a1.10 = 1/(1 + this.g*(this.g + 1/(0.5/cos(19*$pi/48))));
+    this.a2.10 = this.g*this.a1.10;
+    
+    this.a1.11 = 1/(1 + this.g*(this.g + 1/(0.5/cos(21*$pi/48))));
+    this.a2.11 = this.g*this.a1.11;
+    
+    this.a1.12 = 1/(1 + this.g*(this.g + 1/(sqrt(0.5)/cos(23*$pi/48)*Q)));
+    this.a2.12 = this.g*this.a1.12;
+);
+
+function SVFlow24(v0)
+local(
+    v1,v2
+)
+(
+    v2 = this.ic2eq.1 + this.g*(v1 = this.a1.1*this.ic1eq.1 + this.a2.1*(v0 - this.ic2eq.1));
+    this.ic1eq.1 = 2*v1 - this.ic1eq.1;
+    this.ic2eq.1 = 2*v2 - this.ic2eq.1;
+    
+    v2 = this.ic2eq.2 + this.g*(v1 = this.a1.2*this.ic1eq.2 + this.a2.2*(v2 - this.ic2eq.2));
+    this.ic1eq.2 = 2*v1 - this.ic1eq.2;
+    this.ic2eq.2 = 2*v2 - this.ic2eq.2;
+    
+    v2 = this.ic2eq.3 + this.g*(v1 = this.a1.3*this.ic1eq.3 + this.a2.3*(v2 - this.ic2eq.3));
+    this.ic1eq.3 = 2*v1 - this.ic1eq.3;
+    this.ic2eq.3 = 2*v2 - this.ic2eq.3;
+    
+    v2 = this.ic2eq.4 + this.g*(v1 = this.a1.4*this.ic1eq.4 + this.a2.4*(v2 - this.ic2eq.4));
+    this.ic1eq.4 = 2*v1 - this.ic1eq.4;
+    this.ic2eq.4 = 2*v2 - this.ic2eq.4;
+    
+    v2 = this.ic2eq.5 + this.g*(v1 = this.a1.5*this.ic1eq.5 + this.a2.5*(v2 - this.ic2eq.5));
+    this.ic1eq.5 = 2*v1 - this.ic1eq.5;
+    this.ic2eq.5 = 2*v2 - this.ic2eq.5;
+    
+    v2 = this.ic2eq.6 + this.g*(v1 = this.a1.6*this.ic1eq.6 + this.a2.6*(v2 - this.ic2eq.6));
+    this.ic1eq.6 = 2*v1 - this.ic1eq.6;
+    this.ic2eq.6 = 2*v2 - this.ic2eq.6;
+    
+    v2 = this.ic2eq.7 + this.g*(v1 = this.a1.7*this.ic1eq.7 + this.a2.7*(v2 - this.ic2eq.7));
+    this.ic1eq.7 = 2*v1 - this.ic1eq.7;
+    this.ic2eq.7 = 2*v2 - this.ic2eq.7;
+    
+    v2 = this.ic2eq.8 + this.g*(v1 = this.a1.8*this.ic1eq.8 + this.a2.8*(v2 - this.ic2eq.8));
+    this.ic1eq.8 = 2*v1 - this.ic1eq.8;
+    this.ic2eq.8 = 2*v2 - this.ic2eq.8;
+    
+    v2 = this.ic2eq.9 + this.g*(v1 = this.a1.9*this.ic1eq.9 + this.a2.9*(v2 - this.ic2eq.9));
+    this.ic1eq.9 = 2*v1 - this.ic1eq.9;
+    this.ic2eq.9 = 2*v2 - this.ic2eq.9;
+    
+    v2 = this.ic2eq.10 + this.g*(v1 = this.a1.10*this.ic1eq.10 + this.a2.10*(v2 - this.ic2eq.10));
+    this.ic1eq.10 = 2*v1 - this.ic1eq.10;
+    this.ic2eq.10 = 2*v2 - this.ic2eq.10;
+    
+    v2 = this.ic2eq.11 + this.g*(v1 = this.a1.11*this.ic1eq.11 + this.a2.11*(v2 - this.ic2eq.11));
+    this.ic1eq.11 = 2*v1 - this.ic1eq.11;
+    this.ic2eq.11 = 2*v2 - this.ic2eq.11;
+    
+    v2 = this.ic2eq.12 + this.g*(v1 = this.a1.12*this.ic1eq.12 + this.a2.12*(v2 - this.ic2eq.12));
+    this.ic1eq.12 = 2*v1 - this.ic1eq.12;
+    this.ic2eq.12 = 2*v2 - this.ic2eq.12;
+    
+    v2;
+);
+
+//https://cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
+function SVFband(v0,cutoff,Q)
+    local(
+        k,
+        v1,v2
+    )
+    instance(
+        g,a1,a2,
+        ic1eq,ic2eq
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff + Q) ? (//this.aaaa_debug_ += 1;
+        g = tan($pi*cutoff/srate);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+    );
+    
+    v1 = a1*ic1eq + a2*(v0 - ic2eq);
+    v2 = ic2eq + g*v1;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    v1;
+);
+
+function SVFband_n(v0,cutoff,Q)
+    local(
+        v1,v2
+    )
+    instance(
+        g,k,a1,a2,
+        ic1eq,ic2eq
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff + Q) ? (//this.aaaa_debug_ += 1;
+        g = tan($pi*cutoff/srate);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+    );
+    
+    v1 = a1*ic1eq + a2*(v0 - ic2eq);
+    v2 = ic2eq + g*v1;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    k*v1;
+);
+//https://cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
+function SVFhigh(v0,cutoff,Q)
+    local(
+        v1,v2
+    )
+    instance(
+        g,k,a1,a2,
+        ic1eq,ic2eq
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff + Q) ? (//this.aaaa_debug_ += 1;
+        g = tan($pi*cutoff/srate);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+    );
+    
+    v1 = a1*ic1eq + a2*(v0 - ic2eq);
+    v2 = ic2eq + g*v1;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    v0 - k*v1 - v2;
+);
+//https://cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
+function SVFnotch(v0,cutoff,Q)
+    local(
+        v1,v2
+    )
+    instance(
+        g,k,a1,a2,
+        ic1eq,ic2eq
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff + Q) ? (//this.aaaa_debug_ += 1;
+        g = tan($pi*cutoff/srate);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+    );
+    
+    v1 = a1*ic1eq + a2*(v0 - ic2eq);
+    v2 = ic2eq + g*v1;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    v0 - k*v1;
+);
+//https://cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
+function SVFall(v0,cutoff,Q)
+    local(
+        v1,v2
+    )
+    instance(
+        g,k,a1,a2,
+        ic1eq,ic2eq
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff + Q) ? (//this.aaaa_debug_ += 1;
+        g = tan($pi*cutoff/srate);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+    );
+    
+    v1 = a1*ic1eq + a2*(v0 - ic2eq);
+    v2 = ic2eq + g*v1;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    v0 - 2*k*v1
+);
+//https://cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
+function SVFbell(v0,cutoff,Q,bellgaindB)
+    local(
+        A,g,k,
+        v1,v2
+    )
+    instance(
+        a1,a2,a3,m1,
+        ic1eq,ic2eq
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff + Q + bellgaindB) ? (//this.aaaa_debug_ += 1;
+        A = pow(10, bellgaindB/40);
+        g = tan($pi*cutoff/srate);
+        k = 1/(Q*A);
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+        a3 = g*a2;
+        m1 = k*(A*A - 1);
+    );
+    
+    v3 = v0 - ic2eq;
+    v1 = a1*ic1eq + a2*v3;
+    v2 = ic2eq + a2*ic1eq + a3*v3;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    v0 + m1*v1;
+);
+//https://cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
+function SVFlow_shelf(v0,cutoff,Q,bellgaindB)
+    local(
+        A,g,k,
+        v1,v2,v3
+    )
+    instance(
+        a1,a2,a3,m1,m2,
+        ic1eq,ic2eq
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff + Q + bellgaindB) ? (//this.aaaa_debug_ += 1;
+        A = pow(10, bellgaindB/40);
+        g = tan($pi*cutoff/srate)/sqrt(A);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+        a3 = g*a2;
+        m1 = k*(A - 1);
+        m2 = (A*A - 1);
+    );
+    
+    v3 = v0 - ic2eq;
+    v1 = a1*ic1eq + a2*v3;
+    v2 = ic2eq + a2*ic1eq + a3*v3;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    v0 + m1*v1 + m2*v2;
+);
+//https://cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
+function SVFhigh_shelf(v0,cutoff,Q,bellgaindB)
+    local(
+        A,g,k,
+        v1,v2,v3
+    )
+    instance(
+        a1,a2,a3,m0,m1,m2,
+        ic1eq,ic2eq
+    )
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff + Q + bellgaindB) ? (//this.aaaa_debug_ += 1;
+        A = pow(10, bellgaindB/40);
+        g = tan($pi*cutoff/srate)*sqrt(A);
+        k = 1/Q;
+        a1 = 1/(1 + g*(g + k));
+        a2 = g*a1;
+        a3 = g*a2;
+        m0 = A*A;
+        m1 = k*(1 - A)*A;
+        m2 = (1 - A*A);
+    );
+    
+    v3 = v0 - ic2eq;
+    v1 = a1*ic1eq + a2*v3;
+    v2 = ic2eq + a2*ic1eq + a3*v3;
+    ic1eq = 2*v1 - ic1eq;
+    ic2eq = 2*v2 - ic2eq;
+    
+    m0*v0 + m1*v1 + m2*v2;
+);
+
+function SVFOP_set(cutoff)
+(
+    this.c = tan($pi*(cutoff/srate - 0.25))*0.5 + 0.5;
+);
+
+function SVFOPlpf(x)
+instance(c,i)
+(
+    x = i + c*(x - i);
+    i = 2*x - i;
+    x;
+);
+
+function SVFOPlpf_temp(x,cutoff)
+instance(c,i)
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff) ? (//this.aaaa_debug_ += 1;
+        this.c = tan($pi*(cutoff/srate - 0.25))*0.5 + 0.5;
+    );
+    x = i + c*(x - i);
+    i = 2*x - i;
+    x;
+);
+
+function SVFOPhpf(x)
+instance(c,r,i)
+(
+    r = (1 - c)*i + c*x;
+    i = 2*r - i;
+    x - r;
+);
+
+function SVFOPhpf_temp(x,cutoff)
+instance(c,r,i)
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff) ? (//this.aaaa_debug_ += 1;
+        this.c = tan($pi*(cutoff/srate - 0.25))*0.5 + 0.5;
+    );
+    r = (1 - c)*i + c*x;
+    i = 2*r - i;
+    x - r;
+);
+
+function SVFOPapf(x)
+local(r)
+instance(c,i)
+(
+    r = (1 - c)*i + c*x;
+    i = 2*r - i;
+    x - 2*r
+);
+
+function SVFOPapf_temp(x,cutoff)
+local(r)
+instance(c,i)
+(
+    (this.d1 = this.d0) !== (this.d0 = cutoff) ? (//this.aaaa_debug_ += 1;
+        this.c = tan($pi*(cutoff/srate - 0.25))*0.5 + 0.5;
+    );
+    r = (1 - c)*i + c*x;
+    i = 2*r - i;
+    x - 2*r
+);
+
+// Rectifier --------------------------------
+function softplus(x,k)
+(
+    log(1 + exp(x/k))*k;
+);
+
+function sqr_rectifier(x,k)
+(
+    x /= k;
+    0.5 <= x ? (
+        x*k;
+    ) :
+    -0.5 < x ? (
+        sqr(x + 0.5)*0.5*k;
+    ) :
+    (
+        0;
+    );
+);
+
+function sqr_rectifier_set(k)
+(
+    this.k1 = 1/k;
+    this.k2 = 0.5*k;
+);
+
+function sqr_rectifier(x)
+(
+    this.k2 <= x ? (
+        x;
+    ) :
+    x <= -this.k2 ? (
+        0;
+    ) :
+    (
+        this.k2*sqr(x*this.k1 + 0.5);
+    );
+);
+
+function swish(x,b)
+(
+    x/(1 + exp(-b*x));
+);
+
+// Smooth maximum --------------------------------
+function LSE(a,b,k)
+(
+    log(exp(a/k) + exp(b/k))*k;
+);
+
+function sqr_max(a,b,k)
+(
+    (a + b + (sqr_rectifier(a - b,k) + sqr_rectifier(-(a - b),k)))*0.5;
+);
+
+// Low Aliasing Oscillator --------------------------------
+function sawLA(x,hardness)
+(
+    x *= 0.15915494309189533576888376337251;
+    abs(
+        (x + 0.5 - floor(x + 0.5))*2 - 1
+    )*tanh(
+        -hardness*(
+            (x - floor(x))*2 - 1
+        )
+    );
+);
