@@ -1,0 +1,65 @@
+@description lewloiwc's Splitter Suite
+@author lewloiwc
+@version 1.0.0
+@changelog
+  Initial Release
+@metapackage
+@provides
+  Splitter_Dependencies/*
+  lewloiwc_amplitude_splitter_envelope_follower.jsfx
+  lewloiwc_amplitude_splitter_gate.jsfx
+  lewloiwc_amplitude_splitter_transient.jsfx
+  lewloiwc_frequency_splitter.jsfx
+  lewloiwc_frequency_splitter_band_and_notch(minimum_phase).jsfx
+  lewloiwc_frequency_splitter_butterworth(minimum_phase).jsfx
+  lewloiwc_frequency_splitter_comb_and_phaser.jsfx
+  lewloiwc_frequency_splitter_linkwitz-riley(minimum_phase).jsfx
+  lewloiwc_inflator_splitter.jsfx
+  lewloiwc_sinc_frequency_splitter.jsfx
+@about
+  # lewloiwc's Splitter Suite
+  PLEASE NOTE: It works well as is, but no further development and support is provided. Please report bugs or whatnot with improved code example to the forum thread. I (Suzuki) will update files on behalf of the original author.
+  ## Amplitude Splitter
+  ### Envelope Follower
+  Envelope Follower changes the amount of division according to the size of the original signal. [Screenshot](https://i.imgur.com/v3cVMgY.png)
+  ### Gate Split
+  Gate divides the signal by the amplitude. [Screenshot](https://i.imgur.com/rIOR1cm.png)
+  ### Transient Split
+  Transient splits the signal between the attack and the rest of the signal. [Screenshot](https://i.imgur.com/T3cIfZM.png)
+  See the example of routings [here](https://i.imgur.com/BrESMce.png) and [here](https://i.imgur.com/hpbqS5I.png).
+  ## Frequency Splitter
+  ### Band and Notch
+  [Butterworth 12 dB/oct](https://i.imgur.com/UmFoyFt.png) does not rotate phase when the Band and Notch gains are the same; [Linkwitz-Riley 24 dB/oct](https://i.imgur.com/z2nlrwl.png) always rotates phase, but the sum of the frequency responses result is probably linear.
+  I have the impression that this is used in de-esser.
+  ### Comb and Phaser Splitter
+  Comb and Phaser are experimental division methods. They are suited for sound design. 
+  See [Screenshot1](https://i.imgur.com/jCpWW1U.png) and [Screenshot2](https://i.imgur.com/vWU2H0T.png).
+  ### Linkwitz-Riley (Minimum Phase)
+  Linkwitz-Riley has a consistent band-by-band frequency response and does not peak or dip when summed, but does cause phase rotation at the crossover point when created with Minimum Phase.
+  Most vst frequency splitters probably use this method.
+  [12 dB/oct](https://i.imgur.com/bh3NGly.png), [24 dB/oct](https://i.imgur.com/IAdX651.png), [36 dB/oct](https://i.imgur.com/XdL569r.png), and [48 dB/oct](https://i.imgur.com/1Zv21an.png).
+  Different slopes can be set for each crossover point, for example [12 dB/oct and 36 dB/oct](https://i.imgur.com/3LkoJlo.png).
+  ### Linkwitz-Riley (Linear Phase)
+  Linkwitz-Riley (Linear Phase) has no phase rotation and can be set to any dB/oct that is not in 12 increments, but it does have pre ringing and latency.
+  I have not verified this, but the Linear Phase on the FabFilter Pro-MB probably uses this method. [Screenshot](https://i.imgur.com/ysAJq9D.png)
+  ### Butterworth (Minimum Phase)
+  Butterworth has a crossover point of -3 dB. This causes it to behave a little differently than Linkwitz-Riley.
+  [6 dB/oct](https://i.imgur.com/PNpufua.png), [18 dB/oct](https://i.imgur.com/377olVl.png), [30 dB/oct](https://i.imgur.com/4X59dkD.png), and [42 dB/oct](https://i.imgur.com/Cuu9HOl.png).
+  This can also be set to a different slope for each crossover point, for example [6 dB/oct and 30 dB/oct](https://i.imgur.com/7HauoZ8.png).
+  ### Sinc Splitter (Linear Phase)
+  Sinc (Linear Phase) is the frequency splitter with the sharpest slope. The shape of the slope varies considerably depending on the frequency of the crossover point, the IR Length, and the Window used. Since this is a Linear Phase, pre ringing and latency will occur.
+  [Screenshot](https://i.imgur.com/eZGw1vS.png)
+  ### ReaX
+  [Screenshot1](https://i.imgur.com/JuSNjiT.png)
+  The features of this method are that there is no phase rotation when the gains of all bands are the same, the computational load is small even if the number of bands is increased, the shape of the segmentation is not consistent, and changing the gain of each band will result in a strange frequency response when summed.
+  Perhaps this method is called Parallel Equalizer, which does the same thing as [this video](https://www.youtube.com/watch?v=xDlZjmxWChM).
+  [Screenshot2](https://i.imgur.com/mOmB3at.png)
+  The red lines are the respective divided bands, the light blue line is the summed result, the blue line is the 12 dB/oct slope, and the green line is the 6 dB/oct slope.
+  It looks like the HPF slope is 6 dB/oct and the LPF slope is 12 dB/oct. At the time of division, the frequency response exceeds 0 dB, but when summed, it flattens out nicely.
+  [Screenshot3](https://i.imgur.com/nRJlXYd.png)
+  The red line is the frequency response of each band, and the light blue line is the summed result.
+  The dip occurs around 3 kHz.
+  ### Inflator
+  [This](https://i.imgur.com/tPc1dXu.png) is the Band Split method used by Oxford Inflator. The slope is 6 dB/oct, and as with ReaX, no phase rotation occurs when all bands have the same gain.
+  ### StudioRack's (Waves)
+  StudioRack's (Waves) MultiBand Split uses a slightly different filter that is neither Butterworth filter nor Linkwitz-Riley filter.
