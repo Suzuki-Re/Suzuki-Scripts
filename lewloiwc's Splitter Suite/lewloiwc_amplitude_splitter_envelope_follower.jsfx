@@ -1,0 +1,61 @@
+NoIndex: true
+desc:Amplitude Splitter - Envelope Follower (lewloiwc)
+tags: amplitude splitter
+version: 1.0.0
+author: lewloiwc
+changelog: Initial Release
+License: CC0
+about:
+  # Envelope Follower
+  Envelope Follower changes the amount of division according to the size of the original signal. 
+  [Screenshot](https://i.imgur.com/v3cVMgY.png)
+
+slider1:attack_slider=10<0,1000,0.1>Attack (ms)
+slider2:release_slider=300<0,1000,0.1>Release (ms)
+slider3:min_slider=0<0,2,0.001>Min
+slider4:max_slider=1<0,2,0.001>Max
+
+in_pin:Input L
+in_pin:Input R
+out_pin:Output A L
+out_pin:Output A R
+out_pin:Output B L
+out_pin:Output B R
+
+import more_math_functions.jsfx-inc
+import more_graphics.jsfx-inc
+
+
+
+@init //----------------------------------------------------------------
+
+ext_nodenorm = 1;
+
+function diode(x)(max(x,0));
+
+
+
+@slider //----------------------------------------------------------------
+
+attack = 1 - exp(-$pi/(srate*0.0005*attack_slider));
+release = exp(-$pi/(srate*0.0005*release_slider));
+
+remap.remap_set(min_slider,max_slider,0,1);
+
+
+
+@sample //----------------------------------------------------------------
+
+x = max(abs(spl0),abs(spl1));
+
+y = diode(x - y)*attack + y*release;
+
+gain = clamp(remap.remap(y),0,1);
+
+//output
+    spl2 = spl0*(1 - gain);
+    spl3 = spl1*(1 - gain);
+    spl0 *= gain;
+    spl1 *= gain;
+    //spl0 = abs(spl0);
+    //spl1 = gain;

@@ -1,0 +1,56 @@
+NoIndex: true
+desc:Frequency Splitter - Band and Notch (lewloiwc)
+tags: Minimum Phase Frequency Splitter
+version: 1.0.0
+author: lewloiwc
+changelog: Initial Release
+License: CC0
+about: 
+  # Band and Notch Splitter
+  [Butterworth 12 dB/oct](https://i.imgur.com/UmFoyFt.png) does not rotate phase when the Band and Notch gains are the same; [Linkwitz-Riley 24 dB/oct](https://i.imgur.com/z2nlrwl.png) always rotates phase, but the sum of the frequency responses result is probably linear.
+  I have the impression that this is used in de-esser.
+
+//_i28T3vQWfedRAuwH.jsfx
+slider1:mode_slider=0<0,1,1{Butterworth 12 dB/oct,Linkwitz-Riley 24 dB/oct}>Mode
+slider2:frequency_slider=1000<20,20000,1>Frequency [Hz]
+slider3:q_slider=0.707<0.001,20,0.001>Q
+
+in_pin:Input L
+in_pin:Input R
+out_pin:Output A L
+out_pin:Output A R
+out_pin:Output B L
+out_pin:Output B R
+
+//options:no_meter
+import more_math_functions.jsfx-inc
+//import more_graphics.jsfx-inc
+
+
+
+@init //------------------------------------------------------------------
+
+ext_nodenorm = 1;
+
+@slider //----------------------------------------------------------------
+
+frequency_slider = min(frequency_slider,srate*0.49);
+
+@sample //----------------------------------------------------------------
+
+mode_slider === 0 ? (
+    spl2 = spl0.B.SVFnotch(spl0,frequency_slider,q_slider);
+    spl3 = spl1.B.SVFnotch(spl1,frequency_slider,q_slider);
+    spl0 = spl0.A.SVFband_n(spl0,frequency_slider,q_slider);
+    spl1 = spl1.A.SVFband_n(spl1,frequency_slider,q_slider);
+) :
+mode_slider === 1 ? (
+    spl2 = spl0.B1.SVFnotch(spl0,frequency_slider,q_slider);
+    spl2 = spl0.B2.SVFnotch(spl2,frequency_slider,q_slider);
+    spl3 = spl1.B1.SVFnotch(spl1,frequency_slider,q_slider);
+    spl3 = spl1.B2.SVFnotch(spl3,frequency_slider,q_slider);
+    spl0 = spl0.A1.SVFband_n(-spl0,frequency_slider,q_slider);
+    spl0 = spl0.A2.SVFband_n(spl0,frequency_slider,q_slider);
+    spl1 = spl1.A1.SVFband_n(-spl1,frequency_slider,q_slider);
+    spl1 = spl1.A2.SVFband_n(spl1,frequency_slider,q_slider);
+);

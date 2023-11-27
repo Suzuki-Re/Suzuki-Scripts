@@ -1,0 +1,107 @@
+NoIndex: true
+desc:Frequency Splitter - Comb and Phaser (lewloiwc)
+tags: frequency splitter
+version: 1.0.0
+author: lewloiwc
+changelog: Initial Release
+License: CC0
+about:
+  # Comb and Phaser Splitter
+  Comb and Phaser are experimental division methods. They are suited for sound design. 
+  ### Screenshots
+  [Screenshot1](https://i.imgur.com/jCpWW1U.png) and [Screenshot2](https://i.imgur.com/vWU2H0T.png)
+
+slider1:mode_slider=0<0,1,1{Comb,Phaser}>Mode
+slider2:frequency_slider=1000<10,20000,1>Frequency (Hz)
+slider3:q_slider=0.25<0.01,40,0.01>Q
+slider4:notches_slider=8<1,64,1>Notches
+
+in_pin:Input L
+in_pin:Input R
+out_pin:Output A L
+out_pin:Output A R
+out_pin:Output B L
+out_pin:Output B R
+
+//options:no_meter
+import more_math_functions.jsfx-inc
+//import more_graphics.jsfx-inc
+
+
+
+@init //----------------------------------------------------------------
+
+ext_nodenorm = 1;
+
+//0[] = ic1eq
+//1[] = ic2eq
+
+function SVF_slider(cutoff,Q)
+local(g)
+(
+    g = tan($pi*cutoff/srate);
+    k = 1/Q;
+    a1 = 1/(1 + g*(g + k));
+    a2 = g*a1;
+    a3 = g*a2;
+);
+
+function SVF(v0,ch)
+local(
+    v1,v2,v3
+)
+(
+    v3 = v0 - 1[ch];
+    v1 = a1*0[ch] + a2*v3;
+    v2 = 1[ch] + a2*0[ch] + a3*v3;
+    0[ch] = 2*v1 - 0[ch];
+    1[ch] = 2*v2 - 1[ch];
+    
+    v0 - 2*k*v1;
+);
+
+
+
+@slider //----------------------------------------------------------------
+
+frequency_slider = min(frequency_slider,srate*0.49);
+
+mode_slider ? (
+    slider_show(12,1);
+) : (
+    slider_show(12,0);
+);
+
+comb_freq = fc(1/frequency_slider*srate);
+
+SVF_slider(frequency_slider,q_slider);
+
+
+
+@sample //----------------------------------------------------------------
+
+spl0 *= 0.5;
+spl1 *= 0.5;
+
+spl0.dry = spl0;
+spl1.dry = spl1;
+
+mode_slider ? (
+    i = 0;
+    loop(notches_slider,
+        spl0 = SVF(spl0,i);
+        spl1 = SVF(spl1,i + 2);
+        i += 4;
+    );
+    
+    spl2 = spl0 - spl0.dry;
+    spl3 = spl1 - spl1.dry;
+    spl0 = spl0 + spl0.dry;
+    spl1 = spl1 + spl1.dry;
+) : (
+    delay.delay2(spl0,spl1,0,comb_freq);
+    spl0 = spl0.dry + delay.delay0;
+    spl1 = spl1.dry + delay.delay1;
+    spl2 = spl0.dry - delay.delay0;
+    spl3 = spl1.dry - delay.delay1;
+);

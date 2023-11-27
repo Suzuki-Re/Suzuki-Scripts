@@ -1,0 +1,96 @@
+NoIndex: true
+desc:Inflator Splitter (lewloiwc)
+tags: frequency splitter
+version: 1.0.0
+author: lewloiwc
+changelog: Initial Release
+License: CC0
+about: 
+  # Inflator Splitter
+  This is the Band Split method used by Oxford Inflator. The slope is 6 dB/oct, and as with ReaX, no phase rotation occurs when all bands have the same gain.
+  [Screenshot](https://i.imgur.com/tPc1dXu.png)
+
+slider1:frequency_a_slider=240<20,20000,1>Frequency A [Hz]
+slider2:frequency_b_slider=2400<20,20000,1>Frequency B [Hz]
+
+in_pin:Input L
+in_pin:Input R
+out_pin:Output Low L
+out_pin:Output Low R
+out_pin:Output Mid L
+out_pin:Output Mid R
+out_pin:Output High L
+out_pin:Output High R
+
+
+
+@init //----------------------------------------------------------------
+
+ext_nodenorm = 1;
+
+function SVFOP_set(cutoff)
+(
+    this.c = tan($pi*(cutoff/srate - 0.25))*0.5 + 0.5;
+);
+
+function SVFOPlpf(x)
+instance(
+    c,i
+)
+(
+    x = i + c*(x - i);
+    i = 2*x - i;
+    x;
+);
+
+function SVFOPhpf(x)
+instance(
+    c,r,i
+)
+(
+    r = (1 - c)*i + c*x;
+    i = 2*r - i;
+    x - r;
+);
+
+function band_split_set(xA,xB)
+(
+    //Low
+        this.A.SVFOP_set(xA);
+    //High
+        this.B.SVFOP_set(xB);
+);
+
+function band_split(x)
+(
+    //Low
+        this.L = this.A.SVFOPlpf(x);
+    //High
+        this.H = this.B.SVFOPhpf(x);
+    //Mid
+        this.M = (x - this.L - this.H);
+);
+
+
+
+@slider //----------------------------------------------------------------
+
+frequency_a_slider = min(frequency_a_slider,srate*0.49);
+frequency_b_slider = min(frequency_b_slider,srate*0.49);
+
+spl0.band_split_set(frequency_a_slider,frequency_b_slider);
+spl1.band_split_set(frequency_a_slider,frequency_b_slider);
+
+
+
+@sample //----------------------------------------------------------------
+
+spl0.band_split(spl0);
+spl1.band_split(spl1);
+
+spl0 = spl0.L;
+spl1 = spl1.L;
+spl2 = spl0.M;
+spl3 = spl1.M;
+spl4 = spl0.H;
+spl5 = spl1.H;
