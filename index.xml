@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="26e49fb52c4e884ad13ea3c029ffe749b024d416">
+<index version="1" name="Suzuki Scripts" commit="25a8e1b16cf06035cbfa1836d1a335fdd4d3c6d2">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -39,6 +39,67 @@
       <version name="1.0" author="Suzuki" time="2023-11-24T11:28:47Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/7e33f8234a5b378c1917e2a4cdd9abf18790deda/FX/Suzuki_Toggle%20map%20to%20the%20root%20container%20parameter%20for%20last%20touched%20track%20or%20take%20FX%20parameter.lua</source>
+      </version>
+    </reapack>
+  </category>
+  <category name="lewloiwc's Sound Design Suite">
+    <reapack name="lewloiwc's Sound Design Suite.jsfx" type="effect" desc="lewloiwc's Sound Design Suite">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 \b \fs36 lewloiwc's Sound Design Suite\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 PLEASE NOTE: It works well as is, but no further development and support is provided. Please report bugs or whatnot with improved code example to the forum thread. I (Suzuki) will update files on behalf of the original author.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 MIDI Trigger Envelope\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 You can find demo {\field{\*\fldinst{HYPERLINK "https://www.youtube.com/watch?v=nptIbDvUsUI"}}{\fldrslt{\ul
+here
+}}}
+.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Open Delay\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Open Delay is a JSFX that allows third-party effects to be placed in the feedback loop.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Open Delay has "Open Delay (Receive Mode)" and "Open Delay (Send Mode)" connected as one pair with the same ID. This ID is the second one from the top of the parameter. If you want to use more than one Open Delay in a single project, you must manually specify a different ID for each Open Delay pair.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 We recommend that you do not casually turn off the Hard Clip and DC Filter. Turning them off may amplify the signal up to 6134 dBFS or generate a tremendous amount of DC signal, depending on the effects used in the feedback loop. If you still want to turn them off, we recommend placing your own DC filter or limiter as a post-effect of Open Delay.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 You can find {\field{\*\fldinst{HYPERLINK "https://youtu.be/jJBtLQs6JEg?t=61"}}{\fldrslt{\ul
+demo video
+}}}
+, {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/3e45Rk3.png"}}{\fldrslt{\ul
+routing example
+}}}
+, and {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/d8vLf1P.png"}}{\fldrslt{\ul
+FX chain example
+}}}
+ here.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Sample Warp - Texture Mode\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Sample warping effects like Akaizer and Ableton Live's Texture Mode. Drag/drop your sample into UI and tweak parameters. See the discussion regarding this effect and ReaReaRea {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?p=2627099"}}{\fldrslt{\ul
+here
+}}}
+, and the demo video {\field{\*\fldinst{HYPERLINK "https://www.youtube.com/watch?v=OyB5l70wkIA"}}{\fldrslt{\ul
+here
+}}}
+.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Known Issues: UI is not updated even though sample is loaded.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Sidechain Erosion\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Sidechain Erosion itself does not contain an oscillator, and works by inputting an external signal to the sidechain. MeldaProduction's MOscillator or MNoiseGenerator are convenient for the external signal.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 The sidechain input will work as intended according to the Amount setting for 0 dBFS, but you can input up to around 13.9 dBFS (linear units of about \u177?5.0, with 0 dBFS being \u177?1.0). This is to allow smooth operation even if the amplitude exceeds 0 dBFS, such as by putting a filter after an oscillator set to 0 dBFS. The maximum Amount can be changed from {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/SPxGlLi.png"}}{\fldrslt{\ul
+the configuration
+}}}
+. The reason for making it adjustable is that with a lower maximum range, pdc can also be suppressed lower, and I'd like to let users adjust it.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/oO4MPb3.png"}}{\fldrslt{\ul
+Usage example
+}}}
+\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0.0" author="lewloiwc" time="2023-11-27T22:19:38Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source file="SoundDesign_Dependencies/more_graphics.jsfx-inc">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/25a8e1b16cf06035cbfa1836d1a335fdd4d3c6d2/lewloiwc's%20Sound%20Design%20Suite/SoundDesign_Dependencies/more_graphics.jsfx-inc</source>
+        <source file="SoundDesign_Dependencies/more_math_functions.jsfx-inc">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/25a8e1b16cf06035cbfa1836d1a335fdd4d3c6d2/lewloiwc's%20Sound%20Design%20Suite/SoundDesign_Dependencies/more_math_functions.jsfx-inc</source>
+        <source file="lewloiwc_midi_trigger_envelope.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/25a8e1b16cf06035cbfa1836d1a335fdd4d3c6d2/lewloiwc's%20Sound%20Design%20Suite/lewloiwc_midi_trigger_envelope.jsfx</source>
+        <source file="lewloiwc_open_delay.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/25a8e1b16cf06035cbfa1836d1a335fdd4d3c6d2/lewloiwc's%20Sound%20Design%20Suite/lewloiwc_open_delay.jsfx</source>
+        <source file="lewloiwc_sample_warp_texture_mode.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/25a8e1b16cf06035cbfa1836d1a335fdd4d3c6d2/lewloiwc's%20Sound%20Design%20Suite/lewloiwc_sample_warp_texture_mode.jsfx</source>
+        <source file="lewloiwc_sidechain_erosion.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/25a8e1b16cf06035cbfa1836d1a335fdd4d3c6d2/lewloiwc's%20Sound%20Design%20Suite/lewloiwc_sidechain_erosion.jsfx</source>
       </version>
     </reapack>
   </category>
