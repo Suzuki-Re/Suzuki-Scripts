@@ -1,0 +1,131 @@
+NoIndex: true
+desc:Sidechain Erosion (lewloiwc)
+tags: sidechain, distortion, short delay
+version: 1.0.0
+author: lewloiwc
+changelog: Initial Release
+license: CC0
+about: 
+  #Sidechain Erosion
+  PLEASE NOTE: It works well as is, but no further development and support is provided. Please report bugs or whatnot with improved code example to the forum thread. I (Suzuki) will update files on behalf of the original author.
+  Sidechain Erosion itself does not contain an oscillator, and works by inputting an external signal to the sidechain. MeldaProduction's MOscillator or MNoiseGenerator are convenient for the external signal.
+  The sidechain input will work as intended according to the Amount setting for 0 dBFS, but you can input up to around 13.9 dBFS (linear units of about ±5.0, with 0 dBFS being ±1.0).
+  This is to allow smooth operation even if the amplitude exceeds 0 dBFS, such as by putting a filter after an oscillator set to 0 dBFS.
+  The maximum Amount can be changed from [the configuration](https://i.imgur.com/SPxGlLi.png). The reason for making it adjustable is that with a lower maximum range, pdc can also be suppressed lower, and I'd like to let users adjust it.
+  [Usage example](https://i.imgur.com/oO4MPb3.png)
+
+slider1:amount_slider=0.1<0,<?printf(config_pdc === 0 ? "1" : "10")?>,0.0001:sqr>Amount (ms / ±)
+
+in_pin:Input L
+in_pin:Input R
+in_pin:Sidechain L
+in_pin:Sidechain R
+out_pin:Output L
+out_pin:Outout R
+
+import more_math_functions.jsfx-inc
+
+config: config_pdc "Range" 0 0="1 ms" 1="10 ms"
+
+
+
+@init //----------------------------------------------------------------
+
+ext_nodenorm = 1;
+
+//bufが9の時、delayは1~7の範囲で、メモリを[0]~[11]の12個使う
+//delay = 1 ~ buf - 2 | mem = 0 ~ buf + 2 | memlen = buf + 3
+//_fast?　bufからメモリを更に3個増やすことで　mem_get_valuesを使うことができ処理が軽くなる
+function lagrange3_delay_fast(x,mem,buffer_size,delay)
+local(
+    local.0,local.1,local.2,local.3
+    local.delta
+)
+(
+    //input
+        this.cnt < 3 ? (//0,1,2
+            mem[this.cnt + buffer_size] = mem[this.cnt] = x;
+        ) : (
+            mem[this.cnt] = x;
+        );
+    //get
+        mem_get_values(
+            mem + (this.cnt - floor(delay + 2) + buffer_size)%buffer_size,
+            local.3,
+            local.2,
+            local.1,
+            local.0
+        );
+    //count
+        this.cnt < buffer_size - 1 ? (
+            this.cnt += 1;
+        ) : (
+            this.cnt = 0;
+        );
+    //main
+        local.delta = 1 + delay - floor(delay);
+        
+        local.0
+        
+        -
+        
+        local.delta
+        *
+        (
+            (local.0 - local.1)
+            
+            +
+            
+            (0.5 - 0.5*local.delta)
+            *
+            (
+                (local.0 - 2*local.1 + local.2)
+                
+                +
+                
+                0.333333333333333333333333333333333333333333
+                *
+                (2 - local.delta)
+                *
+                (local.0 + 3*(local.2 - local.1) - local.3)
+            )
+        );
+);
+
+
+
+@slider //----------------------------------------------------------------
+
+//仕様
+    reference_unipolar_delay_time_ms = <?printf(config_pdc === 0 ? "1" : "10")?>;
+    maximum_sidechain_input_amplitude = 5;
+
+//仕様から計算
+    uni_max_delay_sample = fc(srate/1000*reference_unipolar_delay_time_ms*maximum_sidechain_input_amplitude);
+    
+    buffer_size = uni_max_delay_sample*2 + 3;//この+3はlagrange3の仕組みから来たので
+    
+    pdc_delay = uni_max_delay_sample + 1;
+    pdc_bot_ch = 0;
+    pdc_top_ch = 2;
+    
+    mem1 = 0;
+    mem2 = pdc_delay*2;
+    mem3 = pdc_delay*2 + buffer_size + 3;//こっちは_fastの+3
+    
+    remap_min = (buffer_size - 1)/2 - srate*0.001*amount_slider;
+    remap_max = (buffer_size - 1)/2 + srate*0.001*amount_slider;
+    remap_a = (remap_max - remap_min)*0.5;
+    remap_b = remap_min + remap_a;
+    
+    delay_min = (buffer_size - 1)/2 - uni_max_delay_sample;
+    delay_max = (buffer_size - 1)/2 + uni_max_delay_sample;
+
+
+
+@sample //----------------------------------------------------------------
+
+sc.delay(spl2,spl3,mem1,pdc_delay);
+
+spl0 = spl0.lagrange3_delay_fast(spl0,mem2,buffer_size,clamp(sc.0*remap_a + remap_b,delay_min,delay_max));
+spl1 = spl1.lagrange3_delay_fast(spl1,mem3,buffer_size,clamp(sc.1*remap_a + remap_b,delay_min,delay_max));

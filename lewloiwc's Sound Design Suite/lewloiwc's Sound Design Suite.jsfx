@@ -1,0 +1,44 @@
+@description lewloiwc's Sound Design Suite
+@author lewloiwc
+@version 1.0.0
+@changelog
+  Initial Release
+@metapackage
+@provides
+  SoundDesign_Dependencies/*
+  lewloiwc_midi_trigger_envelope.jsfx
+  lewloiwc_open_delay.jsfx
+  lewloiwc_sample_warp_texture_mode.jsfx
+  lewloiwc_sidechain_erosion.jsfx
+@about
+  # lewloiwc's Sound Design Suite
+  PLEASE NOTE: It works well as is, but no further development and support is provided. Please report bugs or whatnot with improved code example to the forum thread. I (Suzuki) will update files on behalf of the original author.
+  
+  ### MIDI Trigger Envelope
+  You can find demo [here](https://www.youtube.com/watch?v=nptIbDvUsUI).
+  
+  ### Open Delay
+  Open Delay is a JSFX that allows third-party effects to be placed in the feedback loop.
+   
+  Open Delay has "Open Delay (Receive Mode)" and "Open Delay (Send Mode)" connected as one pair with the same ID.
+  This ID is the second one from the top of the parameter. If you want to use more than one Open Delay in a single project, you must manually specify a different ID for each Open Delay pair.
+  
+  We recommend that you do not casually turn off the Hard Clip and DC Filter.
+  Turning them off may amplify the signal up to 6134 dBFS or generate a tremendous amount of DC signal, depending on the effects used in the feedback loop.
+  If you still want to turn them off, we recommend placing your own DC filter or limiter as a post-effect of Open Delay.
+  
+  You can find [demo video](https://youtu.be/jJBtLQs6JEg?t=61), [routing example](https://i.imgur.com/3e45Rk3.png), and [FX chain example](https://i.imgur.com/d8vLf1P.png) here. 
+
+  ### Sample Warp - Texture Mode
+  Sample warping effects like Akaizer and Ableton Live's Texture Mode. Drag/drop your sample into UI and tweak parameters. See the discussion regarding this effect and ReaReaRea [here](https://forum.cockos.com/showthread.php?p=2627099), and the demo video [here](https://www.youtube.com/watch?v=OyB5l70wkIA). 
+  
+  Known Issues: UI is not updated even though sample is loaded.
+ 
+  ### Sidechain Erosion
+  Sidechain Erosion itself does not contain an oscillator, and works by inputting an external signal to the sidechain. MeldaProduction's MOscillator or MNoiseGenerator are convenient for the external signal.
+  
+  The sidechain input will work as intended according to the Amount setting for 0 dBFS, but you can input up to around 13.9 dBFS (linear units of about ±5.0, with 0 dBFS being ±1.0).
+  This is to allow smooth operation even if the amplitude exceeds 0 dBFS, such as by putting a filter after an oscillator set to 0 dBFS.
+  The maximum Amount can be changed from [the configuration](https://i.imgur.com/SPxGlLi.png). The reason for making it adjustable is that with a lower maximum range, pdc can also be suppressed lower, and I'd like to let users adjust it.
+  
+  [Usage example](https://i.imgur.com/oO4MPb3.png)

@@ -1,0 +1,325 @@
+NoIndex: true
+desc:MIDI Trigger Envelope (lewloiwc)
+tags: modulation, envelope, midi
+version: 1.0.0
+author: lewloiwc
+changelog: Initial Release
+license: CC0
+about:
+  # MIDI Trigger Envelope
+  PLEASE NOTE: It works well as is, but no further development and support is provided. Please report bugs or whatnot with improved code example to the forum thread. I (Suzuki) will update files on behalf of the original author.
+  ### Demo 
+  You can find demo [here](https://www.youtube.com/watch?v=nptIbDvUsUI).
+
+slider1:channel_slider=0<0,15,1{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}>MIDI Channel
+slider2:velocity_slider=0<0,3,1{OFF,Linear,Logarithm,Square}>Velocity
+slider3:a_slider=50<0,1000,0.1>Attack [ms]
+slider4:a_slope_slider=0<-10,10,.01>Attack Slope Shape ----------------
+slider5:d_slider=200<0,5000,1>Decay [ms]
+slider6:d_slope_slider=2<-10,10,.01>Decay Slope Shape ----------------
+slider7:s_slider=50<0,100,0.1>Sustain [%]
+slider8:r_slider=100<0,5000,1>Release [ms]
+slider9:r_slope_slider=2<-10,10,.01>Release Slope Shape ----------------
+slider10:gain_slider=0<0,12,.01>Gain [dB]
+slider11:cv_slider=0<0,1,.0001>CV [0~1]
+
+in_pin:Input L
+in_pin:Input R
+out_pin:Output L
+out_pin:Output R
+
+//options:no_meter
+import more_math_functions.jsfx-inc
+import more_graphics.jsfx-inc
+
+@init //--------------------------------
+
+function reshaper(in,mod)
+(
+    mod === 0 ? (
+        in;
+    ) : (
+        mod > 0 ? (
+            1 - (1 - in)^(mod + 1);
+        ) : (
+            in^(-mod + 1);
+        );
+    );
+);
+
+function velocity(in)
+(
+    velocity_slider === 0 ? (
+        //OFF
+        1;
+    ) : (
+        velocity_slider === 1 ? (
+            //Linear
+            clamp((in - 1)/126,0,1);
+        ) : (
+            velocity_slider === 2 ? (
+                //Logarithm (mod 0.1)
+                exp(lerp(log(0 + 0.1),log(1 + 0.1),clamp((in - 1)/126,0,1))) - 0.1;
+            ) : (
+                //Square (^2)
+                clamp(((in - 1)/126)^2,0,1);
+            );
+        );
+    );
+);
+
+function ADSR(on,A_one_step,D_one_step,S,R_one_step)
+instance(now_lock,A,one_step,now,D,ADS_on,R_on,R,velocity_lock)
+(
+    on > 1000 ? (
+        A = 0;
+        D = 0;
+        ADS_on = 0;
+        R_on = 1;
+        on -= 1000;
+    );
+    on > 0 ? (
+        //ADS
+            ADS_on === 0 ? (
+                now_lock = now;
+                velocity_lock = velocity(on);
+            );
+            
+            A !== 1 ? (
+                a_slider === 0 ? (
+                    A = 1;
+                ) : (
+                    one_step = A_one_step;
+                    A = clamp(A += one_step,0,1);
+                    now = lerp(now_lock,velocity_lock,1 - reshaper(1 - A,a_slope_slider));
+                );
+            );
+            
+            A === 1 ? (
+                d_slider === 0 ? (
+                    now = S;
+                ) : (
+                    one_step = D_one_step;
+                    D = clamp(D += one_step,0,1);
+                    now = lerp(velocity_lock,S*velocity_lock,reshaper(D,d_slope_slider));
+                );
+            );
+            
+            ADS_on = 1;
+            R_on = 0;
+            R = 0;
+    ) : (
+        //R
+            R !== 1 ? (
+                R_on === 0 ? (
+                    now_lock = now;
+                    velocity_lock = velocity(on);
+                );
+                
+                r_slider === 0 ? (
+                    now = 0;
+                ) : (
+                    one_step = R_one_step;
+                    R = clamp(R += one_step,0,1);
+                    now = lerp(now_lock,0,reshaper(R,r_slope_slider));
+                );
+                
+                A = 0;
+                D = 0;
+                ADS_on = 0;
+                R_on = 1;
+            );
+    );
+);
+
+@slider //--------------------------------
+
+S = s_slider/100;
+A_one_step = 1/srate*1000/a_slider;
+D_one_step = 1/srate*1000/d_slider;
+R_one_step = 1/srate*1000/r_slider;
+gain = to_linear(gain_slider);
+
+@block //--------------------------------
+
+// REAPER 4.59+ syntax while()
+    midi_clearflag === 1 ? (
+        memset(0,0,samplesblock);
+        midi_clearflag = 0;
+    );
+    while(midirecv(midi_offset,midi_pressure,midi_note,midi_velocity))(
+        midi_pressure === $x90 + channel_slider ? (
+            memset(midi_offset,midi_velocity,1);
+            midi_clearflag = 1;
+        );
+        midi_pressure === $x80 + channel_slider ? (
+            memset(midi_offset,-1,1);
+            midi_clearflag = 1;
+        );
+        midisend(midi_offset,midi_pressure,midi_note,midi_velocity);
+    );
+
+@sample //--------------------------------
+
+//note off delay
+    _delay1 = _delay0;
+    _delay0 = _[];
+    _[] = max(_delay0,0) + min(_delay1,0);
+
+//note syori (midi perfect)
+on > 1000 ? (
+    on -= 1000;
+);
+
+_[] > 0 ? (
+    on === 0 ? (
+        on = _[];
+    ) : (
+        on = _[] + 1000;
+    );
+) : (
+    _[] === -1 ? (
+        on = 0;
+    );
+);
+
+
+
+ADSR(on,A_one_step,D_one_step,S,R_one_step);
+
+
+
+cv_slider = ADSR.now*gain;
+//spl1 = cv_slider/4;
+
+
+
+_ < (samplesblock) - 1 ? (
+    _ += 1;
+) : (
+    _ = 0;
+);
+
+
+
+@gfx //--------------------------------
+
+__x = 12;
+__y = 12;
+__w = 256;
+__h = 63;
+__h2 = 4;
+
+__S_ms = 50;
+__scale = __w/(a_slider + d_slider + r_slider + __S_ms);
+
+//bg
+    hsba(0,0,20,1);
+    gfx_rect(__x,__y,__w,__h,1);
+
+//Sustain bg
+    hsba(0,0,10,1);
+    gfx_rect(__w + __x, __y, __h2, __h);
+
+//migisita bg
+    //hsba(0,0,0,1);
+    //gfx_rect(__w + __x, __h + __y, __h2, __h2);
+
+//grid
+    n = 0;
+    while(
+        !frac(n/100) ? (
+            hsba(0,0,50,1);
+        ) : (
+            !frac(n/10) ? (
+                hsba(0,0,35,1);
+            ) : (
+                hsba(0,0,25,1);
+            );
+        );
+        gfx_aarect(n*__scale*10 + __x,__y,1,__h);
+        
+        n += 1;
+        
+        (n*__scale*10 < __w - 1);
+    );
+
+//Envelope
+    __A_one_step = min(1/__scale/a_slider,2^32);
+    __D_one_step = min(1/__scale/d_slider,2^32);
+    __R_one_step = min(1/__scale/r_slider,2^32);
+    
+    hsba(0,0,100,1);
+    __bu_lx = __x;
+    __bu_ly = (__h - 1) + __y;
+    __.ADSR(0,__A_one_step,__D_one_step,S,__R_one_step);
+    __.now = 0;
+    __on = 127;
+    n = 0;
+    loop(__w,
+    
+        __.ADSR(__on,__A_one_step,__D_one_step,S,__R_one_step);
+    
+        __lx = n + 1 + __x;
+        __ly = -(__.now)*(__h - 1) + (__h - 1) + __y;
+        
+        gfx_thickline( __bu_lx, __bu_ly, __lx, __ly, 1);
+        __bu_lx = __lx;
+        __bu_ly = __ly;
+        
+        1/(__A_one_step) + 1/(__D_one_step) + __scale*__S_ms < n + 2/*?*/ ? (
+            __on = 0;
+        );
+        
+        n += 1;
+    );
+    
+    //ADSR COLOR
+        hsba(10,80,100,1);
+        gfx_aarect(0 + __x, __h + __y, 1/(__A_one_step), __h2);
+        hsba(50,80,100,1);
+        gfx_aarect(1/(__A_one_step) + __x, __h + __y, 1/(__D_one_step), __h2);
+        function green()(hsba(100,90,85,1));green();
+        gfx_aarect(1/(__A_one_step) + 1/(__D_one_step) + __x, __h + __y, __scale*__S_ms, __h2);
+        hsba(210,90,100,1);
+        gfx_aarect(1/(__A_one_step) + 1/(__D_one_step) + __scale*__S_ms + __x, __h + __y, 1/(__R_one_step), __h2);
+    //Sustain
+        green();
+        gfx_aarect(__w + __x, __h + __y, __h2, -S*(__h - 1) - 1);
+
+//velocity graph
+    __x = __x + __w + __h2 + 12;
+    //bg
+        hsba(0,0,20,1);
+        gfx_rect(__x,__y,__h,__h,1);
+    //grid
+        hsba(0,0,100,1);
+        n = 0;
+        loop(8 + 1,
+            !frac(n/4) ? (
+                a(.1);
+            ) : (
+                a(.05);
+            );
+            gfx_aarect(n*(__h - 1)/8 + __x,__y,1,__h);
+            gfx_aarect(__x,n*(__h - 1)/8 + __y,__h,1);
+            
+            n += 1;
+        );
+    //line
+        hsba(0,0,100,1);
+        __bu_lx = __x;
+        __bu_ly = velocity(1)*-(__h - 1) + (__h - 1) + __y;
+        n = 0;
+        loop(__h,
+        
+            __lx = n + __x;
+            __ly = velocity(remap(n,0,__h - 1, 2,127))*-(__h - 1) + (__h - 1) + __y;
+            
+            gfx_thickline( __bu_lx, __bu_ly, __lx, __ly, 1);
+            
+            __bu_lx = __lx;
+            __bu_ly = __ly;
+            
+            n += 1;
+        );

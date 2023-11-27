@@ -1,0 +1,382 @@
+NoIndex: true
+desc:Open Delay (lewloiwc)
+tags: feedback loop
+version: 1.0.0
+author: lewloiwc
+changelog: Initial Release
+license: CC0
+about: 
+  # Open Delay
+  Open Delay is a JSFX that allows third-party effects to be placed in the feedback loop.
+  PLEASE NOTE: It works well as is, but no further development and support is provided. Please report bugs or whatnot with improved code example to the forum thread. I (Suzuki) will update files on behalf of the original author.
+  ### Usage 
+  Open Delay has "Open Delay (Receive Mode)" and "Open Delay (Send Mode)" connected as one pair with the same ID.
+  This ID is the second one from the top of the parameter. If you want to use more than one Open Delay in a single project, you must manually specify a different ID for each Open Delay pair.
+  To further explain, we recommend that you do not casually turn off the Hard Clip and DC Filter.
+  Turning them off may amplify the signal up to 6134 dBFS or generate a tremendous amount of DC signal, depending on the effects used in the feedback loop.
+  If you still want to turn them off, we recommend placing your own DC filter or limiter as a post-effect of Open Delay.
+  ### Demo
+  You can find [demo video](https://youtu.be/jJBtLQs6JEg?t=61), [routing example](https://i.imgur.com/3e45Rk3.png), and [FX chain example](https://i.imgur.com/d8vLf1P.png) here. 
+
+slider1:mode_slider=0<0,1,1{Receive,Delay / Send}>Mode
+slider2:id_slider=0<0,127,1>ID
+slider3:clip_slider=1<0,1,1{Off,On}>Hard Clip
+slider4:threshold_slider=0<-120,20,.1>Threshold (dBFS)
+slider5:dc_slider=1<0,1,1{Off,On}>DC Filter
+slider6:cutoff_slider=20<1,200,.1>Cutoff (Hz)
+slider7:delay_ms_slider=0<-500,3000,1>Delay (Time - ms)
+slider8:sync1_slider=1<0,128,1>Delay (Sync - Numerator)
+slider9:sync2_slider=8<1,128,1>Delay (Sync - Denominator)
+slider10:sync3_slider=3<0,6,1{Straight 2/1 (*2),Dotted (*1.5),Triplet (*1.333),Straight (*1),Dotted 1/2 (*0.75),Triplet 1/2 (*0.667),Straight 1/2 (*0.5)}>Delay (Sync - Notation)
+slider11:pdcc_slider=0<0,30000,1>PDC inside feedback loop (spls)
+slider12:feedback_slider=50<0,200,.1>Feedback (%)
+slider13:output_slider=0<-120,20,.1>Output (dB)
+
+in_pin:Input L
+in_pin:Input R
+out_pin:Output L
+out_pin:Output R
+
+import more_math_functions.jsfx-inc
+
+options:gmem=ch_exp_63
+
+
+
+@init //----------------------------------------------------------------
+
+ext_nodenorm = 1;
+
+function delay2(x0,x1,mem,delay)
+(
+    delay <= 0 ? (
+        this.delay0 = x0;
+        this.delay1 = x1;
+    ) : (
+        this.delay0 = this.cnt[mem];
+        this.delay1 = this.cnt[mem + 1];
+        
+        this.cnt[mem] = x0;
+        this.cnt[mem + 1] = x1;
+        
+        this.cnt < delay + delay - 2 ? (
+            this.cnt += 2;
+        ) : (
+            this.cnt = 0;
+        );
+    );
+);
+
+delay_time_in_now = -9999999999999999;
+
+
+
+@slider //----------------------------------------------------------------
+
+slider_show(8188,mode_slider);//1111111111100
+
+slider_update = 1;
+
+
+
+@block //----------------------------------------------------------------
+
+//slider update
+    slider_update ? (//_dbg_slider_update_cnt += 1;
+        //kyoutuu
+            //id
+                id = id_slider*2*samplesblock;
+            //
+                slider_update = 0;
+        //for feedback
+            mode_slider ? (
+                //time
+                    //out
+                        delay_time_out = samplesblock + pdcc_slider;
+                        delay_mem_in = delay_time_out*2;
+                        delay_time_max = 8388608*0.5 - delay_time_out;
+                    //in
+                        //cal sync
+                            sync_raw =
+                                sync1_slider/sync2_slider
+                                *(
+                                    sync3_slider === 0 ? 2 :
+                                    sync3_slider === 1 ? 1.5 :
+                                    sync3_slider === 2 ? 4/3 :
+                                    sync3_slider === 3 ? 1 :
+                                    sync3_slider === 4 ? 0.75 :
+                                    sync3_slider === 5 ? 1/1.5 :
+                                    sync3_slider === 6 ? 0.5
+                                );
+                        //cal ideal delay
+                            delay_time_raw =
+                                delay_ms_slider*0.001*srate
+                                + 240/tempo*srate*sync_raw
+                                - pdcc_slider;
+                        //cal real delay
+                            delay_time_in =
+                                clamp(
+                                    fc(delay_time_raw) - samplesblock,
+                                    0,
+                                    delay_time_max
+                                );
+                //mem clear
+                    delay_time_in_now !== delay_time_in ? (
+                        delay_time_in_now = delay_time_in;
+                        //mem clear
+                            memset(0,0,(delay_time_out + delay_time_in)*2);
+                        //gmem clear
+                            gmemset(id,0,samplesblock*2);
+                    );
+                //feedback gain
+                    feedback = feedback_slider*0.01;
+                //filter
+                    spl0.SVFOP_set(cutoff_slider);
+                    spl1.SVFOP_set(cutoff_slider);
+                //Output
+                    output = 10^(output_slider*0.05);
+                //clipper threshold
+                    threshold = 10^(threshold_slider*0.05);
+                
+                
+                
+                //for gfx
+                    __delay_spl_raw = fcr(delay_time_raw + pdcc_slider,4);
+                    __delay_spl_real = fcr(delay_time_in + delay_time_out,4);
+                    __dif = __delay_spl_real - __delay_spl_raw;
+                    __delay_time_max = delay_time_max + delay_time_out;
+            ) :
+        //for rec
+            (
+                //gmem clear
+                    gmemset(id,0,samplesblock*2);
+            );
+    );
+//cnt reset
+    cnt = id;
+
+
+
+@sample //----------------------------------------------------------------
+
+//Feedbadck
+    mode_slider ? (
+        //clip
+            clip_slider ? (
+                spl0 = clamp(spl0,-threshold,threshold);
+                spl1 = clamp(spl1,-threshold,threshold);
+            );
+        //DC Filter
+            dc_slider ? (
+                spl0 = spl0.SVFOPhpf(spl0);
+                spl1 = spl1.SVFOPhpf(spl1);
+            );
+        //delay (in)
+            delay__in.delay2(
+                spl0,
+                spl1,
+                delay_mem_in,
+                delay_time_in
+            );
+        //feedback
+            gmem[cnt] = delay__in.delay0*feedback;
+            gmem[cnt + 1] = delay__in.delay1*feedback;
+            
+            cnt += 2;
+        //delay (out)
+            delay__out.delay2(
+                delay__in.delay0,
+                delay__in.delay1,
+                0,
+                delay_time_out
+            );
+        //output
+            spl0 = delay__out.delay0*output;
+            spl1 = delay__out.delay1*output;
+    ) :
+//Recieve
+    (
+        //summing point
+            spl0 += gmem[cnt];
+            spl1 += gmem[cnt + 1];
+            
+            cnt += 2;
+    );
+
+
+
+@gfx //----------------------------------------------------------------
+
+//Feedbadck
+    mode_slider ? (
+        //ideal
+            gfx_set(0.4);
+            
+            gfx_x = 4;
+            gfx_y = 4;
+            gfx_drawstr(
+                sprintf(
+                    #,
+                    sprintf(#,
+                        " Ideal: %%.%.0fs%%.4f ms (%%.%.0fs%%.4f spls)",
+                        __=clamp(
+                            -floor(log10(__delay_spl_raw/srate*1000)) + 5,
+                            0,
+                            5
+                        ),
+                        clamp(
+                            -floor(log10(__delay_spl_raw)) + 7,
+                            0,
+                            7
+                        )
+                    ),
+                    "     ",
+                    __delay_spl_raw/srate*1000,
+                    "       ",
+                    __delay_spl_raw
+                )
+            );
+        //real
+            gfx_set(0.8);
+            
+            gfx_x = 4;
+            gfx_y += 12;
+            gfx_drawchar(16);
+            gfx_drawstr(
+                sprintf(
+                    #,
+                    sprintf(#,
+                        " Real: %%.%.0fs%%.4f ms (%%.%.0fs%%.4f spls)",
+                        __=clamp(
+                            -floor(log10(__delay_spl_real/srate*1000)) + 5,
+                            0,
+                            5
+                        ),
+                        clamp(
+                            -floor(log10(__delay_spl_real)) + 7,
+                            0,
+                            7
+                        )
+                    ),
+                    "     ",
+                    __delay_spl_real/srate*1000,
+                    "       ",
+                    __delay_spl_real
+                )
+            );
+        //error
+            gfx_x = 4;
+            gfx_y += 12;
+            
+            __dif === 0 ? gfx_set(0.4) :
+            __dif < 0 ? gfx_set(0.25,0.7,1) :
+            __dif > 0 ? gfx_set(1,0.4,0.3);
+            abs(__dif) >= 1 ? (
+                gfx_rect(gfx_x - 1,gfx_y - 1,8*43 + 1,8 + 1);
+                gfx_set(0);
+                gfx_drawstr("!");
+            ) : (
+                gfx_x += 8;
+            );
+            
+            gfx_drawstr(
+                sprintf(
+                    #,
+                    sprintf(#,
+                        "Error: %%.%.0fs%%+.4f ms (%%.%.0fs%%+.4f spls)",
+                        __=clamp(
+                            -floor(log10(abs(__dif/srate*1000))) + 4,
+                            0,
+                            4
+                        ),
+                        clamp(
+                            -floor(log10(abs(__dif))) + 6,
+                            0,
+                            6
+                        )
+                    ),
+                    "    ",
+                    __dif/srate*1000,
+                    "      ",
+                    __dif
+                )
+            );
+        //min
+            gfx_set(0.4);
+            
+            gfx_x = 4;
+            gfx_y += 24;
+            gfx_drawstr(
+                sprintf(
+                    #,
+                    sprintf(#,
+                        "   Min: %%.%.0fs%%.4f ms (%%.%.0fs%%.4f spls)",
+                        __=clamp(
+                            -floor(log10(delay_time_out/srate*1000)) + 5,
+                            0,
+                            5
+                        ),
+                        clamp(
+                            -floor(log10(delay_time_out)) + 7,
+                            0,
+                            7
+                        )
+                    ),
+                    "     ",
+                    delay_time_out/srate*1000,
+                    "       ",
+                    delay_time_out
+                )
+            );
+        //max
+            gfx_x = 4;
+            gfx_y += 12;
+            gfx_drawstr(
+                sprintf(
+                    #,
+                    sprintf(#,
+                        "   Max: %%.%.0fs%%.4f ms (%%.%.0fs%%.4f spls)",
+                        __=clamp(
+                            -floor(log10(__delay_time_max/srate*1000)) + 5,
+                            0,
+                            5
+                        ),
+                        clamp(
+                            -floor(log10(__delay_time_max)) + 7,
+                            0,
+                            7
+                        )
+                    ),
+                    "     ",
+                    __delay_time_max/srate*1000,
+                    "       ",
+                    __delay_time_max
+                )
+            );
+    ) :
+//Recieve
+    (
+        gfx_set(0.8);
+        gfx_x = 4;
+        gfx_y = 4;
+        gfx_drawstr("Received Feedback Signals:");
+        __i = 0;
+        loop(samplesblock,
+            __x = __i/samplesblock*gfx_w;
+            gfx_set(0.8,0.4,0.4,0.5);
+            gfx_rect(
+                __x,
+                fc(gmem[id + __i*2 + 1]*-gfx_h*0.5 + gfx_h*0.5 - 1),
+                2,
+                2
+            );
+            gfx_set(0.8,0.8,0.8,0.5);
+            gfx_rect(
+                __x,
+                fc(gmem[id + __i*2]*-gfx_h*0.5 + gfx_h*0.5 - 1),
+                2,
+                2
+            );
+            __i += 1;
+        );
+    );

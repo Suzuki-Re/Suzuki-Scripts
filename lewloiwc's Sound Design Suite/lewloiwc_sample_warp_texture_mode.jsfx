@@ -1,0 +1,203 @@
+NoIndex: true
+desc:Sample Warp - Texture Mode (lewloiwc)
+tags: sample warp, time stretch, pitch shift
+version: 1.0
+author: lewloiwc
+changelog: Initial Release
+license: CC0
+about:	
+  # Texture Mode
+  Sample warping effects like Akaizer and Ableton Live's Texture Mode. Drag/drop your sample into UI and tweak parameters. See the discussion regarding this effect and ReaReaRea [here](https://forum.cockos.com/showthread.php?p=2627099), and the demo video [here](https://www.youtube.com/watch?v=OyB5l70wkIA). 
+  PLEASE NOTE: It works well as is, but no further development and support is provided. Please report bugs or whatnot with improved code example to the forum thread. I (Suzuki) will update files on behalf of the original author.
+  ### Known Issues 
+  UI is not updated even though sample is loaded.
+
+slider1:size_slider=50<1,1000,0.1>Size (ms)
+slider2:flux_slider=0<0,100,0.1>Flux (%)
+slider3:rate_slider=1<0.01,10,0.01>Rate
+slider4:pitch_slider=0<-24,24,1>Pitch (st)
+
+
+
+@init //----------------------------------------------------------------
+
+function frac(n)
+(
+    n - floor(n)
+);
+
+function fc(n)
+(
+    floor(n+0.5)
+);
+
+function lerp(a,b,t)
+(
+    (1 - t)*a + t*b;
+);
+
+function mem_lim(offset)
+(
+    floor(offset) < 0 ? 0 : floor(offset)[];
+);
+
+function mem_lerp_1ch(offset)
+(
+    lerp(
+        mem_lim(offset),
+        mem_lim(offset + 1),
+        frac(offset)
+    );
+);
+
+function mem_lagrange3_1ch(offset)
+local(
+    a,b,c,d,x
+)
+(
+    a = mem_lim(offset - 1);
+    b = mem_lim(offset);
+    c = mem_lim(offset + 1);
+    d = mem_lim(offset + 2);
+    
+    x = 1 + frac(offset);
+    a - x*((a - b) + (1 - x)*0.5*((a - 2*b + c) + (2 - x)*0.3333333333333333*(a - 3*b + 3*c - d)));
+);
+
+function mem_lerp_2ch(mem,x)
+(
+    lerp(
+        mem_lim(mem + floor(x)*2),
+        mem_lim(mem + floor(x)*2 + 2),
+        frac(x)
+    );
+);
+
+function mem_lagrange3_2ch(mem,x)
+local(
+    a,b,c,d,x
+)
+(
+    a = mem_lim(mem + floor(x)*2 - 2);
+    b = mem_lim(mem + floor(x)*2);
+    c = mem_lim(mem + floor(x)*2 + 2);
+    d = mem_lim(mem + floor(x)*2 + 4);
+    
+    x = 1 + frac(x);
+    a - x*((a - b) + (1 - x)*0.5*((a - 2*b + c) + (2 - x)*0.3333333333333333*(a - 3*b + 3*c - d)));
+);
+
+function fade(x)
+(
+    cos($pi*(x - 0.5));
+);
+
+
+
+mem = 0;
+
+file_handle = file_open(#file);
+file_nch = 'rqsr';
+file_riff(file_handle,file_nch,srate);
+file_len = file_avail(file_handle)/file_nch; 
+file_mem(file_handle,mem,file_len*file_nch);
+file_close(file_handle);
+
+
+
+pitch = 2^(pitch_slider/12);
+
+
+
+cnt_mem_global = 0;
+
+size_lock = 0;
+fade_lock = 0;
+
+pitch_lock_a = 0;
+cnt_mem_a = 0;
+cnt_fade_a = 0;
+
+pitch_lock_b = pitch;
+cnt_mem_b = 0;
+cnt_fade_b = 0.5;
+
+cnt_switch = 0;
+switch = 0;
+switch_ = 0;
+
+
+
+@slider //----------------------------------------------------------------
+
+pitch = 2^(pitch_slider/12);
+size = fc(size_slider*(srate/1000)/pitch);
+
+
+
+@sample //----------------------------------------------------------------
+
+switch === 0 || switch === 1 ? (
+    size_lock = size*lerp(1,rand(2),flux_slider*0.01);
+    fade_lock = 0.5/size_lock;
+);
+
+switch === 0 ? (
+    pitch_lock_a = pitch;
+    cnt_mem_a = cnt_mem_global - size_lock*pitch_lock_a + size_lock*rate_slider;
+    cnt_fade_a = 0;
+);
+
+switch === 1 ? (
+    pitch_lock_b = pitch;
+    cnt_mem_b = cnt_mem_global - size_lock*pitch_lock_b + size_lock*rate_slider;
+    cnt_fade_b = 0;
+);
+
+file_nch === 1 ? (
+    spl1 = spl0 =
+        mem_lagrange3_1ch(mem +   cnt_mem_a)*fade(cnt_fade_a) +
+        mem_lagrange3_1ch(mem +   cnt_mem_b)*fade(cnt_fade_b);
+) :
+file_nch === 2 ? (
+    spl0 =
+        mem_lagrange3_2ch(mem    ,cnt_mem_a)*fade(cnt_fade_a) +
+        mem_lagrange3_2ch(mem    ,cnt_mem_b)*fade(cnt_fade_b);
+    spl1 =
+        mem_lagrange3_2ch(mem + 1,cnt_mem_a)*fade(cnt_fade_a) +
+        mem_lagrange3_2ch(mem + 1,cnt_mem_b)*fade(cnt_fade_b);
+);
+
+cnt_switch < size_lock - 1 ? (
+    cnt_switch += 1;
+    switch = -1;
+) : (
+    cnt_switch = 0;
+    switch = switch_ = !switch_;
+);
+
+cnt_mem_a += pitch_lock_a;
+cnt_mem_b += pitch_lock_b;
+
+cnt_fade_a += fade_lock;
+cnt_fade_b += fade_lock;
+
+cnt_mem_global += rate_slider;
+
+
+
+@serialize //----------------------------------------------------------------
+
+file_string(0,#file);
+
+
+
+@gfx //----------------------------------------------------------------
+
+gfx_getdropfile(0,#file);
+
+gfx_set(0.4);
+gfx_rect(3,3,gfx_w - 6,gfx_h - 6,0);
+gfx_x = 0;
+gfx_y = 0;
+gfx_drawstr("Drag and drop audio files here",5,gfx_w,gfx_h);
