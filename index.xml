@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="3768ce7349644d4c3c4647ebd1bd1d13046c2071">
+<index version="1" name="Suzuki Scripts" commit="c9a2fd5d6ae08e094dad80d5e311963b7b2f931b">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -111,23 +111,24 @@ Usage example
 \widowctrl\hyphauto
 
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs36 lewloiwc's Splitter Suite\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Import Splitter Template.RPL as Container preset in order to see the example settings.\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 PLEASE NOTE: It works well as is, but no further development and support is provided. Please report bugs or whatnot with improved code example to the forum thread. I (Suzuki) will update files on behalf of the original author.\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs32 Amplitude Splitter\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Envelope Follower\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 Envelope Follower changes the amount of division according to the size of the original signal. {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/v3cVMgY.png"}}{\fldrslt{\ul
+{\pard \ql \f0 \sa180 \li0 \fi0 Envelope Follower changes the amount of division according to the size of the original signal. ({\field{\*\fldinst{HYPERLINK "https://i.imgur.com/v3cVMgY.png"}}{\fldrslt{\ul
 Screenshot
 }}}
-\par}
+)\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Gate Split\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 Gate divides the signal by the amplitude. {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/rIOR1cm.png"}}{\fldrslt{\ul
+{\pard \ql \f0 \sa180 \li0 \fi0 Gate divides the signal by the amplitude. ({\field{\*\fldinst{HYPERLINK "https://i.imgur.com/rIOR1cm.png"}}{\fldrslt{\ul
 Screenshot
 }}}
-\par}
+)\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Transient Split\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 Transient splits the signal between the attack and the rest of the signal. {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/T3cIfZM.png"}}{\fldrslt{\ul
+{\pard \ql \f0 \sa180 \li0 \fi0 Transient splits the signal between the attack and the rest of the signal. ({\field{\*\fldinst{HYPERLINK "https://i.imgur.com/T3cIfZM.png"}}{\fldrslt{\ul
 Screenshot
 }}}
- See the example of routings {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/BrESMce.png"}}{\fldrslt{\ul
+) See the example of routings {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/BrESMce.png"}}{\fldrslt{\ul
 here
 }}}
  and {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/hpbqS5I.png"}}{\fldrslt{\ul
@@ -145,14 +146,15 @@ Linkwitz-Riley 24 dB/oct
  always rotates phase, but the sum of the frequency responses result is probably linear. I have the impression that this is used in de-esser.\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Comb and Phaser Splitter\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 Comb and Phaser are experimental division methods. They are suited for sound design. See {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/jCpWW1U.png"}}{\fldrslt{\ul
-Screenshot1
+Screenshot 1
 }}}
  and {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/vWU2H0T.png"}}{\fldrslt{\ul
-Screenshot2
+Screenshot 2
 }}}
 .\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Linkwitz-Riley (Minimum Phase)\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 Linkwitz-Riley has a consistent band-by-band frequency response and does not peak or dip when summed, but does cause phase rotation at the crossover point when created with Minimum Phase. Most vst frequency splitters probably use this method. {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/bh3NGly.png"}}{\fldrslt{\ul
+{\pard \ql \f0 \sa180 \li0 \fi0 Linkwitz-Riley has a consistent band-by-band frequency response and does not peak or dip when summed, but does cause phase rotation at the crossover point when created with Minimum Phase. Most vst frequency splitters probably use this method.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/bh3NGly.png"}}{\fldrslt{\ul
 12 dB/oct
 }}}
 , {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/IAdX651.png"}}{\fldrslt{\ul
@@ -164,15 +166,16 @@ Screenshot2
 , and {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/1Zv21an.png"}}{\fldrslt{\ul
 48 dB/oct
 }}}
-. Different slopes can be set for each crossover point, for example {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/3LkoJlo.png"}}{\fldrslt{\ul
+.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Different slopes can be set for each crossover point, for example {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/3LkoJlo.png"}}{\fldrslt{\ul
 12 dB/oct and 36 dB/oct
 }}}
 .\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Linkwitz-Riley (Linear Phase)\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 Linkwitz-Riley (Linear Phase) has no phase rotation and can be set to any dB/oct that is not in 12 increments, but it does have pre ringing and latency. I have not verified this, but the Linear Phase on the FabFilter Pro-MB probably uses this method. {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/ysAJq9D.png"}}{\fldrslt{\ul
+{\pard \ql \f0 \sa180 \li0 \fi0 Linkwitz-Riley (Linear Phase) has no phase rotation and can be set to any dB/oct that is not in 12 increments, but it does have pre ringing and latency. I have not verified this, but the Linear Phase on the FabFilter Pro-MB probably uses this method. ({\field{\*\fldinst{HYPERLINK "https://i.imgur.com/ysAJq9D.png"}}{\fldrslt{\ul
 Screenshot
 }}}
-\par}
+)\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Butterworth (Minimum Phase)\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 Butterworth has a crossover point of -3 dB. This causes it to behave a little differently than Linkwitz-Riley. {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/PNpufua.png"}}{\fldrslt{\ul
 6 dB/oct
@@ -191,24 +194,29 @@ Screenshot
 }}}
 .\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Sinc Splitter (Linear Phase)\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 Sinc (Linear Phase) is the frequency splitter with the sharpest slope. The shape of the slope varies considerably depending on the frequency of the crossover point, the IR Length, and the Window used. Since this is a Linear Phase, pre ringing and latency will occur. {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/eZGw1vS.png"}}{\fldrslt{\ul
+{\pard \ql \f0 \sa180 \li0 \fi0 Sinc (Linear Phase) is the frequency splitter with the sharpest slope. The shape of the slope varies considerably depending on the frequency of the crossover point, the IR Length, and the Window used. Since this is a Linear Phase, pre ringing and latency will occur. ({\field{\*\fldinst{HYPERLINK "https://i.imgur.com/eZGw1vS.png"}}{\fldrslt{\ul
 Screenshot
 }}}
-\par}
+)\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 ReaX\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/JuSNjiT.png"}}{\fldrslt{\ul
-Screenshot1
+Screenshot 1
 }}}
- The features of this method are that there is no phase rotation when the gains of all bands are the same, the computational load is small even if the number of bands is increased, the shape of the segmentation is not consistent, and changing the gain of each band will result in a strange frequency response when summed. Perhaps this method is called Parallel Equalizer, which does the same thing as {\field{\*\fldinst{HYPERLINK "https://www.youtube.com/watch?v=xDlZjmxWChM"}}{\fldrslt{\ul
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 The features of this method are that there is no phase rotation when the gains of all bands are the same, the computational load is small even if the number of bands is increased, the shape of the segmentation is not consistent, and changing the gain of each band will result in a strange frequency response when summed. Perhaps this method is called Parallel Equalizer, which does the same thing as {\field{\*\fldinst{HYPERLINK "https://www.youtube.com/watch?v=xDlZjmxWChM"}}{\fldrslt{\ul
 this video
 }}}
-. {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/mOmB3at.png"}}{\fldrslt{\ul
+.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/mOmB3at.png"}}{\fldrslt{\ul
 Screenshot2
 }}}
- The red lines are the respective divided bands, the light blue line is the summed result, the blue line is the 12 dB/oct slope, and the green line is the 6 dB/oct slope. It looks like the HPF slope is 6 dB/oct and the LPF slope is 12 dB/oct. At the time of division, the frequency response exceeds 0 dB, but when summed, it flattens out nicely. {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/nRJlXYd.png"}}{\fldrslt{\ul
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 The red lines are the respective divided bands, the light blue line is the summed result, the blue line is the 12 dB/oct slope, and the green line is the 6 dB/oct slope. It looks like the HPF slope is 6 dB/oct and the LPF slope is 12 dB/oct. At the time of division, the frequency response exceeds 0 dB, but when summed, it flattens out nicely.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/nRJlXYd.png"}}{\fldrslt{\ul
 Screenshot3
 }}}
- The red line is the frequency response of each band, and the light blue line is the summed result. The dip occurs around 3 kHz.\par}
+\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 The red line is the frequency response of each band, and the light blue line is the summed result. The dip occurs around 3 kHz.\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Inflator\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/tPc1dXu.png"}}{\fldrslt{\ul
 This
@@ -217,7 +225,7 @@ This
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 StudioRack\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 StudioRack MultiBand Split uses a slightly different filter that is neither Butterworth filter nor Linkwitz-Riley filter.\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs32 Disclaimer\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 All product names and trademarks are the property of their respective owners, which are in no way associated or affiliated with us. Product names are used solely for the purpose of identifying the specific products that were studied during development process and for describing certain types of splitting methods produced with our guesswork. Use of these names does not imply any co-operation or endorsement.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 All product names and trademarks are the property of their respective owners, which are in no way associated or affiliated with us. Product names are used solely for the purpose of identifying the specific products that were studied during development process and for describing certain types of splitting methods produced with our reverse-engineering. Use of these names does not imply any co-operation or endorsement.\par}
 }
 ]]></description>
       </metadata>
@@ -235,6 +243,23 @@ This
         <source file="lewloiwc_frequency_splitter_linkwitz-riley(minimum_phase).jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/3768ce7349644d4c3c4647ebd1bd1d13046c2071/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_linkwitz-riley(minimum_phase).jsfx</source>
         <source file="lewloiwc_inflator_splitter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/3768ce7349644d4c3c4647ebd1bd1d13046c2071/lewloiwc's%20Splitter%20Suite/lewloiwc_inflator_splitter.jsfx</source>
         <source file="lewloiwc_sinc_frequency_splitter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/3768ce7349644d4c3c4647ebd1bd1d13046c2071/lewloiwc's%20Splitter%20Suite/lewloiwc_sinc_frequency_splitter.jsfx</source>
+      </version>
+      <version name="1.0.1" author="lewloiwc" time="2023-11-28T10:04:05Z">
+        <changelog><![CDATA[Hotfix - transient splitter
+Added rpl file for container preset]]></changelog>
+        <source file="Splitter_Dependencies/more_graphics.jsfx-inc">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/Splitter_Dependencies/more_graphics.jsfx-inc</source>
+        <source file="Splitter_Dependencies/more_math_functions.jsfx-inc">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/Splitter_Dependencies/more_math_functions.jsfx-inc</source>
+        <source file="Splitter Template.RPL">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/Splitter%20Template.RPL</source>
+        <source file="lewloiwc_amplitude_splitter_envelope_follower.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_amplitude_splitter_envelope_follower.jsfx</source>
+        <source file="lewloiwc_amplitude_splitter_gate.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_amplitude_splitter_gate.jsfx</source>
+        <source file="lewloiwc_amplitude_splitter_transient.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_amplitude_splitter_transient.jsfx</source>
+        <source file="lewloiwc_frequency_splitter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter.jsfx</source>
+        <source file="lewloiwc_frequency_splitter_band_and_notch(minimum_phase).jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_band_and_notch(minimum_phase).jsfx</source>
+        <source file="lewloiwc_frequency_splitter_butterworth(minimum_phase).jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_butterworth(minimum_phase).jsfx</source>
+        <source file="lewloiwc_frequency_splitter_comb_and_phaser.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_comb_and_phaser.jsfx</source>
+        <source file="lewloiwc_frequency_splitter_linkwitz-riley(minimum_phase).jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_linkwitz-riley(minimum_phase).jsfx</source>
+        <source file="lewloiwc_frequency_splitter_sinc.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_sinc.jsfx</source>
+        <source file="lewloiwc_inflator_splitter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_inflator_splitter.jsfx</source>
       </version>
     </reapack>
   </category>
