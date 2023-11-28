@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="9021252e790debd90135dd02ba670724c1264ce7">
+<index version="1" name="Suzuki Scripts" commit="fd5c71d360d7b2ed0a54ee45182aab140fb25281">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -128,7 +128,9 @@ Screenshot
 {\pard \ql \f0 \sa180 \li0 \fi0 Transient splits the signal between the attack and the rest of the signal. ({\field{\*\fldinst{HYPERLINK "https://i.imgur.com/T3cIfZM.png"}}{\fldrslt{\ul
 Screenshot
 }}}
-) See the example of routings {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/BrESMce.png"}}{\fldrslt{\ul
+)\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 \bullet \tx360\tab Detection Speed: Lowering this parameter will make it more responsive to transients of higher BPMs, but it also increases the potential for false detections.\sa180\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 See the example of routings {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/BrESMce.png"}}{\fldrslt{\ul
 here
 }}}
  and {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/hpbqS5I.png"}}{\fldrslt{\ul
