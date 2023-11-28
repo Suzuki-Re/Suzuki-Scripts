@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="c9a2fd5d6ae08e094dad80d5e311963b7b2f931b">
+<index version="1" name="Suzuki Scripts" commit="baa4528142b0cfafc103e3dc64ae31f202e172e3">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -154,7 +154,7 @@ Screenshot 2
 .\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Linkwitz-Riley (Minimum Phase)\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 Linkwitz-Riley has a consistent band-by-band frequency response and does not peak or dip when summed, but does cause phase rotation at the crossover point when created with Minimum Phase. Most vst frequency splitters probably use this method.\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/bh3NGly.png"}}{\fldrslt{\ul
+{\pard \ql \f0 \sa180 \li0 \fi0 See {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/bh3NGly.png"}}{\fldrslt{\ul
 12 dB/oct
 }}}
 , {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/IAdX651.png"}}{\fldrslt{\ul
@@ -177,7 +177,8 @@ Screenshot
 }}}
 )\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Butterworth (Minimum Phase)\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 Butterworth has a crossover point of -3 dB. This causes it to behave a little differently than Linkwitz-Riley. {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/PNpufua.png"}}{\fldrslt{\ul
+{\pard \ql \f0 \sa180 \li0 \fi0 Butterworth has a crossover point of -3 dB. This causes it to behave a little differently than Linkwitz-Riley.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 See {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/PNpufua.png"}}{\fldrslt{\ul
 6 dB/oct
 }}}
 , {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/377olVl.png"}}{\fldrslt{\ul
@@ -189,7 +190,8 @@ Screenshot
 , and {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/Cuu9HOl.png"}}{\fldrslt{\ul
 42 dB/oct
 }}}
-. This can also be set to a different slope for each crossover point, for example {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/7HauoZ8.png"}}{\fldrslt{\ul
+.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 This can also be set to a different slope for each crossover point, for example {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/7HauoZ8.png"}}{\fldrslt{\ul
 6 dB/oct and 30 dB/oct
 }}}
 .\par}
@@ -208,12 +210,12 @@ this video
 }}}
 .\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/mOmB3at.png"}}{\fldrslt{\ul
-Screenshot2
+Screenshot 2
 }}}
 \par}
 {\pard \ql \f0 \sa180 \li0 \fi0 The red lines are the respective divided bands, the light blue line is the summed result, the blue line is the 12 dB/oct slope, and the green line is the 6 dB/oct slope. It looks like the HPF slope is 6 dB/oct and the LPF slope is 12 dB/oct. At the time of division, the frequency response exceeds 0 dB, but when summed, it flattens out nicely.\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 {\field{\*\fldinst{HYPERLINK "https://i.imgur.com/nRJlXYd.png"}}{\fldrslt{\ul
-Screenshot3
+Screenshot 3
 }}}
 \par}
 {\pard \ql \f0 \sa180 \li0 \fi0 The red line is the frequency response of each band, and the light blue line is the summed result. The dip occurs around 3 kHz.\par}
