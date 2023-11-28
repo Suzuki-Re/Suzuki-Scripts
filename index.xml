@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="fd5c71d360d7b2ed0a54ee45182aab140fb25281">
+<index version="1" name="Suzuki Scripts" commit="10fd04e87caf477632676b51de46ce8e12c18b02">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -50,7 +50,10 @@
 \widowctrl\hyphauto
 
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs36 lewloiwc's Sound Design Suite\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 PLEASE NOTE: It works well as is, but no further development and support is provided. Please report bugs or whatnot with improved code example to the forum thread. I (Suzuki) will update files on behalf of the original author.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 PLEASE NOTE: It works well as is, but no further development and support is provided. Please report bugs or whatnot with improved code example to {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=285649"}}{\fldrslt{\ul
+the forum thread
+}}}
+. I (Suzuki) will update files on behalf of the original author.\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 MIDI Trigger Envelope\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 You can find demo {\field{\*\fldinst{HYPERLINK "https://www.youtube.com/watch?v=nptIbDvUsUI"}}{\fldrslt{\ul
 here
@@ -100,6 +103,16 @@ Usage example
         <source file="lewloiwc_open_delay.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/25a8e1b16cf06035cbfa1836d1a335fdd4d3c6d2/lewloiwc's%20Sound%20Design%20Suite/lewloiwc_open_delay.jsfx</source>
         <source file="lewloiwc_sample_warp_texture_mode.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/25a8e1b16cf06035cbfa1836d1a335fdd4d3c6d2/lewloiwc's%20Sound%20Design%20Suite/lewloiwc_sample_warp_texture_mode.jsfx</source>
         <source file="lewloiwc_sidechain_erosion.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/25a8e1b16cf06035cbfa1836d1a335fdd4d3c6d2/lewloiwc's%20Sound%20Design%20Suite/lewloiwc_sidechain_erosion.jsfx</source>
+      </version>
+      <version name="1.0.1" author="lewloiwc" time="2023-11-28T12:39:22Z">
+        <changelog><![CDATA[Added a container preset file]]></changelog>
+        <source file="Open_Delay_Examples_in_Container.RPL">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/10fd04e87caf477632676b51de46ce8e12c18b02/lewloiwc's%20Sound%20Design%20Suite/Open_Delay_Examples_in_Container.RPL</source>
+        <source file="SoundDesign_Dependencies/more_graphics.jsfx-inc">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/10fd04e87caf477632676b51de46ce8e12c18b02/lewloiwc's%20Sound%20Design%20Suite/SoundDesign_Dependencies/more_graphics.jsfx-inc</source>
+        <source file="SoundDesign_Dependencies/more_math_functions.jsfx-inc">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/10fd04e87caf477632676b51de46ce8e12c18b02/lewloiwc's%20Sound%20Design%20Suite/SoundDesign_Dependencies/more_math_functions.jsfx-inc</source>
+        <source file="lewloiwc_midi_trigger_envelope.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/10fd04e87caf477632676b51de46ce8e12c18b02/lewloiwc's%20Sound%20Design%20Suite/lewloiwc_midi_trigger_envelope.jsfx</source>
+        <source file="lewloiwc_open_delay.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/10fd04e87caf477632676b51de46ce8e12c18b02/lewloiwc's%20Sound%20Design%20Suite/lewloiwc_open_delay.jsfx</source>
+        <source file="lewloiwc_sample_warp_texture_mode.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/10fd04e87caf477632676b51de46ce8e12c18b02/lewloiwc's%20Sound%20Design%20Suite/lewloiwc_sample_warp_texture_mode.jsfx</source>
+        <source file="lewloiwc_sidechain_erosion.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/10fd04e87caf477632676b51de46ce8e12c18b02/lewloiwc's%20Sound%20Design%20Suite/lewloiwc_sidechain_erosion.jsfx</source>
       </version>
     </reapack>
   </category>
