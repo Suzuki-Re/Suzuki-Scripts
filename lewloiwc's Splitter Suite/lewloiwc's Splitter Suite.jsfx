@@ -29,6 +29,9 @@
   Gate divides the signal by the amplitude. ([Screenshot](https://i.imgur.com/rIOR1cm.png))
   ### Transient Split
   Transient splits the signal between the attack and the rest of the signal. ([Screenshot](https://i.imgur.com/T3cIfZM.png))
+
+  - Detection Speed: Lowering this parameter will make it more responsive to transients of higher BPMs, but it also increases the potential for false detections.
+
   See the example of routings [here](https://i.imgur.com/BrESMce.png) and [here](https://i.imgur.com/hpbqS5I.png).
   ## Frequency Splitter
   ### Band and Notch
