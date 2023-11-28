@@ -1,9 +1,8 @@
 @description lewloiwc's Splitter Suite
 @author lewloiwc
-@version 1.0.1
+@version 1.0.2
 @changelog
-  Hotfix - transient splitter
-  Added rpl file for container preset
+  Fixed a minor naming issue
 @metapackage
 @provides
   Splitter_Dependencies/*
