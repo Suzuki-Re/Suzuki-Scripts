@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="baa4528142b0cfafc103e3dc64ae31f202e172e3">
+<index version="1" name="Suzuki Scripts" commit="9021252e790debd90135dd02ba670724c1264ce7">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -262,6 +262,22 @@ Added rpl file for container preset]]></changelog>
         <source file="lewloiwc_frequency_splitter_linkwitz-riley(minimum_phase).jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_linkwitz-riley(minimum_phase).jsfx</source>
         <source file="lewloiwc_frequency_splitter_sinc.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_sinc.jsfx</source>
         <source file="lewloiwc_inflator_splitter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c9a2fd5d6ae08e094dad80d5e311963b7b2f931b/lewloiwc's%20Splitter%20Suite/lewloiwc_inflator_splitter.jsfx</source>
+      </version>
+      <version name="1.0.2" author="lewloiwc" time="2023-11-28T10:36:44Z">
+        <changelog><![CDATA[Fixed a minor naming issue]]></changelog>
+        <source file="Splitter_Dependencies/more_graphics.jsfx-inc">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/Splitter_Dependencies/more_graphics.jsfx-inc</source>
+        <source file="Splitter_Dependencies/more_math_functions.jsfx-inc">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/Splitter_Dependencies/more_math_functions.jsfx-inc</source>
+        <source file="Splitter Template.RPL">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/Splitter%20Template.RPL</source>
+        <source file="lewloiwc_amplitude_splitter_envelope_follower.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/lewloiwc_amplitude_splitter_envelope_follower.jsfx</source>
+        <source file="lewloiwc_amplitude_splitter_gate.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/lewloiwc_amplitude_splitter_gate.jsfx</source>
+        <source file="lewloiwc_amplitude_splitter_transient.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/lewloiwc_amplitude_splitter_transient.jsfx</source>
+        <source file="lewloiwc_frequency_splitter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter.jsfx</source>
+        <source file="lewloiwc_frequency_splitter_band_and_notch(minimum_phase).jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_band_and_notch(minimum_phase).jsfx</source>
+        <source file="lewloiwc_frequency_splitter_butterworth(minimum_phase).jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_butterworth(minimum_phase).jsfx</source>
+        <source file="lewloiwc_frequency_splitter_comb_and_phaser.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_comb_and_phaser.jsfx</source>
+        <source file="lewloiwc_frequency_splitter_linkwitz-riley(minimum_phase).jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_linkwitz-riley(minimum_phase).jsfx</source>
+        <source file="lewloiwc_frequency_splitter_sinc.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/lewloiwc_frequency_splitter_sinc.jsfx</source>
+        <source file="lewloiwc_inflator_splitter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9021252e790debd90135dd02ba670724c1264ce7/lewloiwc's%20Splitter%20Suite/lewloiwc_inflator_splitter.jsfx</source>
       </version>
     </reapack>
   </category>
