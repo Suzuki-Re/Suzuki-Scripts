@@ -37,7 +37,7 @@ about:
   # StudioRack
   StudioRack MultiBand Split uses a slightly different filter that is neither a Butterworth filter nor a Linkwitz-Riley filter.
   # Disclaimer
-  All product names and trademarks are the property of their respective owners, which are in no way associated or affiliated with us. Product names are used solely for the purpose of identifying the specific products that were studied during development process and for describing certain types of splitting methods produced with our guesswork. Use of these names does not imply any co-operation or endorsement.
+  All product names and trademarks are the property of their respective owners, which are in no way associated or affiliated with us. Product names are used solely for the purpose of identifying the specific products that were studied during development process and for describing certain types of splitting methods produced with our reverse-engineering. Use of these names does not imply any co-operation or endorsement.
 
 slider1:mode_slider=0<0,6,1{[N Band] Linkwitz-Riley (Minimum Phase),[N Band] Linkwitz-Riley (Linear Phase),[N Band] Butterworth (Minimum Phase),[N Band] Sinc (Linear Phase),[N Band] ReaX,[3 Band] Inflator,[N Band] StudioRack}>Mode
 slider2:band_slider=0<0,2,1{2,3,4}>Band

@@ -13,11 +13,11 @@ about:
   ### Usage
   See the example of routings [here](https://i.imgur.com/BrESMce.png) and [here](https://i.imgur.com/hpbqS5I.png).
 
-//slider1:attack_1_slider=3<0,1000,0.1>attack time 1 (ms)
-//slider2:release_1_slider=300<0,1000,0.1>release time 1 (ms)
-//slider3:attack_2_slider=30<0,1000,0.1>attack time 2 (ms)
-//slider4:release_2_slider=300<0,1000,0.1>release time 2 (ms)
-// Disabled because there's no need to adjust attack and release time for splitter usage. All we need to do is detect a transient. Those are for a transient designer.
+slider1:attack_1_slider=3<0,1000,0.1>-attack time 1 (ms)
+slider2:release_1_slider=300<0,1000,0.1>-release time 1 (ms)
+slider3:attack_2_slider=30<0,1000,0.1>-attack time 2 (ms)
+slider4:release_2_slider=300<0,1000,0.1>-release time 2 (ms)
+// Hid them because there's no need to adjust attack and release time for splitter usage. All we need to do is detect a transient. Those are for a transient designer.
 slider5:time_slider=1<0,10,0.01>Detection Speed (×)
 // Lowering this parameter will make it more responsive to transients of higher BPMs, but it also increases the potential for false detections.
 //検出速度?　速度を上げると細かいTransientも拾うようになる?
