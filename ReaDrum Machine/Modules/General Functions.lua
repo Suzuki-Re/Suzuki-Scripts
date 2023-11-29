@@ -3,7 +3,6 @@
 
 r = reaper
 
-
 function SetButtonState(set) -- Set ToolBar Button State
   local is_new_value, filename, sec, cmd, mode, resolution, val = r.get_action_context()
   r.SetToggleCommandState(sec, cmd, set or 0)

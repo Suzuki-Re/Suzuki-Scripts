@@ -19,12 +19,12 @@ function CheckDNDType()
     FX_DRAG = dnd_type == "FX_Drag" -- For FX Devices
 end
   
-  function AddNoteFilter(notenum, pad_num)
-    filter_id = get_fx_id_from_container_path(track, parent_id, pad_num, 1) -- 1 based, num
-    r.TrackFX_AddByName(track, 'RDM_midi_note_filter', false, filter_id)
-    r.TrackFX_SetParam(track, filter_id, 0, notenum)                        -- lowest key for filter, pad number = midi note
-    r.TrackFX_SetParam(track, filter_id, 1, notenum)                        -- highest key for filter
-  end
+function AddNoteFilter(notenum, pad_num)
+  filter_id = get_fx_id_from_container_path(track, parent_id, pad_num, 1) -- 1 based, num
+  r.TrackFX_AddByName(track, 'RDM_midi_note_filter', false, filter_id)
+  r.TrackFX_SetParam(track, filter_id, 0, notenum)                        -- lowest key for filter, pad number = midi note
+  r.TrackFX_SetParam(track, filter_id, 1, notenum)                        -- highest key for filter
+end
   
    function DndAddFX_SRC(fx)
     if r.ImGui_BeginDragDropSource(ctx, r.ImGui_DragDropFlags_AcceptBeforeDelivery()) then

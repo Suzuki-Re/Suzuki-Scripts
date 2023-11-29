@@ -1,8 +1,8 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.1.6
--- @changelog Added highlight to selected vertical bar which opens pads window
+-- @version 1.1.7
+-- @changelog You can navigate the vertical tab while drag/dropping FX and move/copying a pad sample/FX now.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
@@ -293,7 +293,7 @@ function Main()
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_ChildBg(), COLOR["bg"])
   r.ImGui_BeginGroup(ctx)
   
-  draw_list = r.ImGui_GetWindowDrawList(ctx)                  -- 4 x 4 left veertical bar drawing
+  draw_list = r.ImGui_GetWindowDrawList(ctx)                  -- 4 x 4 left vertical tab drawing
   f_draw_list = r.ImGui_GetForegroundDrawList(ctx) 
   local SPLITTER = r.ImGui_CreateDrawListSplitter(f_draw_list)
   r.ImGui_DrawListSplitter_Split(SPLITTER, 2)                     -- NUMBER OF Z ORDER CHANNELS
@@ -304,7 +304,6 @@ function Main()
   --end
   r.ImGui_DrawListSplitter_SetCurrentChannel(SPLITTER, 0)       -- SET LOWER PRIORITY TO DRAW AFTER
   local x, y = r.ImGui_GetCursorPos(ctx)
-  --  r.ImGui_DrawList_AddRect(draw_list, wx+x-2, wy+y-2+33 * (i-1), wx+x+33, wy+y+33 * i, 0xFFFFFFFF)  -- white box when selected
   for ci = 0, hh - hy, hy - 4.5 do
     for bi = 0, 24, 8 do
       for i = 0, 24, 8 do
@@ -318,8 +317,26 @@ function Main()
   if r.ImGui_BeginChild(ctx, 'BUTTON_SECTION', w_closed + 10, h + 100, false) then   -- vertical tab
     for i = 1, 8 do
       r.ImGui_SetCursorPos(ctx, 0, y + (i - 1) * 35 - button_offset)
-      if r.ImGui_InvisibleButton(ctx, "B" .. i, 31, 31) then
+      rv = r.ImGui_InvisibleButton(ctx, "B" .. i, 31, 31)
+      local xs, ys = r.ImGui_GetItemRectMin(ctx)
+      local xe, ye = r.ImGui_GetItemRectMax(ctx)
+      if rv then
         LAST_MENU = toggle2 (LAST_MENU, i)
+      end
+      r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), 0)
+      if r.ImGui_BeginDragDropTarget(ctx) then
+        local ret, payload = r.ImGui_AcceptDragDropPayload(ctx, 'DND ADD FX')
+        r.ImGui_EndDragDropTarget(ctx)
+      end
+      r.ImGui_PopStyleColor(ctx)
+      r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), 0)
+      if r.ImGui_BeginDragDropTarget(ctx) then
+        local ret, payload = r.ImGui_AcceptDragDropPayload(ctx, 'DND MOVE FX')
+        r.ImGui_EndDragDropTarget(ctx)
+      end
+      r.ImGui_PopStyleColor(ctx)
+      if (DND_ADD_FX or DND_MOVE_FX) and r.ImGui_IsMouseHoveringRect(ctx, xs, ys, xe, ye) then
+        LAST_MENU = i
       end
       HighlightHvredItem()
       if LAST_MENU == i then 
