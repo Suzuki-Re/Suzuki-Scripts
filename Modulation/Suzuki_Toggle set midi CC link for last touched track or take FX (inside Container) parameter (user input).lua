@@ -1,8 +1,8 @@
 -- @description Toggle set midi CC link for last touched track or take FX (inside Container) parameter (user input)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0
--- @changelog Initial Release
+-- @version 1.1
+-- @changelog Fixed a mistake I don't know why I did
 -- @about Using v7.0+ API
 
 local r = reaper
@@ -50,25 +50,25 @@ end
 if itemidx ~= -1 then
     local item = r.GetMediaItem(0, itemidx)
     local take = r.GetMediaItemTake(item, takeidx)
-    local retval, buf = r.TakeFX_GetNamedConfigParm(take, takeidx, "param."..parm..".plink.active")
+    local retval, buf = r.TakeFX_GetNamedConfigParm(take, fxidx, "param."..parm..".plink.active")
     if retval and buf == "1" then
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.active", 0)
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.effect", 0)
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.param", 0)
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.midi_bus", 0)
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.midi_chan", 0)
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.midi_msg", 0)
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.midi_msg2", 0)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.active", 0)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.effect", 0)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.param", 0)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.midi_bus", 0)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.midi_chan", 0)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.midi_msg", 0)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.midi_msg2", 0)
     else
         GetUserInputCC()
         if retvals then
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.active", 1)
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.effect", -100)
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.param", -1)
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.midi_bus", 0)
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.midi_chan", 1)
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.midi_msg", 176)
-        r.TakeFX_SetNamedConfigParm(take, takeidx, "param."..parm..".plink.midi_msg2", retvals)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.active", 1)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.effect", -100)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.param", -1)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.midi_bus", 0)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.midi_chan", 1)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.midi_msg", 176)
+        r.TakeFX_SetNamedConfigParm(take, fxidx, "param."..parm..".plink.midi_msg2", retvals)
         end
     end
 else
