@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="6df36d7908a56b5158e379360159d7ce2df55503">
+<index version="1" name="Suzuki Scripts" commit="8568ed033473e8340e83818f33c3c5421b6d7913">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -386,6 +386,10 @@ Added rpl file for container preset]]></changelog>
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c2ec5e58bf5e8f63b23a6386bed9d217343f06d9/Modulation/Suzuki_Toggle%20enable%20disable%20audio%20control%20signal%20for%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter.lua</source>
       </version>
+      <version name="1.1" author="Suzuki" time="2023-12-03T10:54:47Z">
+        <changelog><![CDATA[Fixed a mistake I don't know why I did]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/8568ed033473e8340e83818f33c3c5421b6d7913/Modulation/Suzuki_Toggle%20enable%20disable%20audio%20control%20signal%20for%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter.lua</source>
+      </version>
     </reapack>
     <reapack name="Suzuki_Toggle enable disable LFO for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle enable/disable LFO for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -400,6 +404,10 @@ Added rpl file for container preset]]></changelog>
       <version name="1.0" author="Suzuki" time="2023-11-24T11:57:28Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/a827b9c8d3ce223198efdbcccdbaf23d8e2da543/Modulation/Suzuki_Toggle%20enable%20disable%20LFO%20for%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter.lua</source>
+      </version>
+      <version name="1.1" author="Suzuki" time="2023-12-03T10:54:47Z">
+        <changelog><![CDATA[Fixed a mistake I don't know why I did]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/8568ed033473e8340e83818f33c3c5421b6d7913/Modulation/Suzuki_Toggle%20enable%20disable%20LFO%20for%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter.lua</source>
       </version>
     </reapack>
     <reapack name="Suzuki_Toggle link last touched track or take FX (inside Container) parameter as a follower to the lead parameter.lua" type="script" desc="Toggle link last touched track or take FX (inside Container) parameter as a follower to the lead parameter">
@@ -430,6 +438,10 @@ Added rpl file for container preset]]></changelog>
       <version name="1.0" author="Suzuki" time="2023-11-24T12:00:16Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/c91b44efdc568a35d489c2977f39e39936880ea7/Modulation/Suzuki_Toggle%20set%20midi%20CC%20link%20for%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter%20(user%20input).lua</source>
+      </version>
+      <version name="1.1" author="Suzuki" time="2023-12-03T10:54:47Z">
+        <changelog><![CDATA[Fixed a mistake I don't know why I did]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/8568ed033473e8340e83818f33c3c5421b6d7913/Modulation/Suzuki_Toggle%20set%20midi%20CC%20link%20for%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter%20(user%20input).lua</source>
       </version>
     </reapack>
   </category>
