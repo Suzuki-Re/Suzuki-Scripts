@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="935fb6b846852142ac58832979eeec0b7c032334">
+<index version="1" name="Suzuki Scripts" commit="2b7476635127037a72574bc0a3e10804080e024f">
   <category name="Envelopes">
     <reapack name="Suzuki_Toggle show hide visible envelope for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle show/hide visible envelope for last touched track or take FX (inside Container) parameter">
       <metadata>
@@ -26,7 +26,7 @@
     </reapack>
   </category>
   <category name="FX">
-    <reapack name="Suzuki_Close all floating FX (inside Container) windows for selected tracks  (excl. master track).lua" type="script" desc="Close all floating track FX (inside Container) windows for selected tracks (excl. master track)">
+    <reapack name="Suzuki_Close all floating FX (inside Container) windows for selected tracks (excl. master track).lua" type="script" desc="Close all floating track FX (inside Container) windows for selected tracks (excl. master track)">
       <metadata>
         <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
 {\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
@@ -36,12 +36,12 @@
 }
 ]]></description>
       </metadata>
-      <version name="1.0" author="Suzuki" time="2023-12-03T03:51:23Z">
+      <version name="1.0" author="Suzuki" time="2023-12-03T04:11:36Z">
         <changelog><![CDATA[Initial Release]]></changelog>
-        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/935fb6b846852142ac58832979eeec0b7c032334/FX/Suzuki_Close%20all%20floating%20FX%20(inside%20Container)%20windows%20for%20selected%20tracks%20%20(excl.%20master%20track).lua</source>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/8611bc480626775d5254d80770acb96c7ac4296a/FX/Suzuki_Close%20all%20floating%20FX%20(inside%20Container)%20windows%20for%20selected%20tracks%20(excl.%20master%20track).lua</source>
       </version>
     </reapack>
-    <reapack name="Suzuki_Close all floating FX (inside Container) windows for selected tracks  (incl. master track).lua" type="script" desc="Close all floating track FX (inside Container) windows for selected tracks (incl. master track)">
+    <reapack name="Suzuki_Close all floating FX (inside Container) windows for selected tracks (incl. master track).lua" type="script" desc="Close all floating track FX (inside Container) windows for selected tracks (incl. master track)">
       <metadata>
         <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
 {\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
@@ -51,9 +51,9 @@
 }
 ]]></description>
       </metadata>
-      <version name="1.0" author="Suzuki" time="2023-12-03T03:51:23Z">
+      <version name="1.0" author="Suzuki" time="2023-12-03T04:11:58Z">
         <changelog><![CDATA[Initial Release]]></changelog>
-        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/935fb6b846852142ac58832979eeec0b7c032334/FX/Suzuki_Close%20all%20floating%20FX%20(inside%20Container)%20windows%20for%20selected%20tracks%20%20(incl.%20master%20track).lua</source>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/2b7476635127037a72574bc0a3e10804080e024f/FX/Suzuki_Close%20all%20floating%20FX%20(inside%20Container)%20windows%20for%20selected%20tracks%20(incl.%20master%20track).lua</source>
       </version>
     </reapack>
     <reapack name="Suzuki_Toggle map to the root container parameter for last touched track or take FX parameter.lua" type="script" desc="Toggle map to the root container parameter for last touched track or take FX parameter">
