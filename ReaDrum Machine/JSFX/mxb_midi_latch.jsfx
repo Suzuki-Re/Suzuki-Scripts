@@ -1,0 +1,47 @@
+NoIndex: true
+desc: Midi-Latch (mxb)
+tags: midi, latch, note-off, midi choke
+version: 1.0
+author: mxb
+changelog: Initial Release
+about:
+  # Midi-Latch
+  ### Usage 
+  This is a simple midi note latcher that holds the last note until the next one is playing. Move the pitch bend to stop all notes.
+  ### License
+  I (Suzuki) included this plugin in my script by courtesy of mxb.
+// (c) 2009 Martin Bealby <mbealby@gmail.com>
+
+slider1:52<0,255,1>Midi Stop Note#
+
+@slider
+stopnote=slider1;
+
+@init
+m = note = lastnote = lastvel = stopnote = 0;
+statNoteOn = 9 * 16;
+statNoteOff = 8 * 16;
+pbend = 224;
+
+@block
+while
+(
+  midirecv(ts,msg1,msg23) ?
+  (
+    m=msg1&240;
+    note=msg23&127;
+    vel=(msg23/256);
+    vel<1?vel=1:vel>=127?vel=127:vel|=0;
+    (m == statNoteOn && msg23>=256) ?
+      (
+         midisend(ts,statNoteOff,lastnote+lastvel*256);
+   midisend(ts,statNoteOn,note+vel*256);
+         lastnote = note;
+         lastvel = vel;
+      );
+    (m == statNoteOn && note==stopnote) ?
+      (
+         midisend(ts,statNoteOff,lastnote+lastvel*256);
+      );
+  );
+);        
