@@ -1,4 +1,4 @@
--- @description Set last touched FX channel input to stereo channels (User Input)
+-- @description Set last touched FX (inside Container) channel input to stereo channels (User Input)
 -- @author Suzuki
 -- @license GPL v3
 -- @version 1.0
