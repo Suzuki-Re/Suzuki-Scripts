@@ -9,7 +9,7 @@ desc:RDM MIDI Note Filter
 
 slider1:21<0,127,1>Lowest Key (MIDI Note #)
 slider2:108<0,127,1>Highest Key (MIDI Note #)
-slider3:0<0,1,1{No,Yes}>Other events (CC, etc) pass through
+slider3:1<0,1,1{No,Yes}>Other events (CC, etc) pass through
 
 in_pin:none
 out_pin:none
