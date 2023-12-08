@@ -21,20 +21,20 @@ end
   
 function AddNoteFilter(notenum, pad_num)
   filter_id = get_fx_id_from_container_path(track, parent_id, pad_num, 1) -- 1 based, num
-  r.TrackFX_AddByName(track, 'RDM_midi_note_filter', false, filter_id)
+  r.TrackFX_AddByName(track, 'RDM MIDI Note Filter', false, filter_id)
   r.TrackFX_SetParam(track, filter_id, 0, notenum)                        -- lowest key for filter, pad number = midi note
   r.TrackFX_SetParam(track, filter_id, 1, notenum)                        -- highest key for filter
 end
   
-   function DndAddFX_SRC(fx)
-    if r.ImGui_BeginDragDropSource(ctx, r.ImGui_DragDropFlags_AcceptBeforeDelivery()) then
+function DndAddFX_SRC(fx)
+  if r.ImGui_BeginDragDropSource(ctx, r.ImGui_DragDropFlags_AcceptBeforeDelivery()) then
       r.ImGui_SetDragDropPayload(ctx, 'DND ADD FX', fx)
       r.ImGui_Text(ctx, fx)
       r.ImGui_EndDragDropSource(ctx)
     end
-  end
+end
   
-   function DndMoveFX_SRC(a)
+function DndMoveFX_SRC(a)
     -- if CTRL then return end
     if Pad[a] then
       if r.ImGui_BeginDragDropSource(ctx, r.ImGui_DragDropFlags_AcceptBeforeDelivery() | r.ImGui_DragDropFlags_SourceNoPreviewTooltip()) then
@@ -47,7 +47,7 @@ end
         r.ImGui_EndDragDropSource(ctx)
       end
     end
-  end
+end
   
    function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
     if not DND_MOVE_FX then return end

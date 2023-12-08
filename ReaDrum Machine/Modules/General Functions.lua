@@ -75,7 +75,7 @@ function InsertDrumMachine()
     end
   end
   
-  function GetDrumMachineIdx()
+function GetDrumMachineIdx()
     local found = false
     fxcount = r.TrackFX_GetCount(track)                                        -- 1based
     for fx_idx = 0, fxcount - 1 do
@@ -93,9 +93,9 @@ function InsertDrumMachine()
     parent_id = parent_id + 1 -- 1 based
     end
     return parent_id
-  end
+end
   
-  function get_fx_id_from_container_path(tr, idx1, ...) -- 1based
+function get_fx_id_from_container_path(tr, idx1, ...) -- 1based
     local sc, rv = r.TrackFX_GetCount(tr) + 1, 0x2000000 + idx1
     local vararg = {}
     for i, v in ipairs({ ... }) do
@@ -127,9 +127,9 @@ function InsertDrumMachine()
     else
       return rv
     end
-  end
+end
   
-  function AddPad(note_name, a) -- pad_id, pad_num
+function AddPad(note_name, a) -- pad_id, pad_num
     if pads_idx == 0 then       -- no pads
       pad_num = 1
       pad_id = get_fx_id_from_container_path(track, parent_id, pad_num)
@@ -152,41 +152,41 @@ function InsertDrumMachine()
       Note_Num = notenum
     }
     return pad_id, pad_num
-  end
+end
   
-  function CountPads()                                                                   -- pads_idx
+function CountPads()                                                                   -- pads_idx
     GetDrumMachineIdx()
     if parent_id == nil then return end
     rv, pads_idx = r.TrackFX_GetNamedConfigParm(track, parent_id - 1, 'container_count') -- 0 based
     pads_idx = tonumber(pads_idx)
     return pads_idx
-  end
+end
   
-  function GetPadGUID()
+function GetPadGUID()
     CountPads()
     for p = 1, pads_idx do
       pad_id   = get_fx_id_from_container_path(track, parent_id, p)
       pad_guid = r.TrackFX_GetFXGUID(track, pad_id)
     end
-  end
+end
   
-  function CountPadFX(pad_num)                                                        -- padfx_idx
+function CountPadFX(pad_num)                                                        -- padfx_idx
     which_pad = get_fx_id_from_container_path(track, parent_id, pad_num)
     rv, padfx_idx = r.TrackFX_GetNamedConfigParm(track, which_pad, 'container_count') -- 0 based
     return padfx_idx
-  end
+end
   
-  function EndUndoBlock(str)
-    r.Undo_EndBlock("ReaDrum Machine: " .. str, -1)
-  end
+function EndUndoBlock(str)
+  r.Undo_EndBlock("ReaDrum Machine: " .. str, -1)
+end
 
- function getNoteName(notenum) -- Thanks Fabian https://forum.cockos.com/showpost.php?p=2521073&postcount=5
-    local notes = { "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" }
-    local octave = math.floor(notenum / 12) - 1
-    local notename = notes[((notenum - 21) % 12) + 1]  -- 21 A0, 22 A#0, 23 B0, 24 C1, ... 35 B1, 36 C2, ...
+function getNoteName(notenum) -- Thanks Fabian https://forum.cockos.com/showpost.php?p=2521073&postcount=5
+  local notes = { "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" }
+  local octave = math.floor(notenum / 12) - 1
+  local notename = notes[((notenum - 21) % 12) + 1]  -- 21 A0, 22 A#0, 23 B0, 24 C1, ... 35 B1, 36 C2, ...
   
-    return notename .. octave
-  end
+  return notename .. octave
+end
   
   local function getNoteNumber(note) -- Assumes capital letters, only use '#' (not 'b')
     local notes = { A = 9, ["A#"] = 10, B = 11, C = 0, ["C#"] = 1, D = 2, ["D#"] = 3, E = 4, F = 5, ["F#"] = 6, G = 7,
@@ -200,26 +200,21 @@ function InsertDrumMachine()
   end
 
 function FindNoteFilter(pad_num)
-    CountPadFX(pad_num) 
-    if padfx_idx ~= 0 then
-      for f = 1, padfx_idx do      
-        local find_filter = get_fx_id_from_container_path(track, parent_id, pad_num, f)
-        retval, buf = r.TrackFX_GetNamedConfigParm(track, find_filter, 'fx_ident')
-        if r.GetOS() == 'Win32' or r.GetOS() == 'Win64' then
-          buf = buf:gsub("Suzuki Scripts\\ReaDrum Machine\\JSFX\\", "")
-        else
-          buf = buf:gsub("Suzuki Scripts/ReaDrum Machine/JSFX/", "")
-        end
-        if buf == "RDM_midi_note_filter.jsfx" then
+  CountPadFX(pad_num) 
+  if padfx_idx ~= 0 then
+    for f = 1, padfx_idx do      
+      local find_filter = get_fx_id_from_container_path(track, parent_id, pad_num, f)
+      retval, buf = r.TrackFX_GetNamedConfigParm(track, find_filter, 'fx_name')
+      if buf == "JS: RDM MIDI Note Filter" then
         fi = f
         break
-        end
       end
     end
-    return fi
   end
+  return fi
+end
   
-  function UpdatePadID()
+function UpdatePadID()
     if not track then return end
     Pad = {}
     GetDrumMachineIdx()
@@ -272,9 +267,9 @@ function FindNoteFilter(pad_num)
         end
       end
     end
-  end
+end
   
-  function IterateContainerUpdate(depth, track, container_id, parent_fx_count, previous_diff, container_guid)
+function IterateContainerUpdate(depth, track, container_id, parent_fx_count, previous_diff, container_guid)
     local c_ok, c_fx_count = r.TrackFX_GetNamedConfigParm(track, 0x2000000 + container_id, "container_count")
     if not c_ok then return end
     local diff = depth == 0 and parent_fx_count + 1 or (parent_fx_count + 1) * previous_diff
@@ -300,11 +295,11 @@ function FindNoteFilter(pad_num)
       end
     end
     return child_guids
-  end
+end
   
   
-  function UpdateFxData()
-    if not TRACK then return end
+function UpdateFxData()
+  if not TRACK then return end
     FX_DATA = {}
     FX_DATA = {
       ["ROOT"] = {
@@ -325,12 +320,12 @@ function FindNoteFilter(pad_num)
         pid = "ROOT",
         guid = fx_guid,
       }
-      if fx_type == "Container" then
+    if fx_type == "Container" then
         FX_DATA[fx_guid].depth = 0
         FX_DATA[fx_guid].DIFF = (total_fx_count + 1)
         FX_DATA[fx_guid].ID = i
         IterateContainerUpdate(0, TRACK, i, total_fx_count, 0, fx_guid)
-      end
     end
-    UpdatePadID()
   end
+  UpdatePadID()
+end
