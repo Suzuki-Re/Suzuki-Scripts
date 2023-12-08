@@ -1,8 +1,8 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.1.8
--- @changelog Fixed the problem note filter is suffixed.
+-- @version 1.1.9
+-- @changelog Made note filter's CC passthrough default
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
