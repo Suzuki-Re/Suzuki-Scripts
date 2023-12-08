@@ -12,7 +12,7 @@ local track = r.CSurf_TrackFromID(trackidx + 1, false) -- 1 based
 local item = r.GetMediaItem(0, itemidx)
 local take = r.GetMediaItemTake(item, takeidx)
 
-local retval, chan_num = r.GetUserInputs('Set Stereo Output Channel', 1, 'Left or Right Output Channel Number', '2')
+local retval, chan_num = r.GetUserInputs('Set Stereo Output Channels', 1, 'Left or Right Output Channel Number', '2')
 
 local num = tonumber(chan_num)
 if num == nil then
