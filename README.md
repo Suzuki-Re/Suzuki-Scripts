@@ -11,7 +11,7 @@ https://github.com/Suzuki-Re/Suzuki-Scripts/raw/master/index.xml
 ## ReaDrum Machine
 ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. 
 
-![](https://i.imgur.com/b1zTCtW.gif)
+![](https://i.imgur.com/A3vDxxT.gif)
 
 Forum thread
 
