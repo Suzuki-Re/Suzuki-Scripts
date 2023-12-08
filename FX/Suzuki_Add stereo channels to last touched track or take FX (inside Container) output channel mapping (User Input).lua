@@ -1,4 +1,4 @@
--- @description Add stereo channels to last touched track or take FX (inside Container) channel output mapping (User Input)
+-- @description Add stereo channels to last touched track or take FX (inside Container) output channel mapping (User Input)
 -- @author Suzuki
 -- @license GPL v3
 -- @version 1.0
