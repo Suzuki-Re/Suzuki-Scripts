@@ -1,15 +1,15 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.1.7
--- @changelog You can navigate the vertical tab while drag/dropping FX and move/copying a pad sample/FX now.
+-- @version 1.1.8
+-- @changelog Fixed the problem note filter is suffixed.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
 --   Fonts/Icons.ttf
---   JSFX/RDM_midi_note_filter.jsfx
+--   JSFX/*.jsfx
 --   Modules/*.lua
---   [effect] JSFX/RDM_midi_note_filter.jsfx
+--   [effect] JSFX/*.jsfx
 --   [main] Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable Layout).lua
 
 local r            = reaper
