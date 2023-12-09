@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="8114401a0a5cf26e1965584571c94898a3652c99">
+<index version="1" name="Suzuki Scripts" commit="a4d751777e5b2653584f6d57a0e06b48a44b8fbc">
   <category name="Development">
     <reapack name="Suzuki_Check stereo channels input bitmask for last touched track or take FX (inside Container).lua" type="script" desc="Check stereo channels input bitmask for last touched track or take FX (inside Container)">
       <metadata>
@@ -73,7 +73,7 @@
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/12846670f9f2deeacce2669a3fd0a4c9dbb9fa8c/FX/Suzuki_Add%20stereo%20channels%20to%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20input%20channel%20mapping%20(User%20Input).lua</source>
       </version>
     </reapack>
-    <reapack name="Suzuki_Add stereo channels to last touched track or take FX (inside Container) output channel mapping (User Input).lua" type="script" desc="Add stereo channels to last touched track or take FX (inside Container) output channel mapping (User Input)">
+    <reapack name="Suzuki_Add stereo channels to last touched track or take FX (inside Container) output channel mappings (User Input).lua" type="script" desc="Add stereo channels to last touched track or take FX (inside Container) output channel mappings (User Input)">
       <metadata>
         <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
 {\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
@@ -83,9 +83,9 @@
 }
 ]]></description>
       </metadata>
-      <version name="1.0" author="Suzuki" time="2023-12-08T22:29:03Z">
+      <version name="1.0" author="Suzuki" time="2023-12-09T10:08:40Z">
         <changelog><![CDATA[Initial Release]]></changelog>
-        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/d145146fdc494f479853738c17122ef27a372c21/FX/Suzuki_Add%20stereo%20channels%20to%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20output%20channel%20mapping%20(User%20Input).lua</source>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/a4d751777e5b2653584f6d57a0e06b48a44b8fbc/FX/Suzuki_Add%20stereo%20channels%20to%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20output%20channel%20mappings%20(User%20Input).lua</source>
       </version>
     </reapack>
     <reapack name="Suzuki_Close all floating track FX (inside Container) windows for all tracks (excl. master track).lua" type="script" desc="Close all floating track FX (inside Container) windows for all tracks (excl. master track)">
