@@ -1,4 +1,4 @@
--- @description Add stereo channels to last touched track or take FX (inside Container) output channel mapping (User Input)
+-- @description Add stereo channels to last touched track or take FX (inside Container) output channel mappings (User Input)
 -- @author Suzuki
 -- @license GPL v3
 -- @version 1.0
@@ -55,11 +55,12 @@ local function TrackFX_SetPin(a, b, c, d, e, f, g, h)
   r.TrackFX_SetPinMappings(track, fxidx, 1, 1 + 0x1000000, n_low32r + d, n_high32r + h) -- #4 pin 1 right
 end
 
+r.Undo_BeginBlock()
 if itemidx ~= -1 then -- take FX
   local isincontainer, parent_container = r.TakeFX_GetNamedConfigParm(take, fxidx, 'parent_container')
   if isincontainer then
     local _, hm_cch = r.TakeFX_GetNamedConfigParm(take, parent_container, 'container_nch')
-    if ch_num > hm_cch then
+    if ch_num > tonumber(hm_cch) then
       if ch_num % 2 == 1 then
         r.TakeFX_SetNamedConfigParm(take, parent_container, 'container_nch', ch_num + 1)
       else
@@ -68,7 +69,7 @@ if itemidx ~= -1 then -- take FX
     end
   else
     local hm_ch = r.GetMediaItemTakeInfo_Value(take, 'I_TAKEFX_NCH')
-    if ch_num > hm_ch then
+    if ch_num > tonumber(hm_ch) then
       if ch_num % 2 == 1 then
         r.SetMediaItemTakeInfo_Value(take, 'I_TAKEFX_NCH', ch_num + 1)
       else
@@ -97,7 +98,7 @@ else --  track FX
   local isincontainer, parent_container = r.TrackFX_GetNamedConfigParm(track, fxidx, 'parent_container')  
     if isincontainer then
       local _, hm_cch = r.TrackFX_GetNamedConfigParm(track, parent_container, 'container_nch')
-      if ch_num > hm_cch then
+      if ch_num > tonumber(hm_cch) then
         if ch_num % 2 == 1 then
           r.TrackFX_SetNamedConfigParm(track, parent_container, 'container_nch', ch_num + 1)
         else
@@ -106,7 +107,7 @@ else --  track FX
       end
     else
       local hm_ch = r.GetMediaTrackInfo_Value(track, 'I_NCHAN')
-      if ch_num > hm_ch then
+      if ch_num > tonumber(hm_ch) then
         if ch_num % 2 == 1 then
           r.SetMediaTrackInfo_Value(track, 'I_NCHAN', ch_num + 1)
         else
@@ -132,3 +133,4 @@ else --  track FX
     end
   end
 end
+r.Undo_EndBlock("Add stereo channels to last touched FX output channel mappings", -1)
