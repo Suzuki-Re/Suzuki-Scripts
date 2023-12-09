@@ -43,14 +43,14 @@ local right = left + 1
 
 local function TakeFX_SetPin(a, b, c, d, e, f, g, h)
   r.TakeFX_SetPinMappings(take, fxidx, 1, 0, low32l + a, high32l + e) -- #3 output 1, #4 pin 0 left
-  r.TakeFX_SetPinMappings(take, fxidx, 1, 1, low32r + b, high32r + f) -- #4 pin 1 righ
+  r.TakeFX_SetPinMappings(take, fxidx, 1, 1, low32r + b, high32r + f) -- #4 pin 1 right
   r.TakeFX_SetPinMappings(take, fxidx, 1, 0 + 0x1000000, n_low32l + c, n_high32l + g) -- #3 output 1, #4 pin 0 left and add 0x1000000 to #4 for the second half blocks
   r.TakeFX_SetPinMappings(take, fxidx, 1, 1 + 0x1000000, n_low32r + d, n_high32r + h) -- #4 pin 1 right
 end
 
 local function TrackFX_SetPin(a, b, c, d, e, f, g, h)
   r.TrackFX_SetPinMappings(track, fxidx, 1, 0, low32l + a, high32l + e) -- #3 output 1, #4 pin 0 left
-  r.TrackFX_SetPinMappings(track, fxidx, 1, 1, low32r + b, high32r + f) -- #4 pin 1 righ
+  r.TrackFX_SetPinMappings(track, fxidx, 1, 1, low32r + b, high32r + f) -- #4 pin 1 right
   r.TrackFX_SetPinMappings(track, fxidx, 1, 0 + 0x1000000, n_low32l + c, n_high32l + g) -- #3 output 1, #4 pin 0 left and add 0x1000000 to #4 for the second half blocks
   r.TrackFX_SetPinMappings(track, fxidx, 1, 1 + 0x1000000, n_low32r + d, n_high32r + h) -- #4 pin 1 right
 end
