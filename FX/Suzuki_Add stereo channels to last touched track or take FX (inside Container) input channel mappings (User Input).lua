@@ -1,16 +1,14 @@
 -- @description Add stereo channels to last touched track or take FX (inside Container) input channel mappings (User Input)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0
--- @changelog Initial Release
+-- @version 1.1
+-- @changelog Bug fix for track FX
 -- @about Using v7.07+ API
 
 local r = reaper
 
 local retval, trackidx, itemidx, takeidx, fxidx, parm = r.GetTouchedOrFocusedFX(0) -- 0 based
 local track = r.CSurf_TrackFromID(trackidx + 1, false) -- 1 based
-local item = r.GetMediaItem(0, itemidx)
-local take = r.GetMediaItemTake(item, takeidx)
 
 local retval, chan_num = r.GetUserInputs('Set Stereo Input Channels', 1, 'Left or Right Input Channel Number', '2')
 
@@ -57,6 +55,8 @@ end
 
 r.Undo_BeginBlock()
 if itemidx ~= -1 then -- take FX
+  local item = r.GetMediaItem(0, itemidx)
+  local take = r.GetMediaItemTake(item, takeidx)
   local isincontainer, parent_container = r.TakeFX_GetNamedConfigParm(take, fxidx, 'parent_container')
   if isincontainer then
     local _, hm_cch = r.TakeFX_GetNamedConfigParm(take, parent_container, 'container_nch')
