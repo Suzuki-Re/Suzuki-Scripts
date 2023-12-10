@@ -3,6 +3,7 @@
 -- @license GPL v3
 -- @version 1.1
 -- @changelog Forgot to add container fx and take fx
+-- @about Using 7.07+ API
 
 local r = reaper
 
