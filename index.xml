@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="6a379b6c58db8af58fd6b1cd207f77aa39bbe962">
+<index version="1" name="Suzuki Scripts" commit="e2a0273584f10e98ee8df739f8114ca080c195a7">
   <category name="Development">
     <reapack name="Suzuki_Check stereo channels input bitmask for last touched track or take FX (inside Container).lua" type="script" desc="Check stereo channels input bitmask for last touched track or take FX (inside Container)">
       <metadata>
@@ -297,6 +297,18 @@
       <version name="1.0" author="Suzuki" time="2023-12-09T10:22:12Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/20815068f7aab9217e0eda094c260108c64c60e1/FX/Suzuki_Set%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20input%20channel%20pin%20mappings%20to%20stereo%20channels%20(User%20Input).lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Set last touched track or take FX (inside Container) input stereo channels to 31-32.lua" type="script" desc="Set last touched track or take FX (inside Container) input stereo channels to 31-32">
+      <version name="1.0" author="Suzuki" time="2023-12-10T09:20:12Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/e2a0273584f10e98ee8df739f8114ca080c195a7/FX/Suzuki_Set%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20input%20stereo%20channels%20to%2031-32.lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Set last touched track or take FX (inside Container) input stereo channels to 63-64.lua" type="script" desc="Set last touched track or take FX (inside Container) input stereo channels to 63-64">
+      <version name="1.0" author="Suzuki" time="2023-12-10T09:20:12Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/e2a0273584f10e98ee8df739f8114ca080c195a7/FX/Suzuki_Set%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20input%20stereo%20channels%20to%2063-64.lua</source>
       </version>
     </reapack>
     <reapack name="Suzuki_Set last touched track or take FX (inside Container) output channel pin mappings to stereo channels (User Input).lua" type="script" desc="Set last touched track or take FX (inside Container) output channel pin mappings to stereo channels (User Input)">
