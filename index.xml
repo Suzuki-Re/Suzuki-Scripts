@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="9469b5f1e16ae804d6e1ca19f048b0a3c22719a5">
+<index version="1" name="Suzuki Scripts" commit="6a379b6c58db8af58fd6b1cd207f77aa39bbe962">
   <category name="Development">
     <reapack name="Suzuki_Check stereo channels input bitmask for last touched track or take FX (inside Container).lua" type="script" desc="Check stereo channels input bitmask for last touched track or take FX (inside Container)">
       <metadata>
@@ -267,6 +267,21 @@
       <version name="1.1" author="Suzuki" time="2023-12-09T06:43:26Z">
         <changelog><![CDATA[Bug fix for container FX]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/7de8877f7546c0ed739b160eaee4581fb7b60a22/FX/Suzuki_Paste%20channel%20pin%20mappings%20into%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20stereo%20output%20channel%20pin%20mappings.lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Set last touched track or take FX (inside Container) input and output channel pin mappings to stereo channels (User Input).lua" type="script" desc="Set last touched track or take FX (inside Container) input and output channel pin mappings to stereo channels (User Input)">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 Using v7.07+ API\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2023-12-10T05:40:32Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/6a379b6c58db8af58fd6b1cd207f77aa39bbe962/FX/Suzuki_Set%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20input%20and%20output%20channel%20pin%20mappings%20to%20stereo%20channels%20(User%20Input).lua</source>
       </version>
     </reapack>
     <reapack name="Suzuki_Set last touched track or take FX (inside Container) input channel pin mappings to stereo channels (User Input).lua" type="script" desc="Set last touched track or take FX (inside Container) input channel pin mappings to stereo channels (User Input)">
