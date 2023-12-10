@@ -1,8 +1,8 @@
 -- @description Add stereo channels to last touched track or take FX (inside Container) input and output channel mappings (User Input)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0
--- @changelog Initial Release
+-- @version 1.1
+-- @changelog fixed wording
 -- @about Using v7.07+ API
 
 local r = reaper
@@ -10,7 +10,7 @@ local r = reaper
 local retval, trackidx, itemidx, takeidx, fxidx, parm = r.GetTouchedOrFocusedFX(0) -- 0 based
 local track = r.CSurf_TrackFromID(trackidx + 1, false) -- 1 based
 
-local retval, chan_num = r.GetUserInputs('Set Stereo Output Channels', 2, 'Left or Right Input Channel Number,Left or Right Output Channel Number', '2,2')
+local retval, chan_num = r.GetUserInputs('Add Stereo Input/Output Channels', 2, 'Left or Right Input Channel Number,Left or Right Output Channel Number', '2,2')
 local inchan_num, outchan_num = chan_num:match("([^,]+),([^,]+)")
 
 local innum = tonumber(inchan_num)
