@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="8d5ddcf712f38df7578625710e0654bfb0a2118f">
+<index version="1" name="Suzuki Scripts" commit="309425b12f4c4fb3e2964a0cb9eb8d90e40b9390">
   <category name="Development">
     <reapack name="Suzuki_Check stereo channels input bitmask for last touched track or take FX (inside Container).lua" type="script" desc="Check stereo channels input bitmask for last touched track or take FX (inside Container)">
       <metadata>
@@ -380,6 +380,21 @@
       <version name="1.0" author="Suzuki" time="2023-12-10T13:05:05Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/8d5ddcf712f38df7578625710e0654bfb0a2118f/FX/Suzuki_Set%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20output%20stereo%20channels%20to%20127-128.lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Set last touched track or take FX (inside Container) output stereo channels to 95-96.lua" type="script" desc="Set last touched track or take FX (inside Container) output stereo channels to 95-96">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 Using v7.07+ API\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2023-12-10T13:09:00Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/309425b12f4c4fb3e2964a0cb9eb8d90e40b9390/FX/Suzuki_Set%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20output%20stereo%20channels%20to%2095-96.lua</source>
       </version>
     </reapack>
     <reapack name="Suzuki_Toggle map to the root container parameter for last touched track or take FX parameter.lua" type="script" desc="Toggle map to the root container parameter for last touched track or take FX parameter">
