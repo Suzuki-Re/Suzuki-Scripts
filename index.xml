@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="9ddb6c4e2f4e6d87fabd5e0e161f8ea64b35d580">
+<index version="1" name="Suzuki Scripts" commit="e99ac91ffb1a69752bf77c5af4eace61fff5c6af">
   <category name="Development">
     <reapack name="Suzuki_Check stereo channels input bitmask for last touched track or take FX (inside Container).lua" type="script" desc="Check stereo channels input bitmask for last touched track or take FX (inside Container)">
       <metadata>
@@ -263,6 +263,21 @@
       <version name="1.0" author="Suzuki" time="2023-12-12T11:36:56Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9ddb6c4e2f4e6d87fabd5e0e161f8ea64b35d580/FX/Suzuki_Close%20all%20track%20and%20take%20(incl.%20input%20and%20monitoring)%20FX%20chain%20windows%20(incl.%20master%20track).lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Close last touched floating track or take FX (inside Container) window.lua" type="script" desc="Close last touched floating track or take FX (inside Container) window">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 Using v7.07+ API. It works for all kinds of floating FX window, such as input FX, monitoring FX, track FX, take FX, and FX in container\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2023-12-12T11:55:30Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/e99ac91ffb1a69752bf77c5af4eace61fff5c6af/FX/Suzuki_Close%20last%20touched%20floating%20track%20or%20take%20FX%20(inside%20Container)%20window.lua</source>
       </version>
     </reapack>
     <reapack name="Suzuki_Copy stereo input and output channel pin mappings from last touched track or take FX (inside Container).lua" type="script" desc="Copy stereo input and output channel pin mappings from last touched track or take FX (inside Container)">
