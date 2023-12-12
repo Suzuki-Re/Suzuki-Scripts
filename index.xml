@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="309425b12f4c4fb3e2964a0cb9eb8d90e40b9390">
+<index version="1" name="Suzuki Scripts" commit="9ddb6c4e2f4e6d87fabd5e0e161f8ea64b35d580">
   <category name="Development">
     <reapack name="Suzuki_Check stereo channels input bitmask for last touched track or take FX (inside Container).lua" type="script" desc="Check stereo channels input bitmask for last touched track or take FX (inside Container)">
       <metadata>
@@ -115,6 +115,66 @@
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/56550ea21139faa1a463aaf459293c6b0b42e311/FX/Suzuki_Add%20stereo%20channels%20to%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20output%20channel%20mappings%20(User%20Input).lua</source>
       </version>
     </reapack>
+    <reapack name="Suzuki_Close all floating take FX (inside Container) windows.lua" type="script" desc="Close all floating take FX (inside Container) windows">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 v7.07+ script\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2023-12-12T11:36:56Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9ddb6c4e2f4e6d87fabd5e0e161f8ea64b35d580/FX/Suzuki_Close%20all%20floating%20take%20FX%20(inside%20Container)%20windows.lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Close all floating track (incl. input and monitoring) FX (inside Container) windows for all tracks (incl. master track).lua" type="script" desc="Close all floating track (incl. input and monitoring) FX (inside Container) windows for all tracks (incl. master track)">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 REAPER v7 script\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2023-12-12T11:36:56Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9ddb6c4e2f4e6d87fabd5e0e161f8ea64b35d580/FX/Suzuki_Close%20all%20floating%20track%20(incl.%20input%20and%20monitoring)%20FX%20(inside%20Container)%20windows%20for%20all%20tracks%20(incl.%20master%20track).lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Close all floating track (incl. input and monitoring) FX (inside Container) windows for selected tracks (incl. master track).lua" type="script" desc="Close all floating track (incl. input and monitoring) FX (inside Container) windows for selected tracks (incl. master track)">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 REAPER v7 script\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2023-12-12T11:36:56Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9ddb6c4e2f4e6d87fabd5e0e161f8ea64b35d580/FX/Suzuki_Close%20all%20floating%20track%20(incl.%20input%20and%20monitoring)%20FX%20(inside%20Container)%20windows%20for%20selected%20tracks%20(incl.%20master%20track).lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Close all floating track and take (incl. input and monitoring) FX (inside Container) windows (incl. master track).lua" type="script" desc="Close all floating track and take (incl. input and monitoring) FX (inside Container) windows (incl. master track)">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 Using v7.07+ API\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2023-12-12T11:36:56Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9ddb6c4e2f4e6d87fabd5e0e161f8ea64b35d580/FX/Suzuki_Close%20all%20floating%20track%20and%20take%20(incl.%20input%20and%20monitoring)%20FX%20(inside%20Container)%20windows%20(incl.%20master%20track).lua</source>
+      </version>
+    </reapack>
     <reapack name="Suzuki_Close all floating track FX (inside Container) windows for all tracks (excl. master track).lua" type="script" desc="Close all floating track FX (inside Container) windows for all tracks (excl. master track)">
       <metadata>
         <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
@@ -173,6 +233,36 @@
       <version name="1.0" author="Suzuki" time="2023-12-03T04:15:59Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/85cab3ce205527ef17eb748aee3a308fbe979e29/FX/Suzuki_Close%20all%20floating%20track%20FX%20(inside%20Container)%20windows%20for%20selected%20tracks%20(incl.%20master%20track).lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Close all FX windows.lua" type="script" desc="Close all FX windows">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 Using v7.07+ API. Literally close all FX related windows including chain and floating windows for track FX, master track FX, take FX, monitoring FX, input FX, and FX in container\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2023-12-12T11:36:56Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9ddb6c4e2f4e6d87fabd5e0e161f8ea64b35d580/FX/Suzuki_Close%20all%20FX%20windows.lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Close all track and take (incl. input and monitoring) FX chain windows (incl. master track).lua" type="script" desc="Close all track and take (incl. input and monitoring) FX (inside Container) chain windows (incl. master track)">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 Close literally all FX chain windows\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2023-12-12T11:36:56Z">
+        <changelog><![CDATA[Initial Release]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/9ddb6c4e2f4e6d87fabd5e0e161f8ea64b35d580/FX/Suzuki_Close%20all%20track%20and%20take%20(incl.%20input%20and%20monitoring)%20FX%20chain%20windows%20(incl.%20master%20track).lua</source>
       </version>
     </reapack>
     <reapack name="Suzuki_Copy stereo input and output channel pin mappings from last touched track or take FX (inside Container).lua" type="script" desc="Copy stereo input and output channel pin mappings from last touched track or take FX (inside Container)">
