@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="1eec70932165ced84128e22c1ca12a8f81c60748">
+<index version="1" name="Suzuki Scripts" commit="0df0457624753a0428200d6f8f1e137ec0ed1b71">
   <category name="Development">
     <reapack name="Suzuki_Check stereo channels input bitmask for last touched track or take FX (inside Container).lua" type="script" desc="Check stereo channels input bitmask for last touched track or take FX (inside Container)">
       <metadata>
@@ -1054,6 +1054,21 @@ Disabled mousewheel]]></changelog>
         <source type="effect" file="JSFX/RDM_midi_note_filter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/3dbf63ecf4093ff5e7808ce51f9bbc8494d72cbf/ReaDrum%20Machine/JSFX/RDM_midi_note_filter.jsfx</source>
         <source type="effect" file="JSFX/mxb_midi_latch.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/3dbf63ecf4093ff5e7808ce51f9bbc8494d72cbf/ReaDrum%20Machine/JSFX/mxb_midi_latch.jsfx</source>
         <source main="main" file="Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable Layout).lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/3dbf63ecf4093ff5e7808ce51f9bbc8494d72cbf/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable%20Layout).lua</source>
+      </version>
+      <version name="1.2" author="Suzuki" time="2023-12-15T19:22:39Z">
+        <changelog><![CDATA[+ Added menu to set pad's channel output pin mappings. Give it a try to use it in conjunction with my set channel input pin mappings script.
++ Added menu to explode a single pad to a new track via user input. Only channel 1/2 signal stays in the main track and goes to master.
+I'll fix "Explode all pads" in the next update.]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/0df0457624753a0428200d6f8f1e137ec0ed1b71/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
+        <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/0df0457624753a0428200d6f8f1e137ec0ed1b71/ReaDrum%20Machine/Fonts/Icons.ttf</source>
+        <source file="Modules/DragNDrop.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/0df0457624753a0428200d6f8f1e137ec0ed1b71/ReaDrum%20Machine/Modules/DragNDrop.lua</source>
+        <source file="Modules/Drawing.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/0df0457624753a0428200d6f8f1e137ec0ed1b71/ReaDrum%20Machine/Modules/Drawing.lua</source>
+        <source file="Modules/FX List.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/0df0457624753a0428200d6f8f1e137ec0ed1b71/ReaDrum%20Machine/Modules/FX%20List.lua</source>
+        <source file="Modules/General Functions.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/0df0457624753a0428200d6f8f1e137ec0ed1b71/ReaDrum%20Machine/Modules/General%20Functions.lua</source>
+        <source file="Modules/Pad Actions.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/0df0457624753a0428200d6f8f1e137ec0ed1b71/ReaDrum%20Machine/Modules/Pad%20Actions.lua</source>
+        <source type="effect" file="JSFX/RDM_midi_note_filter.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/0df0457624753a0428200d6f8f1e137ec0ed1b71/ReaDrum%20Machine/JSFX/RDM_midi_note_filter.jsfx</source>
+        <source type="effect" file="JSFX/RDM_mxb_midi_latch.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/0df0457624753a0428200d6f8f1e137ec0ed1b71/ReaDrum%20Machine/JSFX/RDM_mxb_midi_latch.jsfx</source>
+        <source main="main" file="Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable Layout).lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/0df0457624753a0428200d6f8f1e137ec0ed1b71/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable%20Layout).lua</source>
       </version>
     </reapack>
   </category>
