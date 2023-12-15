@@ -204,7 +204,7 @@ function FindNoteFilter(pad_num)
   if padfx_idx ~= 0 then
     for f = 1, padfx_idx do      
       local find_filter = get_fx_id_from_container_path(track, parent_id, pad_num, f)
-      retval, buf = r.TrackFX_GetNamedConfigParm(track, find_filter, 'fx_name')
+      local retval, buf = r.TrackFX_GetNamedConfigParm(track, find_filter, 'fx_name')
       if buf == "JS: RDM MIDI Note Filter" then
         fi = f
         break
@@ -215,58 +215,70 @@ function FindNoteFilter(pad_num)
 end
   
 function UpdatePadID()
-    if not track then return end
-    Pad = {}
-    GetDrumMachineIdx()
-    if not parent_id then return end
-    CountPads()
-    if pads_idx == nil then return end
-    for p = 1, pads_idx do
-      FindNoteFilter(p)
-      local filter_id = get_fx_id_from_container_path(track, parent_id, p, fi)
-      local rv = r.TrackFX_GetParam(track, filter_id, 0)
-      local rv = math.floor(tonumber(rv))
-      local previous_pad_id = get_fx_id_from_container_path(track, parent_id, p - 1)
-      local next_pad_id = get_fx_id_from_container_path(track, parent_id, p + 1)
-      local pad_id = get_fx_id_from_container_path(track, parent_id, p)
-      Pad[rv + 1] = {
-        Previous_Pad_ID = previous_pad_id,
-        Pad_ID = pad_id,
-        Next_Pad_ID = next_pad_id,
-        Pad_Num = p,
-        Pad_GUID = r.TrackFX_GetFXGUID(track, pad_id),
-        TblIdx = rv + 1,
-        Note_Num = rv
-      }
-      rev, value = r.GetProjExtState(0, 'ReaDrum Machine', 'Rename' .. rv + 1)
-      if rev == 1 then
+  if not track then return end
+  Pad = {}
+  GetDrumMachineIdx()
+  if not parent_id then return end
+  CountPads()
+  if pads_idx == nil then return end
+  for p = 1, pads_idx do
+    FindNoteFilter(p)
+    local filter_id = get_fx_id_from_container_path(track, parent_id, p, fi)
+    local rv = r.TrackFX_GetParam(track, filter_id, 0)
+    local rv = math.floor(tonumber(rv))
+    local previous_pad_id = get_fx_id_from_container_path(track, parent_id, p - 1)
+    local next_pad_id = get_fx_id_from_container_path(track, parent_id, p + 1)
+    local pad_id = get_fx_id_from_container_path(track, parent_id, p)
+    local out_low32l, out_high32l = r.TrackFX_GetPinMappings(track, pad_id, 1, 0)
+    local out_low32r, out_high32r = r.TrackFX_GetPinMappings(track, pad_id, 1, 1)
+    local out_n_low32l, out_n_high32l = r.TrackFX_GetPinMappings(track, pad_id, 1, 0 + 0x1000000)
+    local out_n_low32r, out_n_high32r = r.TrackFX_GetPinMappings(track, pad_id, 1, 1 + 0x1000000)
+    Pad[rv + 1] = {
+      Previous_Pad_ID = previous_pad_id,
+      Pad_ID = pad_id,
+      Next_Pad_ID = next_pad_id,
+      Pad_Num = p,
+      Pad_GUID = r.TrackFX_GetFXGUID(track, pad_id),
+      TblIdx = rv + 1,
+      Note_Num = rv,
+      Out_Low32L = out_low32l,
+      Out_Low32R = out_low32r,
+      Out_High32L = out_high32l,
+      Out_High32R = out_high32r,
+      Out_N_Low32L = out_n_low32l,
+      Out_N_Low32R = out_n_low32r,
+      Out_N_High32L = out_n_high32l,
+      Out_N_High32R = out_n_high32r
+    }
+    rev, value = r.GetProjExtState(0, 'ReaDrum Machine', 'Rename' .. rv + 1)
+    if rev == 1 then
       Pad[rv + 1].Rename = value
-      end
-      CountPadFX(p) -- Set Pad[a].Name
-      local found = false
-      for f = 1, padfx_idx do
-        local find_rs5k = get_fx_id_from_container_path(track, parent_id, p, f)
-        retval, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'original_name')
-        if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
-          Pad[rv + 1].RS5k_ID = get_fx_id_from_container_path(track, parent_id, p, f)
-          found = true
-          _, bf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'FILE0')  
-          filename = bf:match("([^\\/]+)%.%w%w*$")
-          Pad[rv + 1].Name = filename
-          if Pad[rv + 1].Rename then
-            r.SetTrackMIDINoteNameEx(0, track, rv, 0, Pad[rv + 1].Rename)
-          elseif Pad[rv + 1].Name then
-            r.SetTrackMIDINoteNameEx(0, track, rv, 0, Pad[rv + 1].Name)
-          else
-            r.SetTrackMIDINoteNameEx(0, track, rv, 0, "")
-          end
-        end
-        if not found then
-          Pad[rv + 1].Name = nil
+    end
+    CountPadFX(p) -- Set Pad[a].Name
+    local found = false
+    for f = 1, padfx_idx do
+      local find_rs5k = get_fx_id_from_container_path(track, parent_id, p, f)
+      local retval, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'original_name')
+      if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
+        Pad[rv + 1].RS5k_ID = get_fx_id_from_container_path(track, parent_id, p, f)
+        found = true
+        local _, bf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'FILE0')  
+        local filename = bf:match("([^\\/]+)%.%w%w*$")
+        Pad[rv + 1].Name = filename
+        if Pad[rv + 1].Rename then
+          r.SetTrackMIDINoteNameEx(0, track, rv, 0, Pad[rv + 1].Rename)
+        elseif Pad[rv + 1].Name then
+          r.SetTrackMIDINoteNameEx(0, track, rv, 0, Pad[rv + 1].Name)
+        else
           r.SetTrackMIDINoteNameEx(0, track, rv, 0, "")
         end
       end
+      if not found then
+        Pad[rv + 1].Name = nil
+        r.SetTrackMIDINoteNameEx(0, track, rv, 0, "")
+      end
     end
+  end
 end
   
 function IterateContainerUpdate(depth, track, container_id, parent_fx_count, previous_diff, container_guid)

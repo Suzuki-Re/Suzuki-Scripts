@@ -3,7 +3,116 @@
 
 r = reaper
 
+local track_guid_cache = {};
+
+local function track_from_guid_str(proj, g) -- https://forum.cockos.com/showthread.php?t=220734
+  local c = track_guid_cache[g];
+  if c ~= nil and reaper.GetTrack(proj,c.idx) == c.ptr then
+    -- cached!
+    return c.ptr;
+  end
+  
+  -- find guid in project
+  local x = 0
+  while true do
+    local t = reaper.GetTrack(proj,x)
+    if t == nil then
+      -- not found in project, remove from cache and return error
+      if c ~= nil then track_guid_cache[g] = nil end
+      return nil
+    end
+    if g == reaper.GetTrackGUID(t) then
+      -- found, add to cache
+      track_guid_cache[g] = { idx = x, ptr = t }
+      return t
+    end
+    x = x + 1
+  end
+end
+
+--------------------------------------------------------------------------------
+-- Pickle table serialization - Steve Dekorte, http://www.dekorte.com, Apr 2000 -- https://forum.cockos.com/showpost.php?p=2592436&postcount=7
+--------------------------------------------------------------------------------
+local function pickle(t)
+	return Pickle:clone():pickle_(t)
+end
+
+Pickle = {
+	clone = function (t) local nt = {}
+	for i, v in pairs(t) do 
+		nt[i] = v 
+	end
+	return nt 
+end 
+}
+
+function Pickle:pickle_(root)
+	if type(root) ~= "table" then 
+		error("can only pickle tables, not " .. type(root) .. "s")
+	end
+	self._tableToRef = {}
+	self._refToTable = {}
+	local savecount = 0
+	self:ref_(root)
+	local s = ""
+	while #self._refToTable > savecount do
+		savecount = savecount + 1
+		local t = self._refToTable[savecount]
+		s = s .. "{\n"
+		for i, v in pairs(t) do
+			s = string.format("%s[%s]=%s,\n", s, self:value_(i), self:value_(v))
+		end
+	s = s .. "},\n"
+	end
+	return string.format("{%s}", s)
+end
+
+function Pickle:value_(v)
+	local vtype = type(v)
+	if     vtype == "string" then return string.format("%q", v)
+	elseif vtype == "number" then return v
+	elseif vtype == "boolean" then return tostring(v)
+	elseif vtype == "table" then return "{"..self:ref_(v).."}"
+	else error("pickle a " .. type(v) .. " is not supported")
+	end 
+end
+
+function Pickle:ref_(t)
+	local ref = self._tableToRef[t]
+	if not ref then 
+		if t == self then error("can't pickle the pickle class") end
+		table.insert(self._refToTable, t)
+		ref = #self._refToTable
+		self._tableToRef[t] = ref
+	end
+	return ref
+end
+
+local function unpickle(s)
+	if type(s) ~= "string" then
+		error("can't unpickle a " .. type(s) .. ", only strings")
+	end
+	local gentables = load("return " .. s)
+	local tables = gentables()
+	for tnum = 1, #tables do
+		local t = tables[tnum]
+		local tcopy = {}
+		for i, v in pairs(t) do tcopy[i] = v end
+		for i, v in pairs(tcopy) do
+			local ni, nv
+			if type(i) == "table" then ni = tables[i[1]] else ni = i end
+			if type(v) == "table" then nv = tables[v[1]] else nv = v end
+			t[i] = nil
+			t[ni] = nv
+		end
+	end
+	return tables[1]
+end
+
+----------------------------------------------------------------------------
+
 -- Left Click --
+
 function SendMidiNote(notenum) -- Thanks Sexan!
     if not r.ImGui_IsItemHovered(ctx) then return end
     if r.ImGui_IsMouseClicked(ctx, 0) then
@@ -11,7 +120,7 @@ function SendMidiNote(notenum) -- Thanks Sexan!
     elseif r.ImGui_IsMouseReleased(ctx, 0) then
       r.StuffMIDIMessage(0, 0x80, notenum, 96) -- send note_r
     end
-  end
+end
  
   
 local function AdjustPadVolume(a)
@@ -23,14 +132,14 @@ local function AdjustPadVolume(a)
         r.TrackFX_SetParam(track, Pad[a].Pad_ID, volume, v / 100)
       end
     end
-  end
+end
   
 
 function ClearPad(a, pad_num)
-    clear_pad = get_fx_id_from_container_path(track, parent_id, pad_num) -- remove whole pad
-    r.SetTrackMIDINoteNameEx(0, track, notenum, 0, "")                   -- remove note name
-    r.TrackFX_Delete(track, clear_pad)
-    Pad[a] = nil
+  clear_pad = get_fx_id_from_container_path(track, parent_id, pad_num) -- remove whole pad
+  r.SetTrackMIDINoteNameEx(0, track, notenum, 0, "")                   -- remove note name
+  r.TrackFX_Delete(track, clear_pad)
+  Pad[a] = nil
 end
 
 function ClickPadActions(a)
@@ -56,9 +165,32 @@ function ClickPadActions(a)
           EndUndoBlock("OPEN FX WINDOW")
         end
     end
-  end
+end
   
 -- right click --
+local function CreateNewChildTrack(insert_loc, child_num)
+  r.InsertTrackAtIndex(insert_loc, false)
+  local child_track = r.CSurf_TrackFromID(insert_loc + 1, false)
+  local child_guid = r.GetTrackGUID(child_track)
+  if Children_GUID then
+    Children_GUID.child_guid[child_num] = child_guid
+  else
+    Children_GUID = {}
+    Children_GUID.child_guid = {}
+    Children_GUID.child_guid[child_num] = child_guid
+  end
+end
+
+local function SetTrackSend(bus_track, child_track)
+  local send = r.CreateTrackSend(track, child_track)
+  local send_info = ch_num - 2
+  r.SetTrackSendInfo_Value(track, 0, send, 'I_SRCCHAN', send_info) -- set send channel
+  r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERCOMPACT', 1) -- collapse folder
+  r.SetMediaTrackInfo_Value(track, 'I_SELECTED', 1) -- select drum track
+  -- r.SetMediaTrackInfo_Value(track, 'B_MAINSEND', 0) -- turn off master send
+  r.SetMediaTrackInfo_Value(track, 'C_MAINSEND_NCH', 2)
+end
+
 local function SetLowChannel(e)
     local left = (e - 1) * 2
     local right = left + 1 
@@ -66,18 +198,182 @@ local function SetLowChannel(e)
     left_high = 0
     right_low = 2^right
     right_high = 0
-  end
+end
   
-  local function SetHighChannel(e)
+local function SetHighChannel(e)
     local left = (e - 1) * 2
     local right = left + 1 
     left_low = 0
     left_high = 2^left
     right_low = 0
     right_high = 2^right
+end
+
+local function SetOutputPin(a, default_value)
+  if not Pad[a] then return end
+  retval, chan_num = r.GetUserInputs('Set Stereo Output Channel', 1, 'Left or Right Output Channel Number', default_value)
+
+  local num = tonumber(chan_num)
+  if num == nil then
+    error("Channel number must be a number") 
   end
   
-  local function ExplodePadsToTracks()
+  local chan_num = math.floor(tonumber(chan_num) + 0.5)  
+  local chan_num = math.max(1, math.min(tonumber(chan_num), 128))
+  local block_num = math.floor((chan_num - 1) / 32) + 1 -- channels can be divided into 4 blocks, 1)1-32, 2)33-64, 3)65-96, 4)97-128
+  ch_num = chan_num
+  if ch_num % 2 == 1 then
+    ch_num = ch_num + 1
+  else
+    ch_num = ch_num
+  end
+  
+  local is_secondhalf = 0
+  
+  if block_num >= 3 then -- add 0x1000000 to #4 for the second half blocks
+    is_secondhalf = 0x1000000 
+  end
+  
+  if block_num == 2 then
+    chan_num = chan_num - 32
+  elseif block_num == 3 then
+    chan_num = chan_num - 64
+  elseif block_num == 4 then
+    chan_num = chan_num - 96
+  end
+  
+  if chan_num % 2 == 1 then -- odd
+    chan_num = math.floor(chan_num / 2) + 1
+  else -- even
+    chan_num = math.floor(chan_num / 2)  
+  end
+  
+  local left = (chan_num - 1) * 2 -- each block has 16 stereo channel, which one?
+  local right = left + 1
+  
+
+  local isincontainer, parent_container = r.TrackFX_GetNamedConfigParm(track, Pad[a].Pad_ID, 'parent_container')
+  if isincontainer then
+    local _, hm_cch = r.TrackFX_GetNamedConfigParm(track, parent_container, 'container_nch')
+    if ch_num > tonumber(hm_cch) then
+      r.SetMediaTrackInfo_Value(track, 'I_NCHAN', ch_num)
+      r.TrackFX_SetNamedConfigParm(track, parent_container, 'container_nch', ch_num)
+      r.TrackFX_SetNamedConfigParm(track, parent_container, 'container_nch_out', ch_num)
+    end
+  else
+    local hm_ch = r.GetMediaTrackInfo_Value(track, 'I_NCHAN')
+    if ch_num > tonumber(hm_ch) then
+      r.SetMediaTrackInfo_Value(track, 'I_NCHAN', ch_num)
+    end
+  end
+  
+  r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0, 0, 0) -- remove the current mappings
+  r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 1, 0, 0)
+  r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0 + 0x1000000, 0, 0)
+  r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 1 + 0x1000000, 0, 0)
+  
+  if block_num % 2 == 1 then -- odd number blocks -> #5 = low32bits and #6 = 0
+    r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0 + is_secondhalf, 2^left, 0) -- #3 output 1, #4 pin 0 left
+    r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 1 + is_secondhalf, 2^right, 0) -- #4 pin 1 right
+  else -- even number blocks -> #5 = 0 and #6 = high32bits 
+    r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0 + is_secondhalf, 0, 2^left) -- #3 output 1, #4 pin 0 left
+    r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 1 + is_secondhalf, 0, 2^right) -- #4 pin 1 right
+  end
+end
+
+local function ExplodePadToTrackViaInput(a)
+  if not Pad[a] then return end
+  r.Undo_BeginBlock()
+  SetOutputPin(a, 4)
+
+  local rv, bus_guid = r.GetProjExtState(0, 'Suzuki_SetNSend_ch', track_guid .. 'bus_guid')
+  local find_bus = track_from_guid_str(0, bus_guid)
+  
+  if rv ~= 0 and find_bus ~= nil then -- Sending signal to new track, 2nd+ times
+    if not retval then return end
+    local bus_track = track_from_guid_str(0, bus_guid)
+    local bus_idx = r.CSurf_TrackToID(bus_track, false)
+    local rv, pExtStateStr = r.GetProjExtState(0, "Suzuki_SetNSend_ch", track_guid .. "child_guid") -- read pickled table string value from project extended states
+    Children_GUID = unpickle(pExtStateStr) -- unpickle extended state string value back into a table
+    local first_child_track_guid = Children_GUID.child_guid[1]
+    local first_child_track = track_from_guid_str(0, first_child_track_guid)
+    local count = 0
+    local rcv_input = tonumber(ch_num - 2)
+    for i = 1, #Children_GUID.child_guid do -- remove nonexist child track's info
+      local child_track_guid = Children_GUID.child_guid[i]
+      local child_track = track_from_guid_str(0, child_track_guid)
+      if not child_track then
+        table.remove(Children_GUID.child_guid, i)
+        table.remove(Children_GUID.rcv_num, i)
+        i = i - 1 
+      end
+    end
+    if first_child_track ~= nil then
+      for i = 1, r.GetTrackNumSends(track, 0) do -- 1 based
+        local children = r.CSurf_TrackFromID(bus_idx + i, false)
+        if children == nil then match = false goto dokoka end
+        if Children_GUID.rcv_num[i] == rcv_input then -- match src number
+          match = true
+          break
+        end
+        local src_chan = r.GetTrackSendInfo_Value(track, 0, i - 1, 'I_SRCCHAN') -- 0 based
+        Children_GUID.rcv_num[i] = src_chan
+        local dest_track = r.GetTrackSendInfo_Value(track, 0, i - 1, 'P_DESTTRACK') -- 0 based
+        local child_guid = r.GetTrackGUID(dest_track)
+        Children_GUID.child_guid[i] = child_guid
+        count = count + 1
+      end
+      ::dokoka::
+      if not match then
+        r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERDEPTH', 0) -- reset to 1st depth
+        CreateNewChildTrack(bus_idx + count, count)
+        local dst_track = r.CSurf_TrackFromID(bus_idx + 1 + count, false)
+        SetTrackSend(bus_track, dst_track)
+        local rcv_num = r.GetTrackSendInfo_Value(dst_track, -1, 0, 'I_SRCCHAN')
+        Children_GUID.rcv_num[count + 1] = rcv_num
+        local child_guid = r.GetTrackGUID(dst_track)
+        Children_GUID.child_guid[count + 1] = child_guid
+        r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERDEPTH', 1) -- parent folder
+        for i = 1, count + 1 do
+          local reset_track = r.CSurf_TrackFromID(bus_idx + i, false)
+          r.SetMediaTrackInfo_Value(reset_track, 'I_FOLDERDEPTH', 0) -- last child track
+        end
+        r.SetMediaTrackInfo_Value(dst_track, 'I_FOLDERDEPTH', -1) -- last child track
+      end
+    else -- no child
+      CreateNewChildTrack(trackidx + 1, 1)
+      local child_track = r.CSurf_TrackFromID(trackidx + 2, false)
+      SetTrackSend(bus_track, child_track)
+      local rcv_num = r.GetTrackSendInfo_Value(child_track, -1, 0, 'I_SRCCHAN')
+      Children_GUID.rcv_num[1] = rcv_num
+      local child_guid = r.GetTrackGUID(child_track)
+      Children_GUID.child_guid[1] = child_guid
+      r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERDEPTH', 1) -- parent folder
+      r.SetMediaTrackInfo_Value(child_track, 'I_FOLDERDEPTH', -1) -- last child track
+    end
+    r.SetProjExtState(0, 'Suzuki_SetNSend_ch', track_guid .. 'bus_guid', bus_guid)
+  else -- no "bus" track in the project
+    if not retval then return end
+    r.InsertTrackAtIndex(trackidx, false)
+    local bus_track = r.CSurf_TrackFromID(trackidx + 1, false)
+    r.GetSetMediaTrackInfo_String(bus_track, 'P_NAME', "Bus", true)
+    local bus_guid = r.GetTrackGUID(bus_track)
+    r.SetProjExtState(0, 'Suzuki_SetNSend_ch', track_guid .. 'bus_guid', bus_guid)
+    CreateNewChildTrack(trackidx + 1, 1)
+    local child_track = r.CSurf_TrackFromID(trackidx + 2, false)
+    SetTrackSend(bus_track, child_track)
+    local rcv_num = r.GetTrackSendInfo_Value(child_track, -1, 0, 'I_SRCCHAN')
+    Children_GUID.rcv_num = {}
+    Children_GUID.rcv_num[1] = rcv_num
+    r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERDEPTH', 1) -- parent folder
+    r.SetMediaTrackInfo_Value(child_track, 'I_FOLDERDEPTH', -1) -- last child track
+  end
+  local pExtStateStr = pickle(Children_GUID) -- pickle table to string
+  r.SetProjExtState(0, "Suzuki_SetNSend_ch", track_guid .. "child_guid", pExtStateStr) -- write pickled table as string to project extended state
+  EndUndoBlock("SET OUTPUT CHANNEL PINS AND SEND IT TO NEW TRACK")
+end
+
+local function ExplodePadsToTracks()
     CountPads()
     r.SetMediaTrackInfo_Value(track, 'I_NCHAN', 128)
     local drum_id = get_fx_id_from_container_path(track, parent_id)
@@ -129,9 +425,9 @@ local function SetLowChannel(e)
     r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERCOMPACT', 1) -- collapse folder
     r.SetMediaTrackInfo_Value(drum_track, 'I_SELECTED', 1) -- select drum track
     r.SetMediaTrackInfo_Value(drum_track, 'B_MAINSEND', 0) -- turn off master send
-  end
+end
   
-  local function RenameWindow(a, note_name)
+local function RenameWindow(a, note_name)
     local center = { r.ImGui_Viewport_GetCenter(r.ImGui_GetWindowViewport(ctx)) }
     r.ImGui_SetNextWindowPos(ctx, center[1], center[2], r.ImGui_Cond_Appearing(), 0.5, 0.5)
     if r.ImGui_BeginPopupModal(ctx, 'Rename a pad?##' .. a, nil, r.ImGui_WindowFlags_AlwaysAutoResize()) then
@@ -167,9 +463,9 @@ local function SetLowChannel(e)
       end
       r.ImGui_EndPopup(ctx)
     end
-  end
+end
 
-  local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offset, end_offset)
+local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offset, end_offset)
     rs5k_id = get_fx_id_from_container_path(track, parent_id, pad_num, add_pos)
     r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
     Pad[a].RS5k_ID = rs5k_id
@@ -182,9 +478,9 @@ local function SetLowChannel(e)
     r.TrackFX_SetParam(track, rs5k_id, 13, start_offset)                -- Sample start offset
     r.TrackFX_SetParam(track, rs5k_id, 14, end_offset)                  -- Sample end offset
     -- r.TrackFX_SetParam(track, rs5k_id, 15, take_pitch)                  -- Pitch offset
-  end
+end
   
-   function LoadItemsFromArrange(a)
+function LoadItemsFromArrange(a)
     InsertDrumMachine()
     GetDrumMachineIdx()                                              -- parent_id = num
     r.Undo_BeginBlock()
@@ -247,86 +543,107 @@ local function SetLowChannel(e)
     end
     r.PreventUIRefresh(-1)
     EndUndoBlock("LOAD ITEMS FROM ARRANGE")
-  end
+end
 
-   function PadMenu(a, note_name)
-    if r.ImGui_IsItemClicked(ctx, 1) and CTRL then
-      r.ImGui_OpenPopup(ctx, "RIGHT_CLICK_MENU##" .. a)
+function PadMenu(a, note_name)
+  if r.ImGui_IsItemClicked(ctx, 1) and CTRL then
+    r.ImGui_OpenPopup(ctx, "RIGHT_CLICK_MENU##" .. a)
+  end
+  local open_settings = false
+  if r.ImGui_BeginPopup(ctx, "RIGHT_CLICK_MENU##" .. a, r.ImGui_WindowFlags_NoMove()) then
+    if r.ImGui_MenuItem(ctx, 'Load Selected Items from Arrange##' .. a) then
+      LoadItemsFromArrange(a)
     end
-    local open_settings = false
-    if r.ImGui_BeginPopup(ctx, "RIGHT_CLICK_MENU##" .. a, r.ImGui_WindowFlags_NoMove()) then
-      if r.ImGui_MenuItem(ctx, 'Load Selected Items from Arrange##' .. a) then
-        LoadItemsFromArrange(a)
-      end
-      if r.ImGui_MenuItem(ctx, 'Rename Pad##' .. a) then
-        open_settings = true
-      end
-      if r.ImGui_MenuItem(ctx, 'Toggle Obey note offs##' .. a) then
-        if Pad[a] and Pad[a].RS5k_ID then
-          rv = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 11)
-          if rv == 0 then
-            r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 1) -- obey note offs on
-          else
-            r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 0)
-          end
+    if r.ImGui_MenuItem(ctx, 'Rename Pad##' .. a) then
+      open_settings = true
+    end 
+    if r.ImGui_MenuItem(ctx, "Set Pad's Output Pin Mappings##" .. a) then
+      r.Undo_BeginBlock()
+      SetOutputPin(a, 2)
+      EndUndoBlock("SET PAD'S OUTPUT PINS")
+    end
+    if r.ImGui_MenuItem(ctx, 'Explode Pad to Track via Input##' .. a) then
+      ExplodePadToTrackViaInput(a)
+    end
+    if r.ImGui_MenuItem(ctx, 'Toggle Obey note offs##' .. a) then
+      if Pad[a] and Pad[a].RS5k_ID then
+        local rv = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 11)
+        if rv == 0 then
+        r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 1) -- obey note offs on
+        else
+          r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 0)
         end
       end
-      if r.ImGui_MenuItem(ctx, 'Toggle Loop##' .. a) then
-        if Pad[a] and Pad[a].RS5k_ID then
-          rv = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 12)
-          if rv == 0 then
-            no = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 11)
-            if no == 0 then
+    end
+    if r.ImGui_MenuItem(ctx, 'Toggle Loop##' .. a) then
+      if Pad[a] and Pad[a].RS5k_ID then
+        local rv = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 12)
+        if rv == 0 then
+          local no = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 11)
+          if no == 0 then
             r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 1) -- obey note offs on
-            end
+          end
             r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 12, 1) -- Loop on
-          else
-            r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 12, 0)
-          end
+        else
+          r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 12, 0)
         end
       end
-      r.ImGui_Separator(ctx)
-      if r.ImGui_MenuItem(ctx, 'Explode All Pads to Tracks##' .. a) then
+    end
+    r.ImGui_Separator(ctx)
+    if r.ImGui_MenuItem(ctx, 'Explode All Pads to Tracks##' .. a) then
       r.Undo_BeginBlock()
       r.PreventUIRefresh(1)
       ExplodePadsToTracks()
       r.PreventUIRefresh(-1)
       EndUndoBlock("EXPLODE ALL PADS") 
+    end
+    if r.ImGui_MenuItem(ctx, 'Clear All Pads##' .. a) then
+      GetDrumMachineIdx()
+      CountPads()                                                          -- pads_idx = num
+      r.Undo_BeginBlock()
+      r.PreventUIRefresh(1)
+      for i = 1, pads_idx do
+        local clear_pad = get_fx_id_from_container_path(track, parent_id, 1) -- remove whole pad
+        r.TrackFX_Delete(track, clear_pad)
       end
-      if r.ImGui_MenuItem(ctx, 'Clear All Pads##' .. a) then
-        GetDrumMachineIdx()
-        CountPads()                                                          -- pads_idx = num
-        r.Undo_BeginBlock()
-        r.PreventUIRefresh(1)
-        for i = 1, pads_idx do
-          local clear_pad = get_fx_id_from_container_path(track, parent_id, 1) -- remove whole pad
-          r.TrackFX_Delete(track, clear_pad)
-        end
-        Pad = {}
-        r.SetProjExtState(0, 'ReaDrum Machine', "", "")
-        local IsMidiOpen = r.MIDIEditor_LastFocused_OnCommand(40412, false)
-        if not IsMidiOpen then
-          r.Main_OnCommand(40716, 0)
-          r.MIDIEditor_OnCommand(r.MIDIEditor_GetActive(), 40412)
-          r.Main_OnCommand(40716, 0)
-        else
-          r.MIDIEditor_OnCommand(r.MIDIEditor_GetActive(), 40412)
-        end
-        r.PreventUIRefresh(-1)
-        EndUndoBlock("CLEAR ALL PADS") 
+      Pad = {}
+      r.SetProjExtState(0, 'ReaDrum Machine', "", "")
+      local IsMidiOpen = r.MIDIEditor_LastFocused_OnCommand(40412, false)
+      if not IsMidiOpen then
+        r.Main_OnCommand(40716, 0)
+        r.MIDIEditor_OnCommand(r.MIDIEditor_GetActive(), 40412)
+        r.Main_OnCommand(40716, 0)
+      else
+        r.MIDIEditor_OnCommand(r.MIDIEditor_GetActive(), 40412)
       end
+      local rv, bus_guid = r.GetProjExtState(0, 'Suzuki_SetNSend_ch', track_guid .. 'bus_guid')
+      local find_bus = track_from_guid_str(0, bus_guid)
+      local snd_num = r.GetTrackNumSends(track, 0)
+      local drum_track = track
+      if find_bus ~= nil and snd_num > 0 then
+        for i = snd_num, 1, -1 do -- 1 based
+          local dst_track = r.GetTrackSendInfo_Value(track, 0, i - 1, 'P_DESTTRACK') -- 0 based
+          r.DeleteTrack(dst_track)
+        end
+        Children_GUID = {}
+        r.SetMediaTrackInfo_Value(drum_track, 'I_SELECTED', 1) -- select drum track
+        r.DeleteTrack(find_bus)
+      end
+      r.PreventUIRefresh(-1)
+      EndUndoBlock("CLEAR ALL PADS") 
+    end
       -- if r.ImGui_BeginMenu(ctx, 'Context menu') then
       --  r.ImGui_EndMenu(ctx)
       -- end
-      r.ImGui_EndPopup(ctx)
-    end
-    if open_settings then
-      r.ImGui_OpenPopup(ctx, 'Rename a pad?##' .. a)
-    end
-    RenameWindow(a, note_name)
+    r.ImGui_EndPopup(ctx)
   end
+  if open_settings then
+    r.ImGui_OpenPopup(ctx, 'Rename a pad?##' .. a)
+  end
+  RenameWindow(a, note_name)
+end
   
-   function FXLIST()
+function FXLIST()
     if r.ImGui_IsMouseClicked(ctx, 1) then
       if not r.ImGui_IsPopupOpen(ctx, "FX LIST") then
         r.ImGui_OpenPopup(ctx, "FX LIST")
@@ -337,4 +654,4 @@ local function SetLowChannel(e)
       Frame()
       r.ImGui_EndPopup(ctx)
     end
-  end
+end

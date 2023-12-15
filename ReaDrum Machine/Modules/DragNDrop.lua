@@ -4,19 +4,19 @@
 r = reaper
 
 local function GetPayload()
-    local retval, dndtype, payload = r.ImGui_GetDragDropPayload(ctx)
-    if retval then
-      return dndtype, payload
-    end
+  local retval, dndtype, payload = r.ImGui_GetDragDropPayload(ctx)
+  if retval then
+    return dndtype, payload
   end
+end
   
 function CheckDNDType()
-    local dnd_type = GetPayload()
-    DND_ADD_FX = dnd_type == "DND ADD FX"
-    DND_MOVE_FX = dnd_type == "DND MOVE FX"
-    -- DND_ADD_SAMPLE = dnd_type == "DND ADD SAMPLE"
-    -- DND_MOVE_SAMPLE = dnd_type == "DND MOVE SAMPLE"
-    FX_DRAG = dnd_type == "FX_Drag" -- For FX Devices
+  local dnd_type = GetPayload()
+  DND_ADD_FX = dnd_type == "DND ADD FX"
+  DND_MOVE_FX = dnd_type == "DND MOVE FX"
+  -- DND_ADD_SAMPLE = dnd_type == "DND ADD SAMPLE"
+  -- DND_MOVE_SAMPLE = dnd_type == "DND MOVE SAMPLE"
+  FX_DRAG = dnd_type == "FX_Drag" -- For FX Devices
 end
   
 function AddNoteFilter(notenum, pad_num)
@@ -28,10 +28,10 @@ end
   
 function DndAddFX_SRC(fx)
   if r.ImGui_BeginDragDropSource(ctx, r.ImGui_DragDropFlags_AcceptBeforeDelivery()) then
-      r.ImGui_SetDragDropPayload(ctx, 'DND ADD FX', fx)
-      r.ImGui_Text(ctx, fx)
-      r.ImGui_EndDragDropSource(ctx)
-    end
+    r.ImGui_SetDragDropPayload(ctx, 'DND ADD FX', fx)
+    r.ImGui_Text(ctx, fx)
+    r.ImGui_EndDragDropSource(ctx)
+  end
 end
   
 function DndMoveFX_SRC(a)
@@ -49,7 +49,7 @@ function DndMoveFX_SRC(a)
     end
 end
   
-   function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
+function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
     if not DND_MOVE_FX then return end
     r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), 0)
     if r.ImGui_BeginDragDropTarget(ctx) then
@@ -67,6 +67,14 @@ end
             local src_pad = Pad[b].Pad_ID
             local src_num = Pad[b].Pad_Num
             local src_note = Pad[b].Note_Num
+            local out_low32l = Pad[b].Out_Low32L
+            local out_low32r = Pad[b].Out_Low32R
+            local out_high32l = Pad[b].Out_High32L
+            local out_high32r = Pad[b].Out_High32R
+            local out_n_low32l = Pad[b].Out_N_Low32L
+            local out_n_low32r = Pad[b].Out_N_Low32R
+            local out_n_high32l = Pad[b].Out_N_High32L
+            local out_n_high32r = Pad[b].Out_N_High32R
             local dst_pad = Pad[a].Pad_ID
             local dst_num = Pad[a].Pad_Num
             local dst_name = Pad[a].Name
@@ -113,6 +121,14 @@ end
             r.TrackFX_SetParam(track, dst_filter, 1, src_note) -- highest key for filter
             -- SwapRS5kNoteRange(srcfx_idx, dst_num, notenum)
             -- SwapRS5kNoteRange(dstfx_idx, src_num, src_note)
+            r.TrackFX_SetPinMappings(track, Pad[b].Pad_ID, 1, 0, Pad[a].Out_Low32L, Pad[a].Out_High32L) -- #3 output 1, #4 pin 0 left
+            r.TrackFX_SetPinMappings(track, Pad[b].Pad_ID, 1, 1, Pad[a].Out_Low32R, Pad[a].Out_High32R) -- #4 pin 1 right
+            r.TrackFX_SetPinMappings(track, Pad[b].Pad_ID, 1, 0 + 0x1000000, Pad[a].Out_N_Low32L, Pad[a].Out_N_High32L) -- #3 output 1, #4 pin 0 left and add 0x1000000 to #4 for the second half blocks
+            r.TrackFX_SetPinMappings(track, Pad[b].Pad_ID, 1, 1 + 0x1000000, Pad[a].Out_N_Low32R, Pad[a].Out_N_High32R) -- #4 pin 1 right
+            r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0, out_low32l, out_high32l) -- #3 output 1, #4 pin 0 left
+            r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 1, out_low32r, out_high32r) -- #4 pin 1 right
+            r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0 + 0x1000000, out_n_low32l, out_n_high32l) -- #3 output 1, #4 pin 0 left and add 0x1000000 to #4 for the second half blocks
+            r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 1 + 0x1000000, out_n_low32r, out_n_high32r) -- #4 pin 1 right
             UpdatePadID()
             r.PreventUIRefresh(-1)
             EndUndoBlock("SWAP/EXCHANGE PAD FX")          
@@ -134,6 +150,10 @@ end
               Note_Num = notenum,
               Name = Pad[b].Name,
             }
+            r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0, Pad[b].Out_Low32L, Pad[b].Out_High32L) -- #3 output 1, #4 pin 0 left
+            r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 1, Pad[b].Out_Low32R, Pad[b].Out_High32R) -- #4 pin 1 right
+            r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0 + 0x1000000, Pad[b].Out_N_Low32L, Pad[b].Out_N_High32L) -- #3 output 1, #4 pin 0 left and add 0x1000000 to #4 for the second half blocks
+            r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 1 + 0x1000000, Pad[b].Out_N_Low32R, Pad[b].Out_N_High32R) -- #4 pin 1 right
             if Pad[b].Rename then
               Pad[a].Rename = Pad[b].Rename
               r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, Pad[b].Rename)
@@ -207,6 +227,10 @@ end
               Note_Num = notenum,
               Name = Pad[b].Name,
             }
+            r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0, Pad[b].Out_Low32L, Pad[b].Out_High32L) -- #3 output 1, #4 pin 0 left
+            r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 1, Pad[b].Out_Low32R, Pad[b].Out_High32R) -- #4 pin 1 right
+            r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0 + 0x1000000, Pad[b].Out_N_Low32L, Pad[b].Out_N_High32L) -- #3 output 1, #4 pin 0 left and add 0x1000000 to #4 for the second half blocks
+            r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 1 + 0x1000000, Pad[b].Out_N_Low32R, Pad[b].Out_N_High32R) -- #4 pin 1 right
             if Pad[b].Rename then 
               renamed_name = note_name .. ": " .. Pad[b].Rename
               Pad[a].Rename = Pad[b].Rename
@@ -237,27 +261,27 @@ end
       end
     end
     r.ImGui_PopStyleColor(ctx)
-  end
+end
   
-   function DndAddSample_SRC(sample)
-    if r.ImGui_BeginDragDropSource(ctx) then
-      r.ImGui_SetDragDropPayload(ctx, 'DND ADD SAMPLE', sample)
-      r.ImGui_Text(ctx, sample)
-      r.ImGui_EndDragDropSource(ctx)
-    end
-    if dst_rename then
-      r.SetTrackMIDINoteNameEx(0, track, src_note, 0, dst_rename)
-    elseif dst_name then
-      r.SetTrackMIDINoteNameEx(0, track, src_note, 0, dst_name)
-    end
-    if Pad[b].Rename then
-      r.SetTrackMIDINoteNameEx(0, track, notenum, 0, Pad[b].Rename)
-    elseif Pad[b].Name then
-      r.SetTrackMIDINoteNameEx(0, track, notenum, 0, Pad[b].Name)
-    end
+function DndAddSample_SRC(sample)
+  if r.ImGui_BeginDragDropSource(ctx) then
+    r.ImGui_SetDragDropPayload(ctx, 'DND ADD SAMPLE', sample)
+    r.ImGui_Text(ctx, sample)
+    r.ImGui_EndDragDropSource(ctx)
   end
+  if dst_rename then
+    r.SetTrackMIDINoteNameEx(0, track, src_note, 0, dst_rename)
+  elseif dst_name then
+    r.SetTrackMIDINoteNameEx(0, track, src_note, 0, dst_name)
+  end
+  if Pad[b].Rename then
+    r.SetTrackMIDINoteNameEx(0, track, notenum, 0, Pad[b].Rename)
+  elseif Pad[b].Name then
+    r.SetTrackMIDINoteNameEx(0, track, notenum, 0, Pad[b].Name)
+  end
+end
   
-   function DndAddFX_TARGET(a)
+function DndAddFX_TARGET(a)
     if not DND_ADD_FX then return end
     InsertDrumMachine()
     r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), 0)
@@ -298,28 +322,28 @@ end
       end
     end
     r.ImGui_PopStyleColor(ctx)
-  end
+end
   
-  local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
-    rs5k_id = get_fx_id_from_container_path(track, parent_id, pad_num, add_pos)
-    rv, payload = r.ImGui_GetDragDropPayloadFile(ctx, i) -- 0 based
-    r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
-    r.TrackFX_Show(track, rs5k_id, 2)
-    r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)         -- Sample mode
-    r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '') -- remove file list
-    r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', payload) -- add file
-    r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')        -- always necessary
-    -- r.TrackFX_SetParam(track, rs5k_id, 11, 1)                       -- obey note offs
-    Pad[a].RS5k_ID = rs5k_id
-    rv, buf = r.TrackFX_GetNamedConfigParm(track, rs5k_id, 'FILE')
-    filename = buf:match("([^\\/]+)%.%w%w*$")
-    r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
-    if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
-    r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
-    Pad[a].Name = filename
-  end
+local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
+  rs5k_id = get_fx_id_from_container_path(track, parent_id, pad_num, add_pos)
+  rv, payload = r.ImGui_GetDragDropPayloadFile(ctx, i) -- 0 based
+  r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
+  r.TrackFX_Show(track, rs5k_id, 2)
+  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)         -- Sample mode
+  r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '') -- remove file list
+  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', payload) -- add file
+  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')        -- always necessary
+  -- r.TrackFX_SetParam(track, rs5k_id, 11, 1)                       -- obey note offs
+  Pad[a].RS5k_ID = rs5k_id
+  rv, buf = r.TrackFX_GetNamedConfigParm(track, rs5k_id, 'FILE')
+  filename = buf:match("([^\\/]+)%.%w%w*$")
+  r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
+  if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
+  r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
+  Pad[a].Name = filename
+end
 
- function DndAddSample_TARGET(a)
+function DndAddSample_TARGET(a)
     if r.ImGui_BeginDragDropTarget(ctx) then
       local rv, count = r.ImGui_AcceptDragDropPayloadFiles(ctx)
       if rv then
@@ -373,9 +397,9 @@ end
       end
       r.ImGui_EndDragDropTarget(ctx)
     end
-  end
+end
   
-   function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
+function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
     if r.ImGui_BeginDragDropTarget(ctx) then
       local rv, count = r.ImGui_AcceptDragDropPayloadFiles(ctx)
       if rv and not Pad[a] then
@@ -406,7 +430,7 @@ end
       end
       r.ImGui_EndDragDropTarget(ctx)
     end
-  end
+end
   
 -- local function SetRS5kNoteRange(track, fx, note_start, note_end)
 --    r.TrackFX_SetParamNormalized(track, fx, 3, note_start / 127)
