@@ -1,13 +1,15 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.1.9
--- @changelog Made note filter's CC passthrough default
+-- @version 1.2
+-- @changelog 
+--  + Added menu to set pad's channel output pin mappings. Give it a try to use it in conjunction with my set channel input pin mappings script.
+--  + Added menu to explode a single pad to a new track via user input. Only channel 1/2 signal stays in the main track and goes to master.
+--  I'll fix "Explode all pads" in the next update.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
 --   Fonts/Icons.ttf
---   JSFX/*.jsfx
 --   Modules/*.lua
 --   [effect] JSFX/*.jsfx
 --   [main] Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable Layout).lua
@@ -362,6 +364,10 @@ end
 function Run()
   track = r.GetSelectedTrack2(0, 0, false)
   TRACK = track
+  if track then
+  trackidx = r.CSurf_TrackToID(track, false)
+  track_guid = r.GetTrackGUID(track)
+  end
   if set_dock_id then
     r.ImGui_SetNextWindowDockID(ctx, set_dock_id)
     set_dock_id = nil
