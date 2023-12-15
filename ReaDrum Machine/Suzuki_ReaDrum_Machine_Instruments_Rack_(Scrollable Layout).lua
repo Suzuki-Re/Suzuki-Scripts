@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0
+-- @version 1.1
 -- @noindex
--- @changelog Initial Release
+-- @changelog Added Track GUID
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. This is a version which lets users scroll vertically.
 
@@ -320,6 +320,10 @@ end
 function Run()
   track = r.GetSelectedTrack2(0, 0, false)
   TRACK = track
+  if track then
+    trackidx = r.CSurf_TrackToID(track, false)
+    track_guid = r.GetTrackGUID(track)
+  end
   if set_dock_id then
     r.ImGui_SetNextWindowDockID(ctx, set_dock_id)
     set_dock_id = nil
