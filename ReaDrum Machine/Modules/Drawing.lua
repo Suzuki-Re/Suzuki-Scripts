@@ -57,6 +57,10 @@ function toggle2(a, b)
   if a == b then return nil else return b end 
 end
 
+function RememberTab(a, b) -- toggle + remember the last state of tab menu
+  if a == b then r.SetProjExtState(0, "ReaDrum Machine", track_guid .. "LAST_MENU", "") return nil else r.SetProjExtState(0, "ReaDrum Machine", track_guid .. "LAST_MENU", b) return b end 
+end
+
 function HighlightHvredItem()
   local DL = r.ImGui_GetForegroundDrawList(ctx)
   L, T = r.ImGui_GetItemRectMin(ctx)
