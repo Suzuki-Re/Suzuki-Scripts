@@ -1,11 +1,10 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.2
+-- @version 1.2.1
 -- @changelog 
---  + Added menu to set pad's channel output pin mappings. Give it a try to use it in conjunction with my set channel input pin mappings script.
---  + Added menu to explode a single pad to a new track via user input. Only channel 1/2 signal stays in the main track and goes to master.
---  I'll fix "Explode all pads" in the next update.
+--  + Now RDM remembers which tab was open (or not) when it's closed.
+--  + You can sweep (left dragging) vertcal tabs to open it.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
@@ -319,11 +318,12 @@ function Main()
   if r.ImGui_BeginChild(ctx, 'BUTTON_SECTION', w_closed + 10, h + 100, false) then   -- vertical tab
     for i = 1, 8 do
       r.ImGui_SetCursorPos(ctx, 0, y + (i - 1) * 35 - button_offset)
+      
       rv = r.ImGui_InvisibleButton(ctx, "B" .. i, 31, 31)
       local xs, ys = r.ImGui_GetItemRectMin(ctx)
       local xe, ye = r.ImGui_GetItemRectMax(ctx)
       if rv then
-        LAST_MENU = toggle2 (LAST_MENU, i)
+        LAST_MENU = RememberTab(LAST_MENU, i)
       end
       r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), 0)
       if r.ImGui_BeginDragDropTarget(ctx) then
@@ -337,8 +337,9 @@ function Main()
         r.ImGui_EndDragDropTarget(ctx)
       end
       r.ImGui_PopStyleColor(ctx)
-      if (DND_ADD_FX or DND_MOVE_FX) and r.ImGui_IsMouseHoveringRect(ctx, xs, ys, xe, ye) then
+      if (DND_ADD_FX or DND_MOVE_FX or r.ImGui_IsMouseDragging(ctx, 0)) and r.ImGui_IsMouseHoveringRect(ctx, xs, ys, xe, ye) then
         LAST_MENU = i
+        r.SetProjExtState(0, "ReaDrum Machine", track_guid .. "LAST_MENU", i)
       end
       HighlightHvredItem()
       if LAST_MENU == i then 
@@ -348,7 +349,7 @@ function Main()
     r.ImGui_EndChild(ctx)
   end
   local openpad 
-    if LAST_MENU then       -- Open pads manu
+  if LAST_MENU then       -- Open pads manu
     r.ImGui_SetCursorPos(ctx, x + w_closed, y)
     if r.ImGui_BeginChild(ctx, "child_menu", w_open + 250, h + 88) then
       local high = 128 - 16 * (LAST_MENU - 1 )
@@ -357,6 +358,7 @@ function Main()
       r.ImGui_EndChild(ctx)
     end
   end
+  r.ImGui_Dummy(ctx, w_closed + 10, h + 100)
   r.ImGui_EndGroup(ctx)
   r.ImGui_PopStyleColor(ctx)
 end
@@ -371,6 +373,11 @@ function Run()
   if set_dock_id then
     r.ImGui_SetNextWindowDockID(ctx, set_dock_id)
     set_dock_id = nil
+  end
+
+  local _, n = r.GetProjExtState(0, "ReaDrum Machine", track_guid .. "LAST_MENU")
+  if n ~= nil then
+    LAST_MENU = tonumber(n)
   end
 
   r.ImGui_SetNextWindowSizeConstraints(ctx, 500, 360, FLT_MAX, FLT_MAX)
