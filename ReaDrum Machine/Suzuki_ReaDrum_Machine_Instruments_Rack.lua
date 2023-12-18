@@ -1,10 +1,10 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.2.1
+-- @version 1.2.2
 -- @changelog 
---  + Now RDM remembers which tab was open (or not) when it's closed.
---  + You can sweep (left dragging) vertcal tabs to open it.
+--  + Scrollable layout version now remembers the scroll location where users closed the script last time.
+--  # Unfloat FX windows even if users check "auto-float new FX windows" because users can float windows easily by clicking pads if they want.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
@@ -133,7 +133,7 @@ function ButtonDrawlist(splitter, name, color)
   end
 
   local font_size = r.ImGui_GetFontSize(ctx)
-  local char_size_w,char_size_h = r.ImGui_CalcTextSize(ctx, "A")
+  local char_size_w, char_size_h = r.ImGui_CalcTextSize(ctx, "A")
   local font_color = CalculateFontColor(color)
 
   r.ImGui_DrawList_AddTextEx( draw_list, nil, font_size, xs, ys + char_size_h, r.ImGui_GetColorEx(ctx, font_color), name, xe-xs)
