@@ -1,9 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.1
+-- @version 1.2
 -- @noindex
--- @changelog Added Track GUID
+-- @changelog 
+-- + RDM remembers the scroll position where users closed the script last time.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. This is a version which lets users scroll vertically.
 
@@ -140,7 +141,7 @@ function ButtonDrawlist(splitter, name, color)
   local char_size_w,char_size_h = r.ImGui_CalcTextSize(ctx, "A")
   local font_color = CalculateFontColor(color)
 
-  r.ImGui_DrawList_AddTextEx( draw_list, nil, font_size, xs, ys + char_size_h, r.ImGui_GetColorEx(ctx, font_color), name, xe-xs)
+  r.ImGui_DrawList_AddTextEx(draw_list, nil, font_size, xs, ys + char_size_h, r.ImGui_GetColorEx(ctx, font_color), name, xe-xs)
   r.ImGui_DrawList_AddText(draw_list, xs, ys, 0xffffffff, note_name)
 end
 
@@ -281,6 +282,8 @@ local def_btn_h = tw
 
 local w_open, w_closed = 250, def_btn_h + (s_window_x * 2)
 
+local setscroll = true
+
 ----------------------------------------------------------------------
 -- RUN --
 ----------------------------------------------------------------------
@@ -342,6 +345,19 @@ function Run()
 
   if imgui_visible then
     imgui_width, imgui_height = r.ImGui_GetWindowSize(ctx)
+
+    if setscroll then
+      local stored_y = r.GetExtState("ReaDrum Machine", "Scroll_Pos")
+      if tonumber(stored_y) ~= nil then
+        r.ImGui_SetScrollY(ctx, tonumber(stored_y))
+      end
+      setscroll = false
+    end
+
+    if not setscroll then
+      local scroll_y = r.ImGui_GetScrollY(ctx)
+      r.SetExtState("ReaDrum Machine", "Scroll_Pos", scroll_y, true)
+    end
 
     if not TRACK then r.ImGui_TextDisabled(ctx, 'No track selected')
     else
