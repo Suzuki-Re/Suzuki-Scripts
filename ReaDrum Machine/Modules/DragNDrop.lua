@@ -22,6 +22,7 @@ end
 function AddNoteFilter(notenum, pad_num)
   filter_id = get_fx_id_from_container_path(track, parent_id, pad_num, 1) -- 1 based, num
   r.TrackFX_AddByName(track, 'RDM MIDI Note Filter', false, filter_id)
+  r.TrackFX_Show(track, filter_id, 2)
   r.TrackFX_SetParam(track, filter_id, 0, notenum)                        -- lowest key for filter, pad number = midi note
   r.TrackFX_SetParam(track, filter_id, 1, notenum)                        -- highest key for filter
 end

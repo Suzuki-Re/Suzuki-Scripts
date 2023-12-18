@@ -57,7 +57,7 @@ end
 
 function InsertDrumMachine()
     local found = false
-    count = r.TrackFX_GetCount(track) -- 1 based
+    local count = r.TrackFX_GetCount(track) -- 1 based
     for i = 0, count - 1 do
       local rv, rename = r.TrackFX_GetNamedConfigParm(track, i, 'renamed_name') -- 0 based
       if rename == 'ReaDrum Machine' then
@@ -69,6 +69,7 @@ function InsertDrumMachine()
       r.Undo_BeginBlock()
       r.PreventUIRefresh(1)
       r.TrackFX_AddByName(track, "Container", false, -1000 - count)                 -- 0 based + count(1 based) = the last slot
+      r.TrackFX_Show(track, count, 2)
       r.TrackFX_SetNamedConfigParm(track, count, 'renamed_name', 'ReaDrum Machine') -- 0 based + count(1 based) = the last slot
       r.PreventUIRefresh(-1)
       EndUndoBlock("ADD DRUM MACHINE")
@@ -138,6 +139,7 @@ function AddPad(note_name, a) -- pad_id, pad_num
       pad_id = get_fx_id_from_container_path(track, parent_id, pad_num) -- the last slot after pads
     end
     r.TrackFX_AddByName(track, 'Container', false, -1000 - pad_id)      -- Add a pad
+    r.TrackFX_Show(track, pad_id, 2)
     r.TrackFX_SetNamedConfigParm(track, pad_id, 'renamed_name', note_name)
     r.TrackFX_SetNamedConfigParm(track, pad_id, 'parallel', 1)          -- set parallel
     local previous_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num - 1)
