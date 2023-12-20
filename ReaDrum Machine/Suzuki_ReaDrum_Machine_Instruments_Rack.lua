@@ -1,10 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.2.2
+-- @version 1.2.3
 -- @changelog 
---  + Scrollable layout version now remembers the scroll location where users closed the script last time.
---  # Unfloat FX windows even if users check "auto-float new FX windows" because users can float windows easily by clicking pads if they want.
+--  + Added support for ReaDrum Machine inside container. Beware that only one RDM instance per track is allowed, just like it's been up to now.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 -- @provides
@@ -220,15 +219,15 @@ function DrawPads(loopmin, loopmax)
         else
           retval1 = r.TrackFX_GetEnabled(track, Pad[a].Previous_Pad_ID)
         end
-        retval2 = r.TrackFX_GetEnabled(track, Pad[a].Next_Pad_ID)
+        local retval2 = r.TrackFX_GetEnabled(track, Pad[a].Next_Pad_ID)
         if retval1 == false and retval2 == false then -- unsolo
           for i = 1, pads_idx do
-            local pad_id = get_fx_id_from_container_path(track, parent_id, i)
+            local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1) -- 0 based
             r.TrackFX_SetEnabled(track, pad_id, true)
           end
         else -- solo
           for i = 1, pads_idx do
-            local pad_id = get_fx_id_from_container_path(track, parent_id, i)
+            local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1) -- 0 based
             r.TrackFX_SetEnabled(track, pad_id, false)
           end
           r.TrackFX_SetEnabled(track, Pad[a].Pad_ID, true)
@@ -375,9 +374,11 @@ function Run()
     set_dock_id = nil
   end
 
+  if track_guid then
   local _, n = r.GetProjExtState(0, "ReaDrum Machine", track_guid .. "LAST_MENU")
-  if n ~= nil then
-    LAST_MENU = tonumber(n)
+    if n ~= nil then
+      LAST_MENU = tonumber(n)
+    end
   end
 
   r.ImGui_SetNextWindowSizeConstraints(ctx, 500, 360, FLT_MAX, FLT_MAX)

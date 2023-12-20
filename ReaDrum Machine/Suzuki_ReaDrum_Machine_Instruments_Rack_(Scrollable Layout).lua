@@ -1,10 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.2
+-- @version 1.2.3
 -- @noindex
 -- @changelog 
--- + RDM remembers the scroll position where users closed the script last time.
+-- + Added support for ReaDrum Machine inside container
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. This is a version which lets users scroll vertically.
 
@@ -229,12 +229,12 @@ function DrawPads(loopmin, loopmax)
         retval2 = r.TrackFX_GetEnabled(track, Pad[a].Next_Pad_ID)
         if retval1 == false and retval2 == false then -- unsolo
           for i = 1, pads_idx do
-            local pad_id = get_fx_id_from_container_path(track, parent_id, i)
+            local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1) -- 0 based
             r.TrackFX_SetEnabled(track, pad_id, true)
           end
         else -- solo
           for i = 1, pads_idx do
-            local pad_id = get_fx_id_from_container_path(track, parent_id, i)
+            local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1) -- 0 based
             r.TrackFX_SetEnabled(track, pad_id, false)
           end
           r.TrackFX_SetEnabled(track, Pad[a].Pad_ID, true)
