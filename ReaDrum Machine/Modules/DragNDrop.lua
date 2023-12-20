@@ -20,8 +20,9 @@ function CheckDNDType()
 end
   
 function AddNoteFilter(notenum, pad_num)
-  filter_id = get_fx_id_from_container_path(track, parent_id, pad_num, 1) -- 1 based, num
-  r.TrackFX_AddByName(track, 'RDM MIDI Note Filter', false, filter_id)
+  local retval, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
+  local filter_id = ConvertPathToNestedPath(pad_id, 1)
+  r.TrackFX_AddByName(track, 'RDM MIDI Note Filter', false, tonumber(filter_id))
   r.TrackFX_Show(track, filter_id, 2)
   r.TrackFX_SetParam(track, filter_id, 0, notenum)                        -- lowest key for filter, pad number = midi note
   r.TrackFX_SetParam(track, filter_id, 1, notenum)                        -- highest key for filter
@@ -58,7 +59,7 @@ function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
       r.ImGui_EndDragDropTarget(ctx)
       r.Undo_BeginBlock()
       r.PreventUIRefresh(1)
-      GetDrumMachineIdx()
+      GetDrumMachineIdx(track)
       if ret then
         local is_move = (not CTRL_DRAG) and true or false
         if is_move then    -- move
@@ -106,18 +107,20 @@ function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
             r.TrackFX_CopyToTrack(track, src_pad, track, dst_pad, true) -- true = move
             local src_num = tonumber(src_num)
             if dst_num > src_num then
-              dst_pad_new = get_fx_id_from_container_path(track, parent_id, dst_num - 1)
+              _, dst_pad_new = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. dst_num - 2) -- 0 based
             end
             if src_num > dst_num then
-              dst_pad_new = get_fx_id_from_container_path(track, parent_id, dst_num + 1)
+              _, dst_pad_new = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. dst_num) -- 0 based
             end
             r.TrackFX_CopyToTrack(track, dst_pad_new, track, src_pad, true)
             FindNoteFilter(dst_num)
-            local src_filter = get_fx_id_from_container_path(track, parent_id, dst_num, fi)
+            local _, dst_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. dst_num - 1) -- 0 based
+            local _, src_filter = r.TrackFX_GetNamedConfigParm(track, dst_id, "container_item." .. fi - 1) -- 0 based
             r.TrackFX_SetParam(track, src_filter, 0, notenum)  -- lowest key for filter, pad number = midi note drag
             r.TrackFX_SetParam(track, src_filter, 1, notenum)  -- highest key for filter
             FindNoteFilter(src_num)
-            local dst_filter = get_fx_id_from_container_path(track, parent_id, src_num, fi)
+            local _, src_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. src_num - 1) -- 0 based
+            local _, dst_filter = r.TrackFX_GetNamedConfigParm(track, src_id, "container_item." .. fi - 1) -- 0 based
             r.TrackFX_SetParam(track, dst_filter, 0, src_note) -- lowest key for filter, pad number = midi note drop
             r.TrackFX_SetParam(track, dst_filter, 1, src_note) -- highest key for filter
             -- SwapRS5kNoteRange(srcfx_idx, dst_num, notenum)
@@ -140,17 +143,7 @@ function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
             CountPads()
             AddPad(note_name, a) -- dst
             src_note = Pad[b].Note_Num
-            local previous_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num - 1)
-            local next_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num + 1)
-            Pad[a] = { -- dst
-              Previous_Pad_ID = previous_pad_id,
-              Pad_ID = pad_id,
-              Next_Pad_ID = next_pad_id,
-              Pad_Num = pad_num,
-              TblIdx = a,
-              Note_Num = notenum,
-              Name = Pad[b].Name,
-            }
+            Pad[a].Name = Pad[b].Name
             r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0, Pad[b].Out_Low32L, Pad[b].Out_High32L) -- #3 output 1, #4 pin 0 left
             r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 1, Pad[b].Out_Low32R, Pad[b].Out_High32R) -- #4 pin 1 right
             r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0 + 0x1000000, Pad[b].Out_N_Low32L, Pad[b].Out_N_High32L) -- #3 output 1, #4 pin 0 left and add 0x1000000 to #4 for the second half blocks
@@ -177,12 +170,15 @@ function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
             local dstfx_pos = CountPadFX(Pad[a].Pad_Num)
             for m = 1, srcfx_idx do
               dstfx_pos = dstfx_pos + 1                                                             -- the last slot being offset by 1
-              local srcfx = get_fx_id_from_container_path(track, parent_id, src_num, 1)                   -- 1st slot * srcfx_idx times
-              local dst_last = get_fx_id_from_container_path(track, parent_id, Pad[a].Pad_Num, dstfx_pos) -- add FX
+              local _, src_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. src_num - 1) -- 0 based
+              local _, srcfx = r.TrackFX_GetNamedConfigParm(track, src_id, "container_item." .. 0) -- 1st slot * srcfx_idx times
+              local _, dst_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[a].Pad_Num - 1) -- 0 based
+              local dst_last = ConvertPathToNestedPath(dst_id, dstfx_pos) -- add FX
               r.TrackFX_CopyToTrack(track, srcfx, track, dst_last, true)                            -- true = move
             end
             FindNoteFilter(Pad[a].Pad_Num)
-            local filter_id = get_fx_id_from_container_path(track, parent_id, Pad[a].Pad_Num, fi)
+            local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[a].Pad_Num - 1) -- 0 based
+            local _, filter_id = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. fi - 1)
             r.TrackFX_SetParam(track, filter_id, 0, notenum)                        -- lowest key for filter, pad number = midi note
             r.TrackFX_SetParam(track, filter_id, 1, notenum)                        -- highest key for filter
             ClearPad(b, src_num) -- remove source pad
@@ -204,8 +200,10 @@ function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
               FindNoteFilter(src_num)
               if c == fi then goto NEXT end
               dstfx_idx = dstfx_idx + 1 -- the last slot being offset by 1
-              local dst_last = get_fx_id_from_container_path(track, parent_id, dst_num, dstfx_idx)
-              local srcfx = get_fx_id_from_container_path(track, parent_id, src_num, c)
+              local _, src_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. src_num - 1) -- 0 based
+              local _, srcfx = r.TrackFX_GetNamedConfigParm(track, src_id, "container_item." .. c - 1) -- 1st slot * srcfx_idx times
+              local _, dst_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. dst_num - 1) -- 0 based
+              local dst_last = ConvertPathToNestedPath(dst_id, dstfx_idx) -- add FX
               r.TrackFX_CopyToTrack(track, srcfx, track, dst_last, false) -- false = copy
               ::NEXT::
             end
@@ -217,17 +215,7 @@ function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
             local src_num = Pad[b].Pad_Num
             CountPads()
             AddPad(note_name, a) -- dst
-            local previous_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num - 1)
-            local next_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num + 1)
-            Pad[a] = { -- dst
-              Previous_Pad_ID = previous_pad_id,
-              Pad_ID = pad_id,
-              Next_Pad_ID = next_pad_id,
-              Pad_Num = pad_num,
-              TblIdx = a,
-              Note_Num = notenum,
-              Name = Pad[b].Name,
-            }
+            Pad[a].Name = Pad[b].Name  -- dst
             r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0, Pad[b].Out_Low32L, Pad[b].Out_High32L) -- #3 output 1, #4 pin 0 left
             r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 1, Pad[b].Out_Low32R, Pad[b].Out_High32R) -- #4 pin 1 right
             r.TrackFX_SetPinMappings(track, Pad[a].Pad_ID, 1, 0 + 0x1000000, Pad[b].Out_N_Low32L, Pad[b].Out_N_High32L) -- #3 output 1, #4 pin 0 left and add 0x1000000 to #4 for the second half blocks
@@ -247,12 +235,15 @@ function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
             local dstfx_idx = CountPadFX(pad_num)
             for c = 1, srcfx_idx do    
               dstfx_idx = dstfx_idx + 1 -- the last slot being offset by 1
-              local dst_last = get_fx_id_from_container_path(track, parent_id, pad_num, dstfx_idx)
-              local srcfx = get_fx_id_from_container_path(track, parent_id, src_num, c)
+              local _, src_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. src_num - 1) -- 0 based
+              local _, srcfx = r.TrackFX_GetNamedConfigParm(track, src_id, "container_item." .. c - 1) 
+              local _, dst_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
+              local dst_last = ConvertPathToNestedPath(dst_id, dstfx_idx) -- add FX
               r.TrackFX_CopyToTrack(track, srcfx, track, dst_last, false) -- false = copy
             end
             FindNoteFilter(pad_num)
-            local filter_id = get_fx_id_from_container_path(track, parent_id, pad_num, fi)
+            local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
+            local _, filter_id = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. fi - 1) 
             r.TrackFX_SetParam(track, filter_id, 0, notenum)
             r.TrackFX_SetParam(track, filter_id, 1, notenum)
             r.PreventUIRefresh(-1)
@@ -290,44 +281,37 @@ function DndAddFX_TARGET(a)
       local ret, payload = r.ImGui_AcceptDragDropPayload(ctx, 'DND ADD FX')
       r.ImGui_EndDragDropTarget(ctx)
       if ret and not Pad[a] then
-        GetDrumMachineIdx()     -- parent_id = num
+        GetDrumMachineIdx(track)     -- parent_id = num
         CountPads()             -- pads_idx = num
         r.Undo_BeginBlock()
         r.PreventUIRefresh(1)
         AddPad(note_name, a)     -- pad_id = loc, pad_num = num
-        previous_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num - 1)
-        next_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num + 1)
-        Pad[a] = {
-          Previous_Pad_ID = previous_pad_id,
-          Pad_ID = pad_id,
-          Next_Pad_ID = next_pad_id,
-          Pad_Num = pad_num,
-          TblIdx = a,
-          Note_Num = notenum
-        }
         CountPadFX(Pad[a].Pad_Num)                                                             -- padfx_idx = num
         AddNoteFilter(notenum, pad_num)
-        padfx_id = get_fx_id_from_container_path(track, parent_id, pad_num, padfx_idx + 2)     -- add FX
+        local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
+        local padfx_id = ConvertPathToNestedPath(pad_id, padfx_idx + 2) -- 1 based
         r.TrackFX_AddByName(track, payload, false, padfx_id)
         r.PreventUIRefresh(-1)
         EndUndoBlock("ADD FX") 
       elseif ret and Pad[a].Pad_Num then
-        GetDrumMachineIdx()   -- parent_id = num
+        GetDrumMachineIdx(track)   -- parent_id = num
         CountPadFX(Pad[a].Pad_Num)
-        padfx_id = get_fx_id_from_container_path(track, parent_id, Pad[a].Pad_Num, padfx_idx + 1)
+        local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[a].Pad_Num - 1) -- 0 based
+        local padfx_id = ConvertPathToNestedPath(pad_id, padfx_idx + 1) -- 1 based
         r.Undo_BeginBlock()
         r.PreventUIRefresh(1)
-        r.TrackFX_AddByName(track, payload, false, -1000 - padfx_id)
+        r.TrackFX_AddByName(track, payload, false, padfx_id)
         r.PreventUIRefresh(-1)
         EndUndoBlock("ADD FX")
       end
     end
     r.ImGui_PopStyleColor(ctx)
 end
-  
+
 local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
-  rs5k_id = get_fx_id_from_container_path(track, parent_id, pad_num, add_pos)
-  rv, payload = r.ImGui_GetDragDropPayloadFile(ctx, i) -- 0 based
+  local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
+  local rs5k_id = ConvertPathToNestedPath(pad_id, add_pos)
+  local rv, payload = r.ImGui_GetDragDropPayloadFile(ctx, i) -- 0 based
   r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
   r.TrackFX_Show(track, rs5k_id, 2)
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)         -- Sample mode
@@ -336,8 +320,8 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')        -- always necessary
   -- r.TrackFX_SetParam(track, rs5k_id, 11, 1)                       -- obey note offs
   Pad[a].RS5k_ID = rs5k_id
-  rv, buf = r.TrackFX_GetNamedConfigParm(track, rs5k_id, 'FILE')
-  filename = buf:match("([^\\/]+)%.%w%w*$")
+  local rv, buf = r.TrackFX_GetNamedConfigParm(track, rs5k_id, 'FILE')
+  local filename = buf:match("([^\\/]+)%.%w%w*$")
   r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
   if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
   r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
@@ -349,30 +333,21 @@ function DndAddSample_TARGET(a)
       local rv, count = r.ImGui_AcceptDragDropPayloadFiles(ctx)
       if rv then
         InsertDrumMachine()
-        GetDrumMachineIdx() -- parent_id = num
+        GetDrumMachineIdx(track) -- parent_id = num
         r.Undo_BeginBlock()
         r.PreventUIRefresh(1)
         for i = 0, count - 1 do
           if not Pad[a + i] then
             CountPads()                           -- pads_idx = num
             AddPad(getNoteName(notenum + i), a + i) -- pad_id = loc, pad_num = num
-            previous_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num - 1)
-            next_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num + 1)
-            Pad[a + i] = {
-              Previous_Pad_ID = previous_pad_id,
-              Pad_ID = pad_id,
-              Next_Pad_ID = next_pad_id,
-              Pad_Num = pad_num,
-              TblIdx = a + i,
-              Note_Num = notenum + i
-            }
             AddNoteFilter(notenum + i, pad_num)
             AddSamplesToRS5k(pad_num, 2, i, a + i, notenum + i, getNoteName(notenum + i)) -- Pad[a].Name
           elseif Pad[a + i].Pad_Num then
             CountPadFX(Pad[a + i].Pad_Num) -- padfx_idx = num
             local found = false
             for rs5k_pos = 1, padfx_idx do
-              find_rs5k = get_fx_id_from_container_path(track, parent_id, Pad[a + i].Pad_Num, rs5k_pos)
+              local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[a + i].Pad_Num - 1) -- 0 based
+              local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. rs5k_pos - 1)
               retval, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'original_name')
               if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
                 found = true
@@ -405,11 +380,11 @@ function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
       local rv, count = r.ImGui_AcceptDragDropPayloadFiles(ctx)
       if rv and not Pad[a] then
         InsertDrumMachine()
-        GetDrumMachineIdx()  -- parent_id = num
+        GetDrumMachineIdx(track)  -- parent_id = num
         CountPads()          -- pads_idx = num
         AddPad(note_name, a) -- pad_id = loc, pad_num = num
-        previous_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num - 1)
-        next_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num + 1)
+        local _, previous_pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 2) -- 0 based
+        local _, next_pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num) -- 0 based
         Pad[a] = {
           Previous_Pad_ID = previous_pad_id,
           Pad_ID = pad_id,
@@ -419,11 +394,12 @@ function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
         CountPadFX(pad_num) -- padfx_idx = num
         AddNoteFilter(notenum, pad_num)
         for i = 0, count - 1 do
-          rs5k_id = get_fx_id_from_container_path(track, parent_id, pad_num, padfx_idx + 2 + i)
+          local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
+          local _, rs5k_id = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. padfx_idx + 1 + i)
           AddSamplesToRS5k(pad_num, padfx_idx + 2 + i, i, a, note_name)
         end
       elseif rv and Pad[a].Pad_Num then
-        GetDrumMachineIdx() -- parent_id = num
+        GetDrumMachineIdx(track) -- parent_id = num
         CountPadFX(Pad[a].Pad_Num)
         for i = 0, count - 1 do
           AddSamplesToRS5k(Pad[a].Pad_Num, padfx_idx + 1 + i, i, a, note_name)

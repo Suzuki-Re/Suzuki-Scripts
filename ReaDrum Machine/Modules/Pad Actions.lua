@@ -114,57 +114,57 @@ end
 -- Left Click --
 
 function SendMidiNote(notenum) -- Thanks Sexan!
-    if not r.ImGui_IsItemHovered(ctx) then return end
-    if r.ImGui_IsMouseClicked(ctx, 0) then
-      r.StuffMIDIMessage(0, 0x90, notenum, 96) -- send note_p -- mode, note on, note, velocity
-    elseif r.ImGui_IsMouseReleased(ctx, 0) then
-      r.StuffMIDIMessage(0, 0x80, notenum, 96) -- send note_r
-    end
+  if not r.ImGui_IsItemHovered(ctx) then return end
+  if r.ImGui_IsMouseClicked(ctx, 0) then
+    r.StuffMIDIMessage(0, 0x90, notenum, 96) -- send note_p -- mode, note on, note, velocity
+  elseif r.ImGui_IsMouseReleased(ctx, 0) then
+    r.StuffMIDIMessage(0, 0x80, notenum, 96) -- send note_r
+  end
 end
  
   
 local function AdjustPadVolume(a)
-    if not r.ImGui_IsItemHovered(ctx) then return end
-    if r.ImGui_IsMouseDragging(ctx, 0) then
-      if Pad[a] then
-        local wet = r.TrackFX_GetParamFromIdent(track, Pad[a].Pad_ID, ":wet")
-        local volume = r.TrackFX_GetParam(track, Pad[a].Pad_ID, wet)
-        r.TrackFX_SetParam(track, Pad[a].Pad_ID, volume, v / 100)
-      end
+  if not r.ImGui_IsItemHovered(ctx) then return end
+  if r.ImGui_IsMouseDragging(ctx, 0) then
+    if Pad[a] then
+      local wet = r.TrackFX_GetParamFromIdent(track, Pad[a].Pad_ID, ":wet")
+      local volume = r.TrackFX_GetParam(track, Pad[a].Pad_ID, wet)
+      r.TrackFX_SetParam(track, Pad[a].Pad_ID, volume, v / 100)
     end
+  end
 end
   
 
 function ClearPad(a, pad_num)
-  clear_pad = get_fx_id_from_container_path(track, parent_id, pad_num) -- remove whole pad
+  local _, clear_pad = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   r.SetTrackMIDINoteNameEx(0, track, notenum, 0, "")                   -- remove note name
   r.TrackFX_Delete(track, clear_pad)
   Pad[a] = nil
 end
 
 function ClickPadActions(a)
-    -- if not r.ImGui_IsItemHovered(ctx) then return end
-    if Pad[a] then
-        if ALT then
-          r.Undo_BeginBlock()
-          r.PreventUIRefresh(1)
-          ClearPad(a, Pad[a].Pad_Num)
-          rev, value = r.GetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a)
-          if rev == 1 then
-          r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, "")
-          end
-          UpdatePadID()
-          r.PreventUIRefresh(-1)
-          EndUndoBlock("CLEAR PAD")
-        else
-          r.Undo_BeginBlock()
-          r.PreventUIRefresh(1)
-          local open =  r.TrackFX_GetOpen(track, Pad[a].Pad_ID) -- 0 based
-          r.TrackFX_Show(track, Pad[a].Pad_ID, open and 2 or 3)           -- show/hide floating window   
-          r.PreventUIRefresh(-1)
-          EndUndoBlock("OPEN FX WINDOW")
-        end
+  -- if not r.ImGui_IsItemHovered(ctx) then return end
+  if Pad[a] then
+    if ALT then
+      r.Undo_BeginBlock()
+      r.PreventUIRefresh(1)
+      ClearPad(a, Pad[a].Pad_Num)
+      rev, value = r.GetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a)
+      if rev == 1 then
+      r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, "")
+      end
+      UpdatePadID()
+      r.PreventUIRefresh(-1)
+      EndUndoBlock("CLEAR PAD")
+    else
+      r.Undo_BeginBlock()
+      r.PreventUIRefresh(1)
+      local open =  r.TrackFX_GetOpen(track, Pad[a].Pad_ID) -- 0 based
+      r.TrackFX_Show(track, Pad[a].Pad_ID, open and 2 or 3)           -- show/hide floating window   
+      r.PreventUIRefresh(-1)
+      EndUndoBlock("OPEN FX WINDOW")
     end
+  end
 end
   
 -- right click --
@@ -192,21 +192,21 @@ local function SetTrackSend(bus_track, child_track)
 end
 
 local function SetLowChannel(e)
-    local left = (e - 1) * 2
-    local right = left + 1 
-    left_low = 2^left
-    left_high = 0
-    right_low = 2^right
-    right_high = 0
+  local left = (e - 1) * 2
+  local right = left + 1 
+  left_low = 2^left
+  left_high = 0
+  right_low = 2^right
+  right_high = 0
 end
   
 local function SetHighChannel(e)
-    local left = (e - 1) * 2
-    local right = left + 1 
-    left_low = 0
-    left_high = 2^left
-    right_low = 0
-    right_high = 2^right
+  local left = (e - 1) * 2
+  local right = left + 1 
+  left_low = 0
+  left_high = 2^left
+  right_low = 0
+  right_high = 2^right
 end
 
 local function SetOutputPin(a, default_value)
@@ -255,10 +255,15 @@ local function SetOutputPin(a, default_value)
   local isincontainer, parent_container = r.TrackFX_GetNamedConfigParm(track, Pad[a].Pad_ID, 'parent_container')
   if isincontainer then
     local _, hm_cch = r.TrackFX_GetNamedConfigParm(track, parent_container, 'container_nch')
+    local isnested, n_pc = r.TrackFX_GetNamedConfigParm(track, parent_container, 'parent_container')
     if ch_num > tonumber(hm_cch) then
       r.SetMediaTrackInfo_Value(track, 'I_NCHAN', ch_num)
       r.TrackFX_SetNamedConfigParm(track, parent_container, 'container_nch', ch_num)
       r.TrackFX_SetNamedConfigParm(track, parent_container, 'container_nch_out', ch_num)
+      if isnested then
+        r.TrackFX_SetNamedConfigParm(track, n_pc, 'container_nch', ch_num)
+        r.TrackFX_SetNamedConfigParm(track, n_pc, 'container_nch_out', ch_num)
+      end
     end
   else
     local hm_ch = r.GetMediaTrackInfo_Value(track, 'I_NCHAN')
@@ -329,7 +334,9 @@ local function ExplodePadToTrackViaInput(a)
         CreateNewChildTrack(bus_idx + count, count)
         local dst_track = r.CSurf_TrackFromID(bus_idx + 1 + count, false)
         SetTrackSend(bus_track, dst_track)
+        r.GetTrackSendInfo_Value(track, 0, 1.0, 'D_VOL')
         local rcv_num = r.GetTrackSendInfo_Value(dst_track, -1, 0, 'I_SRCCHAN')
+        r.GetTrackSendInfo_Value(dst_track, -1, 1.0, 'D_VOL')
         Children_GUID.rcv_num[count + 1] = rcv_num
         local child_guid = r.GetTrackGUID(dst_track)
         Children_GUID.child_guid[count + 1] = child_guid
@@ -344,7 +351,9 @@ local function ExplodePadToTrackViaInput(a)
       CreateNewChildTrack(trackidx + 1, 1)
       local child_track = r.CSurf_TrackFromID(trackidx + 2, false)
       SetTrackSend(bus_track, child_track)
+      r.GetTrackSendInfo_Value(track, 0, 1.0, 'D_VOL')
       local rcv_num = r.GetTrackSendInfo_Value(child_track, -1, 0, 'I_SRCCHAN')
+      r.GetTrackSendInfo_Value(child_track, -1, 1.0, 'D_VOL')
       Children_GUID.rcv_num[1] = rcv_num
       local child_guid = r.GetTrackGUID(child_track)
       Children_GUID.child_guid[1] = child_guid
@@ -356,13 +365,15 @@ local function ExplodePadToTrackViaInput(a)
     if not retval then return end
     r.InsertTrackAtIndex(trackidx, false)
     local bus_track = r.CSurf_TrackFromID(trackidx + 1, false)
-    r.GetSetMediaTrackInfo_String(bus_track, 'P_NAME', "Bus", true)
+    r.GetSetMediaTrackInfo_String(bus_track, 'P_NAME', "RDM Bus", true)
     local bus_guid = r.GetTrackGUID(bus_track)
     r.SetProjExtState(0, 'Suzuki_SetNSend_ch', track_guid .. 'bus_guid', bus_guid)
     CreateNewChildTrack(trackidx + 1, 1)
     local child_track = r.CSurf_TrackFromID(trackidx + 2, false)
     SetTrackSend(bus_track, child_track)
+    r.GetTrackSendInfo_Value(track, 0, 1.0, 'D_VOL')
     local rcv_num = r.GetTrackSendInfo_Value(child_track, -1, 0, 'I_SRCCHAN')
+    r.GetTrackSendInfo_Value(child_track, -1, 1.0, 'D_VOL')
     Children_GUID.rcv_num = {}
     Children_GUID.rcv_num[1] = rcv_num
     r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERDEPTH', 1) -- parent folder
@@ -376,7 +387,7 @@ end
 local function ExplodePadsToTracks()
     CountPads()
     r.SetMediaTrackInfo_Value(track, 'I_NCHAN', 128)
-    local drum_id = get_fx_id_from_container_path(track, parent_id)
+    local drum_id = parent_id
     r.TrackFX_SetNamedConfigParm(track, drum_id, 'container_nch', 128)
     r.TrackFX_SetNamedConfigParm(track, drum_id, 'container_nch_out', 128)
     local drum_track = track
@@ -384,7 +395,7 @@ local function ExplodePadsToTracks()
     r.Main_OnCommand(40001, 0)
     for e = 1, pads_idx do
       if e > 64 then last_child = r.CSurf_TrackFromID(track_id + 1 + e, false) break end
-      local pad_id = get_fx_id_from_container_path(track, parent_id, e)
+      local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. e - 1) -- 0 based
       r.Main_OnCommand(40001, 0)
       local retval, pad_name = r.TrackFX_GetNamedConfigParm(drum_track, pad_id, 'renamed_name')
       local child = r.CSurf_TrackFromID(track_id + 1 + e, false)
@@ -465,27 +476,32 @@ local function RenameWindow(a, note_name)
     end
 end
 
-local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offset, end_offset)
-    rs5k_id = get_fx_id_from_container_path(track, parent_id, pad_num, add_pos)
-    r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
-    Pad[a].RS5k_ID = rs5k_id
-    r.TrackFX_Show(track, rs5k_id, 2)
-    r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)             -- Sample mode
-    r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '')
-    r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', filenamebuf) -- add file
-    r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')            -- always necessary
-    --r.TrackFX_SetParam(track, rs5k_id, 11, 1)                           -- obey note offs
-    r.TrackFX_SetParam(track, rs5k_id, 13, start_offset)                -- Sample start offset
-    r.TrackFX_SetParam(track, rs5k_id, 14, end_offset)                  -- Sample end offset
-    -- r.TrackFX_SetParam(track, rs5k_id, 15, take_pitch)                  -- Pitch offset
+local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offset, end_offset, note_name)
+  local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
+  local rs5k_id = ConvertPathToNestedPath(pad_id, add_pos)
+  r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
+  Pad[a].RS5k_ID = rs5k_id
+  r.TrackFX_Show(track, rs5k_id, 2)
+  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)             -- Sample mode
+  r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '')
+  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', filenamebuf) -- add file
+  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')            -- always necessary
+  --r.TrackFX_SetParam(track, rs5k_id, 11, 1)                           -- obey note offs
+  r.TrackFX_SetParam(track, rs5k_id, 13, start_offset)                -- Sample start offset
+  r.TrackFX_SetParam(track, rs5k_id, 14, end_offset)                  -- Sample end offset
+  -- r.TrackFX_SetParam(track, rs5k_id, 15, take_pitch)                  -- Pitch offset
+  local filename = filenamebuf:match("([^\\/]+)%.%w%w*$")
+  if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
+  r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
+  Pad[a].Name = filename
 end
   
 function LoadItemsFromArrange(a)
-    InsertDrumMachine()
-    GetDrumMachineIdx()                                              -- parent_id = num
-    r.Undo_BeginBlock()
-    r.PreventUIRefresh(1)
-    for c = 1, r.CountSelectedMediaItems(0) do                       -- 1 based
+  InsertDrumMachine()
+  GetDrumMachineIdx(track)                                              -- parent_id = num
+  r.Undo_BeginBlock()
+  r.PreventUIRefresh(1)
+  for c = 1, r.CountSelectedMediaItems(0) do                       -- 1 based
       local item = r.GetSelectedMediaItem(0, c - 1)                  -- 0 based
       local take = r.GetActiveTake(item)
       local item_length = r.GetMediaItemInfo_Value(item, 'D_LENGTH') -- double
@@ -504,25 +520,16 @@ function LoadItemsFromArrange(a)
       local start_offset = start_offs / src_length
       local end_offset = (start_offs + item_length) / src_length
       if not Pad[a + c - 1 - d] then
-        CountPads()                                             -- pads_idx = num
+        local pads_idx = CountPads()                                             -- pads_idx = num
         AddPad(getNoteName(notenum + c - 1 - d), a + c - 1 - d) -- pad_id = loc, pad_num = num
-        previous_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num - 1)
-        next_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num + 1)
-        Pad[a + c - 1 - d] = {
-          Previous_Pad_ID = previous_pad_id,
-          Pad_ID = pad_id,
-          Next_Pad_ID = next_pad_id,
-          Pad_Num = pad_num,
-          TblIdx = a + c - 1 - d,
-          Note_Num = a + c - 1 - d
-        }
         AddNoteFilter(notenum + c - 1 - d, pad_num)
-        AddSampleFromArrange(Pad[a + c - 1 - d].Pad_Num, 2, a + c - 1 - d, filenamebuf, start_offset, end_offset)
+        AddSampleFromArrange(Pad[a + c - 1 - d].Pad_Num, 2, a + c - 1 - d, filenamebuf, start_offset, end_offset, getNoteName(notenum + c - 1 - d))
       elseif Pad[a + c - 1 - d].Pad_Num then
         CountPadFX(Pad[a + c - 1 - d].Pad_Num) -- padfx_idx = num
         local found = false
         for rs5k_pos = 1, padfx_idx do
-          find_rs5k = get_fx_id_from_container_path(track, parent_id, Pad[a + c - 1 - d].Pad_Num, rs5k_pos)
+          local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[a + c - 1 - d].Pad_Num - 1) -- 0 based
+          local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. rs5k_pos - 1) -- 0 based
           retval, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'original_name')
           if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
             found = true
@@ -535,7 +542,7 @@ function LoadItemsFromArrange(a)
         end
         if not found then
           AddSampleFromArrange(Pad[a + c - 1 - d].Pad_Num, padfx_idx + 1, a + c - 1 - d, filenamebuf, start_offset,
-            end_offset)
+            end_offset, getNoteName(notenum + c - 1 - d))
         end
       end
       r.SetTrackMIDINoteNameEx(0, track, notenum + c - 1 - d, 0, 'test' .. notenum + c - 1 - d) -- rename in ME
@@ -598,12 +605,12 @@ function PadMenu(a, note_name)
       EndUndoBlock("EXPLODE ALL PADS") 
     end
     if r.ImGui_MenuItem(ctx, 'Clear All Pads##' .. a) then
-      GetDrumMachineIdx()
+      GetDrumMachineIdx(track)
       CountPads()                                                          -- pads_idx = num
       r.Undo_BeginBlock()
       r.PreventUIRefresh(1)
       for i = 1, pads_idx do
-        local clear_pad = get_fx_id_from_container_path(track, parent_id, 1) -- remove whole pad
+        local _, clear_pad = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. 0) -- 0 based
         r.TrackFX_Delete(track, clear_pad)
       end
       Pad = {}
@@ -625,13 +632,33 @@ function PadMenu(a, note_name)
           local dst_track = r.GetTrackSendInfo_Value(track, 0, i - 1, 'P_DESTTRACK') -- 0 based
           r.DeleteTrack(dst_track)
         end
-        Children_GUID = {}
+        Children_GUID = nil
         r.SetMediaTrackInfo_Value(drum_track, 'I_SELECTED', 1) -- select drum track
         r.DeleteTrack(find_bus)
       end
       r.PreventUIRefresh(-1)
       EndUndoBlock("CLEAR ALL PADS") 
     end
+    if r.ImGui_MenuItem(ctx, 'Toggle Open FX Chain Window') then
+      local rv, pc = r.TrackFX_GetNamedConfigParm(track, parent_id, "parent_container")
+      if not rv then
+        if r.TrackFX_GetOpen(track, parent_id) then
+          r.TrackFX_Show(track, parent_id, 0)
+        else
+          r.TrackFX_Show(track, parent_id, 1)
+        end
+      else
+        if r.TrackFX_GetOpen(track, pc) then
+          r.TrackFX_Show(track, pc, 2)
+          while rv do -- to close fx chain until the root
+            r.TrackFX_Show(track, pc, 0)
+            rv, pc = r.TrackFX_GetNamedConfigParm(track, pc, "parent_container")
+          end
+        else
+          r.TrackFX_Show(track, pc, 3)
+        end
+      end
+    end 
       -- if r.ImGui_BeginMenu(ctx, 'Context menu') then
       --  r.ImGui_EndMenu(ctx)
       -- end
@@ -644,14 +671,14 @@ function PadMenu(a, note_name)
 end
   
 function FXLIST()
-    if r.ImGui_IsMouseClicked(ctx, 1) then
-      if not r.ImGui_IsPopupOpen(ctx, "FX LIST") then
-        r.ImGui_OpenPopup(ctx, "FX LIST")
-      end
+  if r.ImGui_IsMouseClicked(ctx, 1) then
+    if not r.ImGui_IsPopupOpen(ctx, "FX LIST") then
+      r.ImGui_OpenPopup(ctx, "FX LIST")
     end
+  end
   
-    if r.ImGui_BeginPopup(ctx, "FX LIST") then
-      Frame()
-      r.ImGui_EndPopup(ctx)
-    end
+  if r.ImGui_BeginPopup(ctx, "FX LIST") then
+    Frame()
+    r.ImGui_EndPopup(ctx)
+  end
 end

@@ -55,16 +55,111 @@ function CheckStaleData()
   --end
 end
 
-function InsertDrumMachine()
-    local found = false
-    local count = r.TrackFX_GetCount(track) -- 1 based
-    for i = 0, count - 1 do
-      local rv, rename = r.TrackFX_GetNamedConfigParm(track, i, 'renamed_name') -- 0 based
-      if rename == 'ReaDrum Machine' then
-        found = true
-        break
-      end
+function get_fx_id_from_container_path(tr, idx1, ...) -- 1based
+  local sc, rv = r.TrackFX_GetCount(tr) + 1, 0x2000000 + idx1
+  local vararg = {}
+  for i, v in ipairs({ ... }) do
+    local ccok, cc = r.TrackFX_GetNamedConfigParm(tr, rv, 'container_count')
+    vararg[i] = v
+    if ccok ~= true then return nil end
+    rv = rv + sc * v
+    sc = sc * (1 + tonumber(cc))
+  end
+  local new_sc, new_rv 
+  if NestedPath then -- if Drum Machine is nested
+    new_vararg = {}
+   for i = 1, #NestedPath do
+    new_vararg[i] = NestedPath[i]
+   end  
+    new_vararg[#new_vararg + 1] = idx1
+   for i = 1, #vararg do
+    new_vararg[#new_vararg + 1] = vararg[i]
+   end
+   local new_sc, new_rv = r.TrackFX_GetCount(track)+1, 0x2000000 + new_vararg[1]
+    for i = 2, #new_vararg do
+    local new_v = new_vararg[i]
+    local new_ccok, new_cc = r.TrackFX_GetNamedConfigParm(track, new_rv, 'container_count')
+    new_ccok = tostring(new_ccok)
+    new_rv = new_rv + new_sc * new_v
+    new_sc = new_sc * (1+tonumber(new_cc))  
     end
+    return new_rv
+  else
+    return rv
+  end
+end
+
+function get_container_path_from_fx_id(tr, fxidx) -- returns a list of 1-based FXIDs as a table from a fx-address, e.g. 1, 2, 4
+  if fxidx & 0x2000000 then
+    local ret = { }
+    local n = reaper.TrackFX_GetCount(tr)
+    local curidx = (fxidx - 0x2000000) % (n+1)
+    local remain = math.floor((fxidx - 0x2000000) / (n+1))
+    if curidx < 1 then return nil end -- bad address
+
+    local addr, addr_sc = curidx + 0x2000000, n + 1
+    while true do
+      local ccok, cc = reaper.TrackFX_GetNamedConfigParm(tr, addr, 'container_count')
+      if not ccok then return nil end -- not a container
+      ret[#ret+1] = curidx
+      n = tonumber(cc)
+      if remain <= n then if remain > 0 then ret[#ret+1] = remain end return ret end
+      curidx = remain % (n+1)
+      remain = math.floor(remain / (n+1))
+      if curidx < 1 then return nil end -- bad address
+      addr = addr + addr_sc * curidx
+      addr_sc = addr_sc * (n+1)
+    end
+  end
+  return { fxid+1 }
+end
+
+function ConvertPathToNestedPath(path_id, target_pos)
+  NestedPath = get_container_path_from_fx_id(track, tonumber(path_id))
+  target_id = get_fx_id_from_container_path(track, target_pos) -- parent -> #1 track, #2 child of parent
+  NestedPath = nil --reset
+  return target_id
+end
+
+local function FindRDMRecursively(track, fxid, scale)
+  local ccok, container_count = r.TrackFX_GetNamedConfigParm(track, fxid, 'container_count')
+  local rv, rename = r.TrackFX_GetNamedConfigParm(track, fxid, 'renamed_name') -- 0 based
+
+  if rename == 'ReaDrum Machine' then
+    found = true
+    parent_id = fxid
+  end
+
+  if ccok then -- next layer
+    local newscale = scale * (tonumber(container_count)+1)
+    for child = 1, tonumber(container_count) do
+      FindRDMRecursively(track, fxid + scale * child, newscale)
+    end
+  end
+  if not found then
+    parent_id = nil
+  end
+end
+
+function GetDrumMachineIdx(track)
+  if not track then return end
+  local found = false
+  count = r.TrackFX_GetCount(track)
+  for i = 1, count do
+    FindRDMRecursively(track, 0x2000000+i, count+1)
+  end
+end
+
+function InsertDrumMachine()
+    --local count = r.TrackFX_GetCount(track) -- 1 based
+    --for i = 0, count - 1 do
+      --local rv, rename = r.TrackFX_GetNamedConfigParm(track, i, 'renamed_name') -- 0 based
+      --if rename == 'ReaDrum Machine' then
+      --  found = true
+      --  break
+      --end
+    --end
+    GetDrumMachineIdx(track)
     if not found then
       r.Undo_BeginBlock()
       r.PreventUIRefresh(1)
@@ -74,108 +169,49 @@ function InsertDrumMachine()
       r.PreventUIRefresh(-1)
       EndUndoBlock("ADD DRUM MACHINE")
     end
-  end
-  
-function GetDrumMachineIdx()
-    local found = false
-    fxcount = r.TrackFX_GetCount(track)                                        -- 1based
-    for fx_idx = 0, fxcount - 1 do
-      rv, rename = r.TrackFX_GetNamedConfigParm(track, fx_idx, 'renamed_name') -- 0 based
-      if rename == 'ReaDrum Machine' then
-        parent_id = fx_idx
-        found = true
-        break
-      end
-      if not found then
-        parent_id = nil
-      end
-    end
-    if parent_id ~= nil then
-    parent_id = parent_id + 1 -- 1 based
-    end
-    return parent_id
-end
-  
-function get_fx_id_from_container_path(tr, idx1, ...) -- 1based
-    local sc, rv = r.TrackFX_GetCount(tr) + 1, 0x2000000 + idx1
-    local vararg = {}
-    for i, v in ipairs({ ... }) do
-      local ccok, cc = r.TrackFX_GetNamedConfigParm(tr, rv, 'container_count')
-      vararg[i] = v
-      if ccok ~= true then return nil end
-      rv = rv + sc * v
-      sc = sc * (1 + tonumber(cc))
-    end
-    local new_sc, new_rv 
-    if DrumMachinePath then -- if Drum Machine is nested
-      new_vararg = {}
-     for i = 1,#DrumMachinePath do
-      new_vararg[i] = DrumMachinePath[i]
-     end  
-      new_vararg[#new_vararg + 1] = idx1
-     for i = 1, #vararg do
-      new_vararg[#new_vararg + 1] = vararg[i]
-     end
-     local new_sc, new_rv = r.TrackFX_GetCount(track)+1, 0x2000000 + new_vararg[1]
-      for i = 2, #new_vararg do
-      local new_v = new_vararg[i]
-      local new_ccok, new_cc = r.TrackFX_GetNamedConfigParm(track, new_rv, 'container_count')
-      new_ccok = tostring(new_ccok)
-      new_rv = new_rv + new_sc * new_v
-      new_sc = new_sc * (1+tonumber(new_cc))  
-      end
-      return new_rv
-    else
-      return rv
-    end
 end
   
 function AddPad(note_name, a) -- pad_id, pad_num
-    if pads_idx == 0 then       -- no pads
-      pad_num = 1
-      pad_id = get_fx_id_from_container_path(track, parent_id, pad_num)
-    else                                                                -- pads exist
-      pad_num = pads_idx + 1
-      pad_id = get_fx_id_from_container_path(track, parent_id, pad_num) -- the last slot after pads
-    end
-    r.TrackFX_AddByName(track, 'Container', false, -1000 - pad_id)      -- Add a pad
-    r.TrackFX_Show(track, pad_id, 2)
-    r.TrackFX_SetNamedConfigParm(track, pad_id, 'renamed_name', note_name)
-    r.TrackFX_SetNamedConfigParm(track, pad_id, 'parallel', 1)          -- set parallel
-    local previous_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num - 1)
-    local next_pad_id = get_fx_id_from_container_path(track, parent_id, pad_num + 1)
-    Pad[a] = {
-      Previous_Pad_ID = previous_pad_id,
-      Pad_ID = pad_id,
-      Next_Pad_ID = next_pad_id,
-      Pad_Num = pad_num,
-      Pad_GUID = r.TrackFX_GetFXGUID(track, pad_id),
-      TblIdx = a,
-      Note_Num = notenum
-    }
-    return pad_id, pad_num
+  local pad_id = ConvertPathToNestedPath(parent_id, pads_idx + 1)
+  local pad_id = tonumber(pad_id)
+  r.TrackFX_AddByName(track, 'Container', false, pad_id)      -- Add a pad
+  r.TrackFX_Show(track, pad_id, 2)
+  r.TrackFX_SetNamedConfigParm(track, pad_id, 'renamed_name', note_name)
+  r.TrackFX_SetNamedConfigParm(track, pad_id, 'parallel', 1)          -- set parallel
+  local previous_pad_id = ConvertPathToNestedPath(parent_id, pads_idx)
+  local next_pad_id = ConvertPathToNestedPath(parent_id, pads_idx + 2)
+  pad_num = pads_idx + 1
+  Pad[a] = {
+    Previous_Pad_ID = previous_pad_id,
+    Pad_ID = pad_id,
+    Next_Pad_ID = next_pad_id,
+    Pad_Num = pads_idx + 1,
+    Pad_GUID = r.TrackFX_GetFXGUID(track, pad_id),
+    TblIdx = a,
+    Note_Num = notenum
+  }
 end
   
 function CountPads()                                                                   -- pads_idx
-    GetDrumMachineIdx()
-    if parent_id == nil then return end
-    rv, pads_idx = r.TrackFX_GetNamedConfigParm(track, parent_id - 1, 'container_count') -- 0 based
-    pads_idx = tonumber(pads_idx)
-    return pads_idx
+  GetDrumMachineIdx(track)
+  if parent_id == nil then return end
+  rv, pads_idx = r.TrackFX_GetNamedConfigParm(track, parent_id, 'container_count') -- 0 based
+  pads_idx = tonumber(pads_idx)
+  return pads_idx
 end
   
-function GetPadGUID()
-    CountPads()
-    for p = 1, pads_idx do
-      pad_id   = get_fx_id_from_container_path(track, parent_id, p)
-      pad_guid = r.TrackFX_GetFXGUID(track, pad_id)
-    end
+local function GetPadGUID()
+  CountPads()
+  for p = 1, pads_idx do
+    local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. p - 1) -- 0 based
+    local pad_guid = r.TrackFX_GetFXGUID(track, pad_id)
+  end
 end
   
 function CountPadFX(pad_num)                                                        -- padfx_idx
-    which_pad = get_fx_id_from_container_path(track, parent_id, pad_num)
-    rv, padfx_idx = r.TrackFX_GetNamedConfigParm(track, which_pad, 'container_count') -- 0 based
-    return padfx_idx
+  local _, which_pad = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
+  rv, padfx_idx = r.TrackFX_GetNamedConfigParm(track, which_pad, 'container_count') -- 0 based
+  return padfx_idx
 end
   
 function EndUndoBlock(str)
@@ -203,9 +239,10 @@ end
 
 function FindNoteFilter(pad_num)
   CountPadFX(pad_num) 
+  local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   if padfx_idx ~= 0 then
     for f = 1, padfx_idx do      
-      local find_filter = get_fx_id_from_container_path(track, parent_id, pad_num, f)
+      local _, find_filter = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. f - 1) -- 0 based
       local retval, buf = r.TrackFX_GetNamedConfigParm(track, find_filter, 'fx_name')
       if buf == "JS: RDM MIDI Note Filter" then
         fi = f
@@ -219,18 +256,24 @@ end
 function UpdatePadID()
   if not track then return end
   Pad = {}
-  GetDrumMachineIdx()
+  GetDrumMachineIdx(track)
   if not parent_id then return end
-  CountPads()
+  local pads_idx = CountPads()
+  local tr_ch = r.GetMediaTrackInfo_Value(track, "I_NCHAN")
+  local isnested, n_pc = r.TrackFX_GetNamedConfigParm(track, parent_id, 'parent_container')
+  if isnested then
+    r.TrackFX_SetNamedConfigParm(track, n_pc, 'container_nch', tr_ch)
+    r.TrackFX_SetNamedConfigParm(track, n_pc, 'container_nch_out', tr_ch)
+  end
   if pads_idx == nil then return end
   for p = 1, pads_idx do
-    FindNoteFilter(p)
-    local filter_id = get_fx_id_from_container_path(track, parent_id, p, fi)
+    local fi = FindNoteFilter(p)
+    local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. p - 1) -- 0 based
+    local _, filter_id = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. fi - 1) -- 0 based
     local rv = r.TrackFX_GetParam(track, filter_id, 0)
     local rv = math.floor(tonumber(rv))
-    local previous_pad_id = get_fx_id_from_container_path(track, parent_id, p - 1)
-    local next_pad_id = get_fx_id_from_container_path(track, parent_id, p + 1)
-    local pad_id = get_fx_id_from_container_path(track, parent_id, p)
+    local previous_pad_id = ConvertPathToNestedPath(parent_id, p - 1)
+    local next_pad_id = ConvertPathToNestedPath(parent_id, p + 1)
     local out_low32l, out_high32l = r.TrackFX_GetPinMappings(track, pad_id, 1, 0)
     local out_low32r, out_high32r = r.TrackFX_GetPinMappings(track, pad_id, 1, 1)
     local out_n_low32l, out_n_high32l = r.TrackFX_GetPinMappings(track, pad_id, 1, 0 + 0x1000000)
@@ -259,10 +302,10 @@ function UpdatePadID()
     CountPadFX(p) -- Set Pad[a].Name
     local found = false
     for f = 1, padfx_idx do
-      local find_rs5k = get_fx_id_from_container_path(track, parent_id, p, f)
+      local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. f - 1) -- 0 based
       local retval, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'original_name')
       if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
-        Pad[rv + 1].RS5k_ID = get_fx_id_from_container_path(track, parent_id, p, f)
+        Pad[rv + 1].RS5k_ID = find_rs5k
         found = true
         local _, bf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'FILE0')  
         local filename = bf:match("([^\\/]+)%.%w%w*$")
@@ -310,7 +353,6 @@ function IterateContainerUpdate(depth, track, container_id, parent_fx_count, pre
     end
     return child_guids
 end
-  
   
 function UpdateFxData()
   if not TRACK then return end
