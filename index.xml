@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="0e325fd9d29284fc9b57539ff8f8c9cf53333e1a">
+<index version="1" name="Suzuki Scripts" commit="40b0b9f45c8c6b9ce82aa3961383e046d44935d7">
   <category name="Development">
     <reapack name="Suzuki_Check stereo channels input bitmask for last touched track or take FX (inside Container).lua" type="script" desc="Check stereo channels input bitmask for last touched track or take FX (inside Container)">
       <metadata>
@@ -883,7 +883,10 @@ Added rpl file for container preset]]></changelog>
 {\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
 \widowctrl\hyphauto
 
+{\pard \ql \f0 \sa180 \li0 \fi0 \b \fs36 ReaDrum Machine\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Prerequisites\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 REAPER v7.06+, ReaImGui, and Sexan's FX Browser\par}
 }
 ]]></description>
         <link rel="website">https://forum.cockos.com/showthread.php?t=284566</link>
