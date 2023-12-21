@@ -3,12 +3,13 @@
 -- @license GPL v3
 -- @version 1.2.3
 -- @changelog 
---  + Added support for ReaDrum Machine inside container. Beware that only one RDM instance per track is allowed, just like it's been up to now.
+--   + Added support for ReaDrum Machine inside container. Beware that only one RDM instance per track is allowed, just like it's been up to now.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
--- # ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
--- ### Prerequisites
--- REAPER v7.06+, ReaImGui, and Sexan's FX Browser
+--   # ReaDrum Machine 
+--   ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
+--   ### Prerequisites
+--   REAPER v7.06+, ReaImGui, and Sexan's FX Browser
 -- @provides
 --   Fonts/Icons.ttf
 --   Modules/*.lua
