@@ -159,7 +159,7 @@ function ClickPadActions(a)
     else
       r.Undo_BeginBlock()
       r.PreventUIRefresh(1)
-      local open =  r.TrackFX_GetOpen(track, Pad[a].Pad_ID) -- 0 based
+      local open = r.TrackFX_GetOpen(track, Pad[a].Pad_ID) -- 0 based
       r.TrackFX_Show(track, Pad[a].Pad_ID, open and 2 or 3)           -- show/hide floating window   
       r.PreventUIRefresh(-1)
       EndUndoBlock("OPEN FX WINDOW")
@@ -309,7 +309,7 @@ local function ExplodePadToTrackViaInput(a)
       local child_track = track_from_guid_str(0, child_track_guid)
       if not child_track then
         table.remove(Children_GUID.child_guid, i)
-        table.remove(Children_GUID.rcv_num, i)
+        table.remove(Children_GUID.rcv_ch, i)
         i = i - 1 
       end
     end
@@ -317,12 +317,12 @@ local function ExplodePadToTrackViaInput(a)
       for i = 1, r.GetTrackNumSends(track, 0) do -- 1 based
         local children = r.CSurf_TrackFromID(bus_idx + i, false)
         if children == nil then match = false goto dokoka end
-        if Children_GUID.rcv_num[i] == rcv_input then -- match src number
+        if Children_GUID.rcv_ch[i] == rcv_input then -- match src number
           match = true
           break
         end
         local src_chan = r.GetTrackSendInfo_Value(track, 0, i - 1, 'I_SRCCHAN') -- 0 based
-        Children_GUID.rcv_num[i] = src_chan
+        Children_GUID.rcv_ch[i] = src_chan
         local dest_track = r.GetTrackSendInfo_Value(track, 0, i - 1, 'P_DESTTRACK') -- 0 based
         local child_guid = r.GetTrackGUID(dest_track)
         Children_GUID.child_guid[i] = child_guid
@@ -334,10 +334,12 @@ local function ExplodePadToTrackViaInput(a)
         CreateNewChildTrack(bus_idx + count, count)
         local dst_track = r.CSurf_TrackFromID(bus_idx + 1 + count, false)
         SetTrackSend(bus_track, dst_track)
-        r.GetTrackSendInfo_Value(track, 0, 1.0, 'D_VOL')
-        local rcv_num = r.GetTrackSendInfo_Value(dst_track, -1, 0, 'I_SRCCHAN')
-        r.GetTrackSendInfo_Value(dst_track, -1, 1.0, 'D_VOL')
-        Children_GUID.rcv_num[count + 1] = rcv_num
+        local send_num = r.GetTrackNumSends(track, 0) 
+        r.SetTrackSendInfo_Value(track, 0, send_num - 1, 'D_VOL', 1.0) -- 0 for sends
+        local rcv_ch = r.GetTrackSendInfo_Value(dst_track, -1, 0, 'I_SRCCHAN')
+        local rcv_num = r.GetTrackNumSends(track, -1) 
+        r.SetTrackSendInfo_Value(dst_track, -1, rcv_num - 1, 'D_VOL', 1.0) -- -1 for receives
+        Children_GUID.rcv_ch[count + 1] = rcv_ch
         local child_guid = r.GetTrackGUID(dst_track)
         Children_GUID.child_guid[count + 1] = child_guid
         r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERDEPTH', 1) -- parent folder
@@ -351,10 +353,10 @@ local function ExplodePadToTrackViaInput(a)
       CreateNewChildTrack(trackidx + 1, 1)
       local child_track = r.CSurf_TrackFromID(trackidx + 2, false)
       SetTrackSend(bus_track, child_track)
-      r.GetTrackSendInfo_Value(track, 0, 1.0, 'D_VOL')
-      local rcv_num = r.GetTrackSendInfo_Value(child_track, -1, 0, 'I_SRCCHAN')
-      r.GetTrackSendInfo_Value(child_track, -1, 1.0, 'D_VOL')
-      Children_GUID.rcv_num[1] = rcv_num
+      r.SetTrackSendInfo_Value(track, 0, 0, 'D_VOL', 1.0)
+      local rcv_ch = r.GetTrackSendInfo_Value(child_track, -1, 0, 'I_SRCCHAN')
+      r.SetTrackSendInfo_Value(child_track, -1, 0, 'D_VOL', 1.0)
+      Children_GUID.rcv_ch[1] = rcv_ch
       local child_guid = r.GetTrackGUID(child_track)
       Children_GUID.child_guid[1] = child_guid
       r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERDEPTH', 1) -- parent folder
@@ -371,11 +373,11 @@ local function ExplodePadToTrackViaInput(a)
     CreateNewChildTrack(trackidx + 1, 1)
     local child_track = r.CSurf_TrackFromID(trackidx + 2, false)
     SetTrackSend(bus_track, child_track)
-    r.GetTrackSendInfo_Value(track, 0, 1.0, 'D_VOL')
-    local rcv_num = r.GetTrackSendInfo_Value(child_track, -1, 0, 'I_SRCCHAN')
-    r.GetTrackSendInfo_Value(child_track, -1, 1.0, 'D_VOL')
-    Children_GUID.rcv_num = {}
-    Children_GUID.rcv_num[1] = rcv_num
+    r.SetTrackSendInfo_Value(track, 0, 0, 'D_VOL', 1.0) -- 0 based
+    local rcv_ch = r.GetTrackSendInfo_Value(child_track, -1, 0, 'I_SRCCHAN')
+    r.SetTrackSendInfo_Value(child_track, -1, 0, 'D_VOL', 1.0)
+    Children_GUID.rcv_ch = {}
+    Children_GUID.rcv_ch[1] = rcv_ch
     r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERDEPTH', 1) -- parent folder
     r.SetMediaTrackInfo_Value(child_track, 'I_FOLDERDEPTH', -1) -- last child track
   end
@@ -439,44 +441,44 @@ local function ExplodePadsToTracks()
 end
   
 local function RenameWindow(a, note_name)
-    local center = { r.ImGui_Viewport_GetCenter(r.ImGui_GetWindowViewport(ctx)) }
-    r.ImGui_SetNextWindowPos(ctx, center[1], center[2], r.ImGui_Cond_Appearing(), 0.5, 0.5)
-    if r.ImGui_BeginPopupModal(ctx, 'Rename a pad?##' .. a, nil, r.ImGui_WindowFlags_AlwaysAutoResize()) then
-      if r.ImGui_IsWindowAppearing(ctx) then
-        r.ImGui_SetKeyboardFocusHere(ctx)
-      end
-      rv, new_name = r.ImGui_InputTextWithHint(ctx, '##Pad Name', 'PAD NAME', new_name,
-        r.ImGui_InputTextFlags_AutoSelectAll())
-      IsInputEdited = r.ImGui_IsItemActive(ctx)
-      if r.ImGui_Button(ctx, 'OK', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Enter()) or
-          r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_KeypadEnter()) then
-        if not Pad[a] then
-          r.ShowConsoleMsg("There's no pad. Insert FX or sample first.")
-        elseif Pad[a] then
-          r.Undo_BeginBlock()
-          r.PreventUIRefresh(1)
-          if #new_name ~= 0 then renamed_name = note_name .. ": " .. new_name else renamed_name = note_name end
-          if renamed_name then
-          r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
-          r.SetTrackMIDINoteNameEx(0, track, notenum, 0, new_name)
-          Pad[a].Rename = new_name
-          r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, new_name)
-          end
-          r.PreventUIRefresh(-1)
-          EndUndoBlock("RENAME PAD") 
-        end
-        r.ImGui_CloseCurrentPopup(ctx)
-      end
-      r.ImGui_SetItemDefaultFocus(ctx)
-      r.ImGui_SameLine(ctx)
-      if r.ImGui_Button(ctx, 'Cancel', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Escape()) then
-        r.ImGui_CloseCurrentPopup(ctx)
-      end
-      r.ImGui_EndPopup(ctx)
+  local center = { r.ImGui_Viewport_GetCenter(r.ImGui_GetWindowViewport(ctx)) }
+   r.ImGui_SetNextWindowPos(ctx, center[1], center[2], r.ImGui_Cond_Appearing(), 0.5, 0.5)
+  if r.ImGui_BeginPopupModal(ctx, 'Rename a pad?##' .. a, nil, r.ImGui_WindowFlags_AlwaysAutoResize()) then
+    if r.ImGui_IsWindowAppearing(ctx) then
+      r.ImGui_SetKeyboardFocusHere(ctx)
     end
+    rv, new_name = r.ImGui_InputTextWithHint(ctx, '##Pad Name', 'PAD NAME', new_name,
+      r.ImGui_InputTextFlags_AutoSelectAll())
+    IsInputEdited = r.ImGui_IsItemActive(ctx)
+    if r.ImGui_Button(ctx, 'OK', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Enter()) or
+        r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_KeypadEnter()) then
+      if not Pad[a] then
+        r.ShowConsoleMsg("There's no pad. Insert FX or sample first.")
+      elseif Pad[a] then
+        r.Undo_BeginBlock()
+        r.PreventUIRefresh(1)
+        if #new_name ~= 0 then renamed_name = note_name .. ": " .. new_name else renamed_name = note_name end
+        if renamed_name then
+        r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
+        r.SetTrackMIDINoteNameEx(0, track, notenum, 0, new_name)
+        Pad[a].Rename = new_name
+        r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, new_name)
+        end
+        r.PreventUIRefresh(-1)
+        EndUndoBlock("RENAME PAD") 
+      end
+      r.ImGui_CloseCurrentPopup(ctx)
+    end
+    r.ImGui_SetItemDefaultFocus(ctx)
+    r.ImGui_SameLine(ctx)
+    if r.ImGui_Button(ctx, 'Cancel', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Escape()) then
+      r.ImGui_CloseCurrentPopup(ctx)
+    end
+    r.ImGui_EndPopup(ctx)
+  end
 end
 
-local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offset, end_offset, note_name)
+local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offset, end_offset, take_pitch, note_name)
   local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   local rs5k_id = ConvertPathToNestedPath(pad_id, add_pos)
   r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
@@ -486,17 +488,19 @@ local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offs
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '')
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', filenamebuf) -- add file
   r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')            -- always necessary
+  --r.TrackFX_SetParam(track, rs5k_id, 0, take_vol)  -- volume 0 .. 1 ..  4
+  r.TrackFX_SetParam(track, rs5k_id, 1, 0.5 + take_pan / 2)  -- pan 0 .. 1
   --r.TrackFX_SetParam(track, rs5k_id, 11, 1)                           -- obey note offs
   r.TrackFX_SetParam(track, rs5k_id, 13, start_offset)                -- Sample start offset
   r.TrackFX_SetParam(track, rs5k_id, 14, end_offset)                  -- Sample end offset
-  -- r.TrackFX_SetParam(track, rs5k_id, 15, take_pitch)                  -- Pitch offset
+  r.TrackFX_SetParam(track, rs5k_id, 15, (take_pitch + 80) / 160)                  -- Pitch offset 0 .. 1
   local filename = filenamebuf:match("([^\\/]+)%.%w%w*$")
   if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
   r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
   Pad[a].Name = filename
 end
   
-function LoadItemsFromArrange(a)
+local function LoadItemsFromArrange(a)
   InsertDrumMachine()
   GetDrumMachineIdx(track)                                              -- parent_id = num
   r.Undo_BeginBlock()
@@ -513,17 +517,46 @@ function LoadItemsFromArrange(a)
       local take_src = r.GetMediaItemTake_Source(take)
       local start_offs = r.GetMediaItemTakeInfo_Value(take, 'D_STARTOFFS')
       local take_pitch = r.GetMediaItemTakeInfo_Value(take, 'D_PITCH') 
-      local take_playrate = r.GetMediaItemTakeInfo_Value(take, 'D_PLAYRATE')
-      local take_pan = r.GetMediaItemTakeInfo_Value(take, 'D_PAN')
+      if take_pitch > 80 then
+        take_pitch = 80
+      elseif take_pitch < -80 then
+        take_pitch = -80
+      end
+      local take_playrate = r.GetMediaItemTakeInfo_Value(take, 'D_PLAYRATE') 
+      --local take_vol = r.GetMediaItemTakeInfo_Value(take, 'D_VOL')
+      --local test = r.GetMediaItemInfo_Value(item, 'D_VOL')
+      --if take_vol < -120 then
+      --  take_vol = -120
+      --elseif take_vol > 12 then
+      --  take_vol = 12
+      --end
+      --if take_vol > 0 then
+      -- take_vol = take_vol / 3
+      --elseif take_vol < 0 then
+      --  take_vol = take_vol / 120 + 1
+      --else
+      --  take_vol = 1
+      --end
+      take_pan = r.GetMediaItemTakeInfo_Value(take, 'D_PAN')
       local src_length = r.GetMediaSourceLength(take_src)
-      local filenamebuf = r.GetMediaSourceFileName(take_src, '')
+      local filenamebuf = r.GetMediaSourceFileName(take_src) -- can't get a name from a reversed take
+      local ret, offs, len, rvrs = r.PCM_Source_GetSectionInfo(take_src)
+      if rvrs or take_playrate ~= 1.0 then
+        r.Main_OnCommand(41588, 0)
+        --local target_filename = filenamebuf:match("([^\\/]+)%.%w%w*$")
+        --r.RenderFileSection(filenamebuf, target_filename .. "_reversed", 0.0, 1.0, 1.0)
+        local item = r.GetSelectedMediaItem(0, c - 1)                  -- 0 based
+        local take = r.GetActiveTake(item)
+        local take_src = r.GetMediaItemTake_Source(take)
+        filenamebuf = r.GetMediaSourceFileName(take_src)
+      end
       local start_offset = start_offs / src_length
       local end_offset = (start_offs + item_length) / src_length
       if not Pad[a + c - 1 - d] then
         local pads_idx = CountPads()                                             -- pads_idx = num
         AddPad(getNoteName(notenum + c - 1 - d), a + c - 1 - d) -- pad_id = loc, pad_num = num
         AddNoteFilter(notenum + c - 1 - d, pad_num)
-        AddSampleFromArrange(Pad[a + c - 1 - d].Pad_Num, 2, a + c - 1 - d, filenamebuf, start_offset, end_offset, getNoteName(notenum + c - 1 - d))
+        AddSampleFromArrange(Pad[a + c - 1 - d].Pad_Num, 2, a + c - 1 - d, filenamebuf, start_offset, end_offset, take_pitch, getNoteName(notenum + c - 1 - d))
       elseif Pad[a + c - 1 - d].Pad_Num then
         CountPadFX(Pad[a + c - 1 - d].Pad_Num) -- padfx_idx = num
         local found = false
@@ -542,14 +575,14 @@ function LoadItemsFromArrange(a)
         end
         if not found then
           AddSampleFromArrange(Pad[a + c - 1 - d].Pad_Num, padfx_idx + 1, a + c - 1 - d, filenamebuf, start_offset,
-            end_offset, getNoteName(notenum + c - 1 - d))
+            end_offset, take_pitch, getNoteName(notenum + c - 1 - d))
         end
       end
-      r.SetTrackMIDINoteNameEx(0, track, notenum + c - 1 - d, 0, 'test' .. notenum + c - 1 - d) -- rename in ME
-      ::NEXT::
-    end
-    r.PreventUIRefresh(-1)
-    EndUndoBlock("LOAD ITEMS FROM ARRANGE")
+    r.SetTrackMIDINoteNameEx(0, track, notenum + c - 1 - d, 0, 'test' .. notenum + c - 1 - d) -- rename in ME
+    ::NEXT::
+  end
+  r.PreventUIRefresh(-1)
+  EndUndoBlock("LOAD ITEMS FROM ARRANGE")
 end
 
 function PadMenu(a, note_name)
