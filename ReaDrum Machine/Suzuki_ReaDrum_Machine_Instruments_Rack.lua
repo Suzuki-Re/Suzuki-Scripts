@@ -1,9 +1,10 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.2.3
+-- @version 1.2.4
 -- @changelog 
---   + Added support for ReaDrum Machine inside container. Beware that only one RDM instance per track is allowed, just like it's been up to now.
+--   + Added support for reversed state, playrate (stretch), pan, pitch of samples from arrange.
+--   # Fixed the default send/receive volume bug.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine 
