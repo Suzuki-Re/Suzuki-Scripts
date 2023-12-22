@@ -517,7 +517,6 @@ local function LoadItemsFromArrange(a)
   end
   for c = 1, SelectedMedia_Num do                       -- 1 based
       local item = r.GetSelectedMediaItem(0, c - 1)                  -- 0 based
-      r.ShowConsoleMsg(c)
       local take = r.GetMediaItemTakeByGUID(0, Take_GUID[c])
       local item_length = r.GetMediaItemInfo_Value(item, 'D_LENGTH') -- double
       d = 0
