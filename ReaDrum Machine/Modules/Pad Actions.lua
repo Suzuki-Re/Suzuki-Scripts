@@ -478,7 +478,7 @@ local function RenameWindow(a, note_name)
   end
 end
 
-local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offset, end_offset, take_pitch, note_name)
+local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offset, end_offset, take_pitch, note_name, rvrs)
   local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   local rs5k_id = ConvertPathToNestedPath(pad_id, add_pos)
   r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
@@ -505,9 +505,20 @@ local function LoadItemsFromArrange(a)
   GetDrumMachineIdx(track)                                              -- parent_id = num
   r.Undo_BeginBlock()
   r.PreventUIRefresh(1)
-  for c = 1, r.CountSelectedMediaItems(0) do                       -- 1 based
+  local SelectedMedia_Num = r.CountSelectedMediaItems(0)
+  for c = 1, SelectedMedia_Num do
+    local item = r.GetSelectedMediaItem(0, c - 1)                  -- 0 based
+    local take = r.GetActiveTake(item)
+    local rv, take_guid = r.GetSetMediaItemTakeInfo_String(take, 'GUID', "", false)
+    if not Take_GUID then
+      Take_GUID = {}
+    end
+    Take_GUID[c] = take_guid
+  end
+  for c = 1, SelectedMedia_Num do                       -- 1 based
       local item = r.GetSelectedMediaItem(0, c - 1)                  -- 0 based
-      local take = r.GetActiveTake(item)
+      r.ShowConsoleMsg(c)
+      local take = r.GetMediaItemTakeByGUID(0, Take_GUID[c])
       local item_length = r.GetMediaItemInfo_Value(item, 'D_LENGTH') -- double
       d = 0
       if not take or r.TakeIsMIDI(take) then
@@ -541,17 +552,30 @@ local function LoadItemsFromArrange(a)
       local src_length = r.GetMediaSourceLength(take_src)
       local filenamebuf = r.GetMediaSourceFileName(take_src) -- can't get a name from a reversed take
       local ret, offs, len, rvrs = r.PCM_Source_GetSectionInfo(take_src)
+      local start_offset = start_offs / src_length
+      local end_offset = (start_offs + item_length) / src_length
       if rvrs or take_playrate ~= 1.0 then
+        r.SelectAllMediaItems(0, false)    -- unselect all
+        r.SetMediaItemSelected(item, true)
         r.Main_OnCommand(41588, 0)
         --local target_filename = filenamebuf:match("([^\\/]+)%.%w%w*$")
         --r.RenderFileSection(filenamebuf, target_filename .. "_reversed", 0.0, 1.0, 1.0)
-        local item = r.GetSelectedMediaItem(0, c - 1)                  -- 0 based
+        local item = r.GetSelectedMediaItem(0, 0)                  -- 0 based
         local take = r.GetActiveTake(item)
+        local rv, take_guid = r.GetSetMediaItemTakeInfo_String(take, 'GUID', "", false)
+        Take_GUID[c] = take_guid
+        for s = 1, #Take_GUID do -- reselect items
+          if Take_GUID[s] then
+            local take = r.GetMediaItemTakeByGUID(0, Take_GUID[s])
+            local item = r.GetMediaItemTake_Item(take)
+            r.SetMediaItemSelected(item, true)
+          end
+        end
         local take_src = r.GetMediaItemTake_Source(take)
         filenamebuf = r.GetMediaSourceFileName(take_src)
+        start_offset = 0
+        end_offset = 1
       end
-      local start_offset = start_offs / src_length
-      local end_offset = (start_offs + item_length) / src_length
       if not Pad[a + c - 1 - d] then
         local pads_idx = CountPads()                                             -- pads_idx = num
         AddPad(getNoteName(notenum + c - 1 - d), a + c - 1 - d) -- pad_id = loc, pad_num = num
@@ -581,6 +605,7 @@ local function LoadItemsFromArrange(a)
     r.SetTrackMIDINoteNameEx(0, track, notenum + c - 1 - d, 0, 'test' .. notenum + c - 1 - d) -- rename in ME
     ::NEXT::
   end
+  Take_GUID = nil
   r.PreventUIRefresh(-1)
   EndUndoBlock("LOAD ITEMS FROM ARRANGE")
 end
