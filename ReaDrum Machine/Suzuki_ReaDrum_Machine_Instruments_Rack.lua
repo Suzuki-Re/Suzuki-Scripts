@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.2.5
+-- @version 1.2.6
 -- @changelog 
---   # Hot-fix: Loading reversed takes
+--   Forgot to remove console msg
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine 
