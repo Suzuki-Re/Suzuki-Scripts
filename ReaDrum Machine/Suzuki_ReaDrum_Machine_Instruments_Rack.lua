@@ -1,12 +1,13 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.2.6
+-- @version 1.2.7
 -- @changelog 
---   Forgot to remove console msg
+--   + Added RDM Tools section to FX List
+--   # Changed "Explode Pad to Track" menu name to avoid confusion
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
---   # ReaDrum Machine 
+--   # ReaDrum Machine
 --   ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 --   ### Prerequisites
 --   REAPER v7.06+, ReaImGui, and Sexan's FX Browser
