@@ -17,7 +17,13 @@
 // Etat sample suivant : Buffer A en ecriture // Buffer B en lecture (plein)
 //
 // ==========================================================
+
+NoIndex: true
 desc:Reverse Audio (Methode Double-Buffer)
+tags: reverse
+version: 1.0
+author: Tonton Darmon
+changelog: Initial Release
 
 // ==========================================================
 slider1:2<1,2,1>1=Normal 2=Reverse
