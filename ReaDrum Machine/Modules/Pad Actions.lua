@@ -478,7 +478,7 @@ local function RenameWindow(a, note_name)
   end
 end
 
-local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offset, end_offset, take_pitch, note_name, rvrs)
+local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offset, end_offset, take_pitch, note_name)
   local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   local rs5k_id = ConvertPathToNestedPath(pad_id, add_pos)
   r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
@@ -506,7 +506,7 @@ local function LoadItemsFromArrange(a)
   r.Undo_BeginBlock()
   r.PreventUIRefresh(1)
   local SelectedMedia_Num = r.CountSelectedMediaItems(0)
-  for c = 1, SelectedMedia_Num do
+  for c = 1, SelectedMedia_Num do -- storing info about which items are selected
     local item = r.GetSelectedMediaItem(0, c - 1)                  -- 0 based
     local take = r.GetActiveTake(item)
     local rv, take_guid = r.GetSetMediaItemTakeInfo_String(take, 'GUID', "", false)
@@ -571,8 +571,8 @@ local function LoadItemsFromArrange(a)
           end
         end
         local take_src = r.GetMediaItemTake_Source(take)
-        filenamebuf = r.GetMediaSourceFileName(take_src)
-        start_offset = 0
+        filenamebuf = r.GetMediaSourceFileName(take_src) -- new path
+        start_offset = 0 -- overwriting them since the file is rendered as a new file
         end_offset = 1
       end
       if not Pad[a + c - 1 - d] then
@@ -626,7 +626,7 @@ function PadMenu(a, note_name)
       SetOutputPin(a, 2)
       EndUndoBlock("SET PAD'S OUTPUT PINS")
     end
-    if r.ImGui_MenuItem(ctx, 'Explode Pad to Track via Input##' .. a) then
+    if r.ImGui_MenuItem(ctx, 'Explode Pad to Track##' .. a) then
       ExplodePadToTrackViaInput(a)
     end
     if r.ImGui_MenuItem(ctx, 'Toggle Obey note offs##' .. a) then

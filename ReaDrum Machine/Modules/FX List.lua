@@ -172,6 +172,17 @@ function Frame()
       end
     end
   end
+  if r.ImGui_BeginMenu(ctx, "RDM TOOLS") then
+    r.Undo_BeginBlock()
+    if r.ImGui_Selectable(ctx, "Reverse Effect") then
+      r.TrackFX_AddByName(TRACK, "Reverse Audio (Methode Double-Buffer)", false,
+        -1000 - r.TrackFX_GetCount(TRACK))
+      LAST_USED_FX = "Reverse Effect"
+    end
+    DndAddFX_SRC("Reverse Audio (Methode Double-Buffer)")
+    EndUndoBlock("ADD REVERSE EFFECTS")
+    r.ImGui_EndMenu(ctx)
+  end
   if r.ImGui_Selectable(ctx, "CONTAINER") then
     r.TrackFX_AddByName(TRACK, "Container", false,
       -1000 - r.TrackFX_GetCount(TRACK))
