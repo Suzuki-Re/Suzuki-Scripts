@@ -1,10 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.2.4
+-- @version 1.2.5
 -- @changelog 
---   + Added support for reversed state, playrate (stretch), pan, pitch of samples from arrange.
---   # Fixed the default send/receive volume bug.
+--   # Hot-fix: Loading reversed takes
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine 
