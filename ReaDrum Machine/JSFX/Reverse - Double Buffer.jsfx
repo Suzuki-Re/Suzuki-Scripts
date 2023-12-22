@@ -1,0 +1,112 @@
+// ==========================================================
+// Reverse Audio - Methode Double-Buffer
+//
+// Auteur : Tonton Darmon - No copyright (pourquoi faire ?)
+// Contribution free : REAPER - Forum FR.
+//
+// Code source NON optimise pour 1 meilleure lecture
+//
+// ==========================================================
+// Effet reverse audio sur buffer tampon d'une seconde.
+//
+// Principe "Double-Buffer"
+//
+// Etat initial : Buffer A vide // Buffer B vide
+// Etat 1er sample : Buffer A en ecriture // Buffer B en lecture (vide)
+// Buffer A plein : copie Buffer A vers Buffer B // Reset Buffer A
+// Etat sample suivant : Buffer A en ecriture // Buffer B en lecture (plein)
+//
+// ==========================================================
+desc:Reverse Audio (Methode Double-Buffer)
+
+// ==========================================================
+slider1:2<1,2,1>1=Normal 2=Reverse
+
+// ==========================================================
+@init
+
+// Frequence echantillon par sec. (44100 ou 48000 en general)
+long_sample = srate ;
+
+// Reserve RAM
+freembuf((long_sample +1) * 2);
+
+// Reset Array Global
+buffer = 0 ;
+memset(buffer , 0 , (long_sample +1) * 2 );
+
+// Var et Flags
+flag_sample = 0 ;     // Start sample ok
+nbre_sample = 0 ;     // Cpt samples
+
+// Const Buffer A et Buffer B
+constBuffA = 0 ;
+constBuffB = (long_sample * 2) -1 ;
+
+// Init Offset Buffer A et Buffer B  
+buffA = constBuffA ;     // Start buffer A Ecriture
+buffB = constBuffB ;     // Start buffer B Lecture
+
+// ==========================================================
+@sample
+
+// Reception sample (canal0 + canal 1)
+canal01 = (spl0 + spl1) * 0.5 ;
+
+// En attente d'un sample "sonore"
+flag_sample == 0 ?
+  (
+  // debut du sample ?
+  ceil(abs(canal01) * 100000000) > 1 ? flag_sample = 1 ;
+  );
+
+// bloc sample ?
+flag_sample == 1 ?
+  (
+    // Ecriture buffer A
+    buffer[buffA] = canal01 ;
+    
+    // Output buffer A - normal
+    slider1 == 1 ?
+      (
+      spl0 = buffer[buffA] ;
+      spl1 = spl0 ; 
+      );
+    // Output buffer B - reverse
+    slider1 == 2 ?
+      (
+      spl0 = buffer[buffB] ;
+      spl1 = spl0 ; 
+      );
+        
+    // Inc Offset ecriture buffer A
+    buffA += 1 ;      
+    
+    // Dec Offset lecture buffer B
+    buffB -= 1 ;
+
+    // Compteur
+    nbre_sample += 1 ;
+    
+    // Buffer Full ?    
+    nbre_sample >= long_sample ? 
+        (
+        // Copie buffer A vers Buffer B
+        buffer = 0 ;
+        memcpy(buffer + long_sample , buffer , long_sample);
+        
+        // Reset buffer A
+        buffer = 0 ;         
+        memset(buffer , 0 , long_sample );
+        
+        // Reset Var
+        nbre_sample = 0 ;        
+        flag_sample = 0 ;
+
+        // Reset Offset 
+        buffA = constBuffA ;     // Start buffer A Ecriture
+        buffB = constBuffB ;     // Start buffer B Lecture
+        );
+  );
+// ==================== THIS IS THE END =====================
+
