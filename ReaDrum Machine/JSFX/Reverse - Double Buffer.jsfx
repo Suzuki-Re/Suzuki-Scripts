@@ -1,29 +1,19 @@
-// ==========================================================
-// Reverse Audio - Methode Double-Buffer
-//
-// Auteur : Tonton Darmon - No copyright (pourquoi faire ?)
-// Contribution free : REAPER - Forum FR.
-//
-// Code source NON optimise pour 1 meilleure lecture
-//
-// ==========================================================
-// Effet reverse audio sur buffer tampon d'une seconde.
-//
-// Principe "Double-Buffer"
-//
-// Etat initial : Buffer A vide // Buffer B vide
-// Etat 1er sample : Buffer A en ecriture // Buffer B en lecture (vide)
-// Buffer A plein : copie Buffer A vers Buffer B // Reset Buffer A
-// Etat sample suivant : Buffer A en ecriture // Buffer B en lecture (plein)
-//
-// ==========================================================
-
 NoIndex: true
 desc:Reverse Audio (Methode Double-Buffer)
 tags: reverse
 version: 1.0
 author: Tonton Darmon
 changelog: Initial Release
+about:
+  # Reverse Audio - Methode Double-Buffer
+  Contribution free : REAPER - Forum FR. Code source NON optimise pour 1 meilleure lecture
+  Effet reverse audio sur buffer tampon d'une seconde. Principe "Double-Buffer"
+  Etat initial : Buffer A vide // Buffer B vide
+  Etat 1er sample : Buffer A en ecriture // Buffer B en lecture (vide)
+  Buffer A plein : copie Buffer A vers Buffer B // Reset Buffer A
+  Etat sample suivant : Buffer A en ecriture // Buffer B en lecture (plein)
+  ### License
+   No copyright (pourquoi faire ?)
 
 // ==========================================================
 slider1:2<1,2,1>1=Normal 2=Reverse
