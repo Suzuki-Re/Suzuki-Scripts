@@ -1,0 +1,22 @@
+BYPASS 0 0
+<JS "Suzuki Scripts/lewloiwc's Sound Design Suite/lewloiwc_midi_trigger_envelope.jsfx" ""
+  0 1 50 0 200 2 50 100 2 0 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+>
+FXID {4F27FDEF-155D-44C0-B0A2-1D74770CB048}
+WAK 0 0
+BYPASS 0 0
+<JS "ReaTeam JSFX/Filter/tilr_SKFilter.jsfx" ""
+  1 0 -2 0.155 0.7 0 0 - - 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+>
+JS_DIMS 507 522
+FXID {2510E81A-94E9-434C-AB39-C18B87B19C7A}
+<PROGRAMENV 3 0 "Cutoff / SKFilter"
+  PARAMBASE 0.155
+  LFO 0
+  LFOWT 1 1
+  AUDIOCTL 0
+  AUDIOCTLWT 1 1
+  PLINK 1 1:-1 10 0 ""
+  MODWND 0 450 648 854 908
+>
+WAK 0 0
