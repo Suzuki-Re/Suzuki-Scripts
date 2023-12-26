@@ -178,25 +178,46 @@ function ClickPadActions(a)
         SELECTED[tostring(a)] = true
       end
     else
-      r.Undo_BeginBlock()
-      r.PreventUIRefresh(1)
       if SELECTED then
-        local open = r.TrackFX_GetOpen(track, Pad[a].Pad_ID) -- open/close Pad[a]
-        r.TrackFX_Show(track, Pad[a].Pad_ID, open and 2 or 3) 
+        r.Undo_BeginBlock()      
         for k, v in pairs(SELECTED) do
           local k = tonumber(k)
-          if Pad[k] and Pad[k] ~= Pad[a] then -- open/close the rest
+          if Pad[k] then -- open/close the rest
             local open = r.TrackFX_GetOpen(track, Pad[k].Pad_ID) -- 0 based
-            r.TrackFX_Show(track, Pad[k].Pad_ID, open and 2 or 3)           -- show/hide floating window  
+            if open then
+              r.TrackFX_Show(track, Pad[k].Pad_ID, 2)           -- hide floating window
+            else
+              r.TrackFX_Show(track, Pad[k].Pad_ID, 3)           -- show floating window
+              local _, fx_id = r.TrackFX_GetNamedConfigParm(track, Pad[k].Pad_ID, "container_item." .. 1)
+              local isfilter_visible = r.TrackFX_GetOpen(track,  Pad[k].Filter_ID)
+              if isfilter_visible then
+                r.PreventUIRefresh(1)
+                r.TrackFX_SetOpen(track, fx_id, 1)
+                r.UpdateArrange()
+                r.PreventUIRefresh(-1)
+              end
+            end
           end
         end
         SELECTED = nil
+        EndUndoBlock("OPEN FX WINDOW")
       else
         local open = r.TrackFX_GetOpen(track, Pad[a].Pad_ID) -- 0 based
-        r.TrackFX_Show(track, Pad[a].Pad_ID, open and 2 or 3)           -- show/hide floating window  
-      end 
-      r.PreventUIRefresh(-1)
-      EndUndoBlock("OPEN FX WINDOW")
+        if open then
+          r.Undo_BeginBlock()
+          r.TrackFX_Show(track, Pad[a].Pad_ID, 2)           -- hide floating window
+          EndUndoBlock("HIDE FX WINDOW")
+        else
+          r.Undo_BeginBlock()
+          r.TrackFX_Show(track, Pad[a].Pad_ID, 3)           -- show floating window
+          EndUndoBlock("OPEN FX WINDOW")
+          local _, fx_id = r.TrackFX_GetNamedConfigParm(track, Pad[a].Pad_ID, "container_item." .. 1)
+          local isfilter_visible = r.TrackFX_GetOpen(track,  Pad[a].Filter_ID)
+          if isfilter_visible then
+            r.TrackFX_SetOpen(track, fx_id, 1)
+          end
+        end
+      end
     end
   else
     if SHIFT then
