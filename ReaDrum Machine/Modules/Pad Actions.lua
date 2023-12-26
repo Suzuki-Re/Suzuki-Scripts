@@ -148,25 +148,72 @@ function ClickPadActions(a)
     if ALT then
       r.Undo_BeginBlock()
       r.PreventUIRefresh(1)
-      ClearPad(a, Pad[a].Pad_Num)
+      if SELECTED then
+        ClearPad(a, Pad[a].Pad_Num)
+        for k, v in pairs(SELECTED) do
+          UpdatePadID()
+          local k = tonumber(k)
+          if Pad[k] ~= Pad[a] then
+            ClearPad(k, Pad[k].Pad_Num)
+          end
+        end
+        SELECTED = nil
+      else
+        ClearPad(a, Pad[a].Pad_Num)
+      end
       rev, value = r.GetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a)
       if rev == 1 then
-      r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, "")
+        r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, "")
       end
       UpdatePadID()
       r.PreventUIRefresh(-1)
       EndUndoBlock("CLEAR PAD")
+    elseif SHIFT and not r.ImGui_IsMouseDoubleClicked(ctx, 0) then
+      if SELECTED and SELECTED[tostring(a)] then -- unselect
+        SELECTED[tostring(a)] = nil
+      else
+        if not SELECTED then
+          SELECTED = {}
+        end
+        SELECTED[tostring(a)] = true
+      end
     else
       r.Undo_BeginBlock()
       r.PreventUIRefresh(1)
-      local open = r.TrackFX_GetOpen(track, Pad[a].Pad_ID) -- 0 based
-      r.TrackFX_Show(track, Pad[a].Pad_ID, open and 2 or 3)           -- show/hide floating window   
+      if SELECTED then
+        local open = r.TrackFX_GetOpen(track, Pad[a].Pad_ID) -- open/close Pad[a]
+        r.TrackFX_Show(track, Pad[a].Pad_ID, open and 2 or 3) 
+        for k, v in pairs(SELECTED) do
+          local k = tonumber(k)
+          if Pad[k] and Pad[k] ~= Pad[a] then -- open/close the rest
+            local open = r.TrackFX_GetOpen(track, Pad[k].Pad_ID) -- 0 based
+            r.TrackFX_Show(track, Pad[k].Pad_ID, open and 2 or 3)           -- show/hide floating window  
+          end
+        end
+        SELECTED = nil
+      else
+        local open = r.TrackFX_GetOpen(track, Pad[a].Pad_ID) -- 0 based
+        r.TrackFX_Show(track, Pad[a].Pad_ID, open and 2 or 3)           -- show/hide floating window  
+      end 
       r.PreventUIRefresh(-1)
       EndUndoBlock("OPEN FX WINDOW")
     end
+  else
+    if SHIFT then
+      if SELECTED and SELECTED[tostring(a)] then
+        SELECTED[tostring(a)] = nil
+      else
+        if not SELECTED then
+          SELECTED = {}
+        end
+        SELECTED[tostring(a)] = true -- ipairs is for sereal numbers
+      end
+    else
+      SELECTED = nil
+    end
   end
 end
-  
+
 -- right click --
 local function CreateNewChildTrack(insert_loc, child_num)
   r.InsertTrackAtIndex(insert_loc, false)
@@ -209,10 +256,9 @@ local function SetHighChannel(e)
   right_high = 2^right
 end
 
-local function SetOutputPin(a, default_value)
+local function SetOutputPin(a, chan_num)
   if not Pad[a] then return end
-  retval, chan_num = r.GetUserInputs('Set Stereo Output Channel', 1, 'Left or Right Output Channel Number', default_value)
-
+  
   local num = tonumber(chan_num)
   if num == nil then
     error("Channel number must be a number") 
@@ -289,13 +335,10 @@ end
 local function ExplodePadToTrackViaInput(a)
   if not Pad[a] then return end
   r.Undo_BeginBlock()
-  SetOutputPin(a, 4)
-
   local rv, bus_guid = r.GetProjExtState(0, 'Suzuki_SetNSend_ch', track_guid .. 'bus_guid')
   local find_bus = track_from_guid_str(0, bus_guid)
   
   if rv ~= 0 and find_bus ~= nil then -- Sending signal to new track, 2nd+ times
-    if not retval then return end
     local bus_track = track_from_guid_str(0, bus_guid)
     local bus_idx = r.CSurf_TrackToID(bus_track, false)
     local rv, pExtStateStr = r.GetProjExtState(0, "Suzuki_SetNSend_ch", track_guid .. "child_guid") -- read pickled table string value from project extended states
@@ -364,7 +407,6 @@ local function ExplodePadToTrackViaInput(a)
     end
     r.SetProjExtState(0, 'Suzuki_SetNSend_ch', track_guid .. 'bus_guid', bus_guid)
   else -- no "bus" track in the project
-    if not retval then return end
     r.InsertTrackAtIndex(trackidx, false)
     local bus_track = r.CSurf_TrackFromID(trackidx + 1, false)
     r.GetSetMediaTrackInfo_String(bus_track, 'P_NAME', "RDM Bus", true)
@@ -442,7 +484,7 @@ end
   
 local function RenameWindow(a, note_name)
   local center = { r.ImGui_Viewport_GetCenter(r.ImGui_GetWindowViewport(ctx)) }
-   r.ImGui_SetNextWindowPos(ctx, center[1], center[2], r.ImGui_Cond_Appearing(), 0.5, 0.5)
+  r.ImGui_SetNextWindowPos(ctx, center[1], center[2], r.ImGui_Cond_Appearing(), 0.5, 0.5)
   if r.ImGui_BeginPopupModal(ctx, 'Rename a pad?##' .. a, nil, r.ImGui_WindowFlags_AlwaysAutoResize()) then
     if r.ImGui_IsWindowAppearing(ctx) then
       r.ImGui_SetKeyboardFocusHere(ctx)
@@ -452,17 +494,34 @@ local function RenameWindow(a, note_name)
     IsInputEdited = r.ImGui_IsItemActive(ctx)
     if r.ImGui_Button(ctx, 'OK', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Enter()) or
         r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_KeypadEnter()) then
-      if not Pad[a] then
+      if not Pad[a] and not SELECTED then
         r.ShowConsoleMsg("There's no pad. Insert FX or sample first.")
-      elseif Pad[a] then
+      else
         r.Undo_BeginBlock()
         r.PreventUIRefresh(1)
         if #new_name ~= 0 then renamed_name = note_name .. ": " .. new_name else renamed_name = note_name end
         if renamed_name then
-        r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
-        r.SetTrackMIDINoteNameEx(0, track, notenum, 0, new_name)
-        Pad[a].Rename = new_name
-        r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, new_name)
+          if SELECTED then
+            for k, v in pairs(SELECTED) do
+              UpdatePadID()
+              local notenum = k - 1
+              local note_name = getNoteName(notenum)
+              if #new_name ~= 0 then renamed_name = note_name .. ": " .. new_name else renamed_name = note_name end
+              local k = tonumber(k)
+              if Pad[k] then 
+                r.TrackFX_SetNamedConfigParm(track, Pad[k].Pad_ID, "renamed_name", renamed_name)
+                r.SetTrackMIDINoteNameEx(0, track, notenum, 0, new_name)
+                Pad[k].Rename = new_name
+                r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. k, new_name)
+              end
+            end
+            SELECTED = nil
+          else
+            r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
+            r.SetTrackMIDINoteNameEx(0, track, notenum, 0, new_name)
+            Pad[a].Rename = new_name
+            r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, new_name)
+          end
         end
         r.PreventUIRefresh(-1)
         EndUndoBlock("RENAME PAD") 
@@ -623,33 +682,101 @@ function PadMenu(a, note_name)
     end 
     if r.ImGui_MenuItem(ctx, "Set Pad's Output Pin Mappings##" .. a) then
       r.Undo_BeginBlock()
-      SetOutputPin(a, 2)
+      if SELECTED then
+        local retval, chan_num = r.GetUserInputs('Set Stereo Output Channel', 1, 'Left or Right Output Channel Number', 2)
+        if not retval then return end
+        for k, v in pairs(SELECTED) do
+          UpdatePadID()
+          local k = tonumber(k)
+          if Pad[k] then 
+            SetOutputPin(k, chan_num)
+          end
+        end
+        SELECTED = nil
+      else
+        local retval, chan_num = r.GetUserInputs('Set Stereo Output Channel', 1, 'Left or Right Output Channel Number', 2)
+        if not retval then return end
+        SetOutputPin(a, chan_num)
+      end
       EndUndoBlock("SET PAD'S OUTPUT PINS")
     end
     if r.ImGui_MenuItem(ctx, 'Explode Pad to Track##' .. a) then
-      ExplodePadToTrackViaInput(a)
+      r.Undo_BeginBlock()
+      local retval, chan_num = r.GetUserInputs('Set Stereo Output Channel', 1, 'Left or Right Output Channel Number', 4)
+      if not retval then return end
+      if SELECTED then
+        ExplodePadToTrackViaInput(a)
+        for k, v in pairs(SELECTED) do
+          UpdatePadID()
+          local k = tonumber(k)
+          if Pad[k] then 
+            SetOutputPin(k, chan_num)
+          end
+        end
+        SELECTED = nil
+      else
+        SetOutputPin(a, chan_num)
+        ExplodePadToTrackViaInput(a)
+      end
+      EndUndoBlock("SET PAD'S OUTPUT PINS")
     end
     if r.ImGui_MenuItem(ctx, 'Toggle Obey note offs##' .. a) then
-      if Pad[a] and Pad[a].RS5k_ID then
-        local rv = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 11)
-        if rv == 0 then
-        r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 1) -- obey note offs on
-        else
-          r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 0)
+      if SELECTED then
+        for k, v in pairs(SELECTED) do
+          UpdatePadID()
+          local k = tonumber(k)
+          if Pad[k] and Pad[k].RS5k_ID then 
+            local rv = r.TrackFX_GetParam(track, Pad[k].RS5k_ID, 11)
+            if rv == 0 then
+              r.TrackFX_SetParam(track, Pad[k].RS5k_ID, 11, 1) -- obey note offs on
+            else
+              r.TrackFX_SetParam(track, Pad[k].RS5k_ID, 11, 0)
+            end
+          end
+        end
+        SELECTED = nil
+      else
+        if Pad[a] and Pad[a].RS5k_ID then
+          local rv = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 11)
+          if rv == 0 then
+          r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 1) -- obey note offs on
+          else
+            r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 0)
+          end
         end
       end
     end
     if r.ImGui_MenuItem(ctx, 'Toggle Loop##' .. a) then
-      if Pad[a] and Pad[a].RS5k_ID then
-        local rv = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 12)
-        if rv == 0 then
-          local no = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 11)
-          if no == 0 then
-            r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 1) -- obey note offs on
+      if SELECTED then
+        for k, v in pairs(SELECTED) do
+          UpdatePadID()
+          local k = tonumber(k)
+          if Pad[k] and Pad[k].RS5k_ID then
+            local rv = r.TrackFX_GetParam(track, Pad[k].RS5k_ID, 12)
+            if rv == 0 then
+              local no = r.TrackFX_GetParam(track, Pad[k].RS5k_ID, 11)
+              if no == 0 then
+                r.TrackFX_SetParam(track, Pad[k].RS5k_ID, 11, 1) -- obey note offs on
+              end
+              r.TrackFX_SetParam(track, Pad[k].RS5k_ID, 12, 1) -- Loop on
+            else
+              r.TrackFX_SetParam(track, Pad[k].RS5k_ID, 12, 0)
+            end
           end
+        end
+        SELECTED = nil
+      else
+        if Pad[a] and Pad[a].RS5k_ID then
+          local rv = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 12)
+          if rv == 0 then
+            local no = r.TrackFX_GetParam(track, Pad[a].RS5k_ID, 11)
+            if no == 0 then
+              r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 1) -- obey note offs on
+            end
             r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 12, 1) -- Loop on
-        else
-          r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 12, 0)
+          else
+            r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 12, 0)
+          end
         end
       end
     end
@@ -694,7 +821,7 @@ function PadMenu(a, note_name)
         r.DeleteTrack(find_bus)
       end
       r.PreventUIRefresh(-1)
-      EndUndoBlock("CLEAR ALL PADS") 
+      EndUndoBlock("CLEAR ALL PADS")
     end
     if r.ImGui_MenuItem(ctx, 'Toggle Open FX Chain Window') then
       local rv, pc = r.TrackFX_GetNamedConfigParm(track, parent_id, "parent_container")
@@ -726,16 +853,53 @@ function PadMenu(a, note_name)
   end
   RenameWindow(a, note_name)
 end
-  
+
+--- outside of pads click action
 function FXLIST()
-  if r.ImGui_IsMouseClicked(ctx, 1) then
+  if r.ImGui_IsMouseClicked(ctx, 1) and not OnPad then
     if not r.ImGui_IsPopupOpen(ctx, "FX LIST") then
       r.ImGui_OpenPopup(ctx, "FX LIST")
     end
   end
-  
+
   if r.ImGui_BeginPopup(ctx, "FX LIST") then
     Frame()
     r.ImGui_EndPopup(ctx)
   end
+  OnPad = false
+end
+
+-- Double Click
+function DoubleClickActions(loopmin, loopmax)
+  if r.ImGui_IsMouseDoubleClicked(ctx, 0) and not OnPad and ALT then
+    if SELECTED then
+      SELECTED = nil
+    else
+      SELECTED = {}
+      for a = 1, 128 do
+        SELECTED[tostring(a)] = true
+      end
+    end
+  elseif SHIFT and r.ImGui_IsMouseDoubleClicked(ctx, 0) and loopmin then
+    local found = false
+    for f = loopmin, loopmax do
+      if SELECTED and SELECTED[tostring(f)] then
+        found = true
+        break 
+      end
+    end
+    if SELECTED and found then -- unselect
+      for a = loopmin, loopmax do
+        SELECTED[tostring(a)] = nil
+      end
+    else
+      if not SELECTED then
+        SELECTED = {}
+      end
+      for a = loopmin, loopmax do
+        SELECTED[tostring(a)] = true
+      end
+    end
+  end
+  OnPad = false
 end

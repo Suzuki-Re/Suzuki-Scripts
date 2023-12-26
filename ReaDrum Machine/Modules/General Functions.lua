@@ -151,24 +151,16 @@ function GetDrumMachineIdx(track)
 end
 
 function InsertDrumMachine()
-    --local count = r.TrackFX_GetCount(track) -- 1 based
-    --for i = 0, count - 1 do
-      --local rv, rename = r.TrackFX_GetNamedConfigParm(track, i, 'renamed_name') -- 0 based
-      --if rename == 'ReaDrum Machine' then
-      --  found = true
-      --  break
-      --end
-    --end
-    GetDrumMachineIdx(track)
-    if not found then
-      r.Undo_BeginBlock()
-      r.PreventUIRefresh(1)
-      r.TrackFX_AddByName(track, "Container", false, -1000 - count)                 -- 0 based + count(1 based) = the last slot
-      r.TrackFX_Show(track, count, 2)
-      r.TrackFX_SetNamedConfigParm(track, count, 'renamed_name', 'ReaDrum Machine') -- 0 based + count(1 based) = the last slot
-      r.PreventUIRefresh(-1)
-      EndUndoBlock("ADD DRUM MACHINE")
-    end
+  GetDrumMachineIdx(track)
+  if not found then
+    r.Undo_BeginBlock()
+    r.PreventUIRefresh(1)
+    r.TrackFX_AddByName(track, "Container", false, -1000 - count)                 -- 0 based + count(1 based) = the last slot
+    r.TrackFX_Show(track, count, 2)
+    r.TrackFX_SetNamedConfigParm(track, count, 'renamed_name', 'ReaDrum Machine') -- 0 based + count(1 based) = the last slot
+    r.PreventUIRefresh(-1)
+    EndUndoBlock("ADD DRUM MACHINE")
+  end
 end
   
 function AddPad(note_name, a) -- pad_id, pad_num
@@ -244,7 +236,7 @@ function FindNoteFilter(pad_num)
     for f = 1, padfx_idx do      
       local _, find_filter = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. f - 1) -- 0 based
       local retval, buf = r.TrackFX_GetNamedConfigParm(track, find_filter, 'fx_name')
-      if buf == "JS: RDM MIDI Note Filter" then
+      if buf == "JS: RDM MIDI Utility" then
         fi = f
         break
       end
@@ -266,7 +258,7 @@ function UpdatePadID()
     r.TrackFX_SetNamedConfigParm(track, n_pc, 'container_nch_out', tr_ch)
   end
   if pads_idx == nil then return end
-  for p = 1, pads_idx do
+  for p = 1, pads_idx do -- 1 based
     local fi = FindNoteFilter(p)
     local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. p - 1) -- 0 based
     local _, filter_id = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. fi - 1) -- 0 based
@@ -274,6 +266,7 @@ function UpdatePadID()
     local rv = math.floor(tonumber(rv))
     local previous_pad_id = ConvertPathToNestedPath(parent_id, p - 1)
     local next_pad_id = ConvertPathToNestedPath(parent_id, p + 1)
+    local fx_num = CountPadFX(p)
     local out_low32l, out_high32l = r.TrackFX_GetPinMappings(track, pad_id, 1, 0)
     local out_low32r, out_high32r = r.TrackFX_GetPinMappings(track, pad_id, 1, 1)
     local out_n_low32l, out_n_high32l = r.TrackFX_GetPinMappings(track, pad_id, 1, 0 + 0x1000000)
@@ -283,6 +276,8 @@ function UpdatePadID()
       Pad_ID = pad_id,
       Next_Pad_ID = next_pad_id,
       Pad_Num = p,
+      Filter_ID = filter_id,
+      FX_Num = fx_num,
       Pad_GUID = r.TrackFX_GetFXGUID(track, pad_id),
       TblIdx = rv + 1,
       Note_Num = rv,

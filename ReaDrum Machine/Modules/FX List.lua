@@ -3,6 +3,33 @@
 
 r = reaper
 
+
+local function ClickAddFX(FX_Name)
+  if SELECTED then
+    for k, v in pairs(SELECTED) do
+      UpdatePadID()
+      local k = tonumber(k)
+      if Pad[k] then
+        local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[k].Pad_Num - 1) -- 0 based
+        local InsertFXPos = ConvertPathToNestedPath(pad_id, Pad[k].FX_Num + 1) -- 1 based
+        r.TrackFX_AddByName(track, FX_Name, false, InsertFXPos)
+      else
+        local notenum = k - 1
+        local note_name = getNoteName(notenum)
+        AddPad(note_name, k)     -- pad_id = loc, pad_num = num
+        AddNoteFilter(notenum, Pad[k].Pad_Num)
+        local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[k].Pad_Num - 1) -- 0 based
+        local InsertFXPos = ConvertPathToNestedPath(pad_id, 2) -- 1 based
+        r.TrackFX_AddByName(track, FX_Name, false, InsertFXPos)
+      end
+    end
+    SELECTED = nil
+  else
+    InsertFXPos = -1000 - r.TrackFX_GetCount(track)
+    r.TrackFX_AddByName(track, FX_Name, false, InsertFXPos)
+  end
+end
+
 local FX_LIST, CAT = ReadFXFile()
 if not FX_LIST or not CAT then
    FX_LIST, CAT = MakeFXFiles()
@@ -76,7 +103,7 @@ local function FilterBox()
     if r.ImGui_BeginChild(ctx, "##popupp", MAX_FX_SIZE, filter_h) then
       for i = 1, #filtered_fx do
         if r.ImGui_Selectable(ctx, filtered_fx[i].name, i == ADDFX_Sel_Entry) then
-          r.TrackFX_AddByName(TRACK, filtered_fx[i].name, false, -1000 - r.TrackFX_GetCount(TRACK))
+          ClickAddFX(filtered_fx[i].name)
           r.ImGui_CloseCurrentPopup(ctx)
           LAST_USED_FX = filtered_fx[i].name
         end
@@ -85,7 +112,7 @@ local function FilterBox()
       r.ImGui_EndChild(ctx)
     end
     if r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Enter()) then
-      r.TrackFX_AddByName(TRACK, filtered_fx[ADDFX_Sel_Entry].name, false, -1000 - r.TrackFX_GetCount(TRACK))
+      ClickAddFX(filtered_fx[ADDFX_Sel_Entry].name)
       LAST_USED_FX = filtered_fx[filtered_fx[ADDFX_Sel_Entry].name]
       ADDFX_Sel_Entry = nil
       FILTER = ''
@@ -116,8 +143,7 @@ local function DrawFxChains(tbl, path)
     if type(tbl[i]) ~= "table" then
       if r.ImGui_Selectable(ctx, tbl[i]) then
         if TRACK then
-          r.TrackFX_AddByName(TRACK, table.concat({ path, os_separator, tbl[i], extension }), false,
-            -1000 - r.TrackFX_GetCount(TRACK))
+          ClickAddFX(table.concat({ path, os_separator, tbl[i], extension }))
         end
       end
       DndAddFX_SRC(table.concat({ path, os_separator, tbl[i], extension }))
@@ -140,8 +166,7 @@ local function DrawItems(tbl, main_cat_name)
           end
           if r.ImGui_Selectable(ctx, name) then
             if TRACK then
-              r.TrackFX_AddByName(TRACK, tbl[i].fx[j], false,
-                -1000 - r.TrackFX_GetCount(TRACK))
+              ClickAddFX(tbl[i].fx[j])
               LAST_USED_FX = tbl[i].fx[j]
             end
           end
@@ -175,8 +200,7 @@ function Frame()
   if r.ImGui_BeginMenu(ctx, "RDM TOOLS") then
     r.Undo_BeginBlock()
     if r.ImGui_Selectable(ctx, "Reverse Effect") then
-      r.TrackFX_AddByName(TRACK, "Reverse Audio (Methode Double-Buffer)", false,
-        -1000 - r.TrackFX_GetCount(TRACK))
+      ClickAddFX("Reverse Audio (Methode Double-Buffer)")
       LAST_USED_FX = "Reverse Effect"
     end
     DndAddFX_SRC("Reverse Audio (Methode Double-Buffer)")
@@ -184,23 +208,20 @@ function Frame()
     r.ImGui_EndMenu(ctx)
   end
   if r.ImGui_Selectable(ctx, "CONTAINER") then
-    r.TrackFX_AddByName(TRACK, "Container", false,
-      -1000 - r.TrackFX_GetCount(TRACK))
+    ClickAddFX("Container")
     LAST_USED_FX = "Container"
   end
   DndAddFX_SRC("Container")
   if r.ImGui_Selectable(ctx, "VIDEO PROCESSOR") then
-    r.TrackFX_AddByName(TRACK, "Video processor", false,
-      -1000 - r.TrackFX_GetCount(TRACK))
+    ClickAddFX("Video processor")
     LAST_USED_FX = "Video processor"
   end
   DndAddFX_SRC("Video processor")
   if LAST_USED_FX then
     if r.ImGui_Selectable(ctx, "RECENT: " .. LAST_USED_FX) then
-      r.TrackFX_AddByName(TRACK, LAST_USED_FX, false,
-        -1000 - r.TrackFX_GetCount(TRACK))
+      ClickAddFX(LAST_USED_FX)
     end
-    DndAddFX_SRC(LAST_USED_FX)
+  DndAddFX_SRC(LAST_USED_FX)
   end
   if r.ImGui_Selectable(ctx, "RESCAN FX LIST") then
     FX_LIST, CAT = MakeFXFiles()
