@@ -1,12 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.2.8
+-- @version 1.2.9
 -- @changelog 
---   + Added toggle multi select (Shift + Click pad). Mute, solo, add FX, remove pad, rename, output pin mappings, explode, obey note-off, and loop are supported.
---   Shift + double clicking the outside of pads toggle selects all pads in the tab. Alt + double clicking the outside of pads toggle selects all pads.
---   Support for move, swap, and copy pads, adding samples, and load selected items to selected pads will be added in the future update.
---   + MIDI input triggers the drum pads to light up now.
+--   + Automatically select second fx when opening FX window if midi utility is focused.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
