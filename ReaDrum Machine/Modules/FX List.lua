@@ -205,6 +205,11 @@ function Frame()
     end
     DndAddFX_SRC("Reverse Audio (Methode Double-Buffer)")
     EndUndoBlock("ADD REVERSE EFFECTS")
+    if r.ImGui_Selectable(ctx, "MIDI Triggered Low Pass Filter") then
+      ClickAddFX("../Scripts/Suzuki Scripts/ReaDrum Machine/FXChains/MIDI Triggered Low Pass Filter.RfxChain")
+      LAST_USED_FX = "MIDI Triggered Low Pass Filter"
+    end
+    DndAddFX_SRC("../Scripts/Suzuki Scripts/ReaDrum Machine/FXChains/MIDI Triggered Low Pass Filter.RfxChain")
     r.ImGui_EndMenu(ctx)
   end
   if r.ImGui_Selectable(ctx, "CONTAINER") then

@@ -143,7 +143,7 @@ end
 
 function GetDrumMachineIdx(track)
   if not track then return end
-  local found = false
+  found = false
   count = r.TrackFX_GetCount(track)
   for i = 1, count do
     FindRDMRecursively(track, 0x2000000+i, count+1)
@@ -260,6 +260,7 @@ function UpdatePadID()
   if pads_idx == nil then return end
   for p = 1, pads_idx do -- 1 based
     local fi = FindNoteFilter(p)
+    if not fi then return end
     local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. p - 1) -- 0 based
     local _, filter_id = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. fi - 1) -- 0 based
     local rv = r.TrackFX_GetParam(track, filter_id, 0)
