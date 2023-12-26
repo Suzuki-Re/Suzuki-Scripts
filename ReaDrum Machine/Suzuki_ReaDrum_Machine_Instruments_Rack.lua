@@ -1,9 +1,10 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.2.9
+-- @version 1.3
 -- @changelog 
---   + Automatically select second fx when opening FX window if midi utility is focused.
+--   + Added MIDI triggered low-pass filter to RDM Tools
+--   # Tried to fix the crash user reported
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
@@ -12,6 +13,7 @@
 --   REAPER v7.06+, ReaImGui, and Sexan's FX Browser
 -- @provides
 --   Fonts/Icons.ttf
+--   FXChains/*.RfxChain
 --   Modules/*.lua
 --   [effect] JSFX/*.jsfx
 --   [main] Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable Layout).lua
@@ -47,6 +49,9 @@ function ThirdPartyDeps() -- FX Browser
   local version = tonumber(string.sub(r.GetAppVersion(), 0, 4))
   --reaper.ShowConsoleMsg((version))
 
+  local midi_trigger_envelope = r.GetResourcePath() .. "/Effects/Suzuki Scripts/lewloiwc's Sound Design Suite/lewloiwc_midi_trigger_envelope.jsfx"
+  local sk_filter = r.GetResourcePath() .. "/Effects/ReaTeam JSFX/Filter/tilr_SKFilter.jsfx"
+
   local fx_browser_path
   local n, arch = r.GetAppVersion():match("(.+)/(.+)")
 
@@ -72,7 +77,6 @@ function ThirdPartyDeps() -- FX Browser
     end
   end
 
-
   -- ADD NEEDED REPOSITORIES
   if reapack_process then
     r.ShowMessageBox("Added Third-Party ReaPack Repositories", "ADDING REPACK REPOSITORIES", 0)
@@ -88,6 +92,22 @@ function ThirdPartyDeps() -- FX Browser
       r.ShowMessageBox("Sexan FX BROWSER is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
       r.ReaPack_BrowsePackages(fx_browser_reapack)
       return 'error Sexan FX BROWSER'
+    end
+    -- lewloiwc Sound Design Suite
+    if r.file_exists(midi_trigger_envelope) then
+      local found_midi_envelope = true
+    else
+      r.ShowMessageBox("lewloiwc Sound Design Suite is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ReaPack_BrowsePackages('lewloiwc Sound Design Suite')
+      return 'error lewloiwc Sound Design Suite'
+    end
+     -- tilr SKFilter
+    if r.file_exists(sk_filter) then
+      local found_filter = true
+    else
+      r.ShowMessageBox("tilr SKFilter is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ReaPack_BrowsePackages('tilr SKFilter')
+      return 'error tilr SKFilter'
     end
   end
 end
