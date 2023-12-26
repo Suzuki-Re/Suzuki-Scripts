@@ -1,10 +1,12 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.2.7
+-- @version 1.2.8
 -- @changelog 
---   + Added RDM Tools section to FX List
---   # Changed "Explode Pad to Track" menu name to avoid confusion
+--   + Added toggle multi select (Shift + Click pad). Mute, solo, add FX, remove pad, rename, output pin mappings, explode, obey note-off, and loop are supported.
+--   Shift + double clicking the outside of pads toggle selects all pads in the tab. Alt + double clicking the outside of pads toggle selects all pads.
+--   Support for move, swap, and copy pads, adding samples, and load selected items to selected pads will be added in the future update.
+--   + MIDI input triggers the drum pads to light up now.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
@@ -26,6 +28,7 @@ package.path       = package.path ..
 script_path  = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]];
 PATH         = debug.getinfo(1).source:match("@?(.*[\\|/])")
 Pad          = {}
+OnPad = {}
 
 COLOR              = {
   ["n"]           = 0xff,
@@ -33,6 +36,7 @@ COLOR              = {
   ["dnd"]         = 0x00b4d8ff,
   ["dnd_replace"] = 0xdc5454ff,
   ["dnd_swap"]    = 0xcd6dc6ff,
+  ["selected"]    = 0x9400d3ff,
   ["bg"] = 0x141414ff
 }
 
@@ -115,7 +119,7 @@ local posx, posy = r.ImGui_GetCursorScreenPos(ctx)
 -- GUI --
 ----------------------------------------------------------------------
 
-function ButtonDrawlist(splitter, name, color)
+function ButtonDrawlist(splitter, name, color, a)
   r.ImGui_DrawListSplitter_SetCurrentChannel(splitter, 0)
   color = r.ImGui_IsItemHovered(ctx) and IncreaseDecreaseBrightness(color, 30) or color
   local xs, ys = r.ImGui_GetItemRectMin(ctx)
@@ -135,6 +139,11 @@ function ButtonDrawlist(splitter, name, color)
     r.ImGui_DrawList_AddRect(f_draw_list, xs - x_offset, ys - x_offset, xe + x_offset, ye + x_offset, COLOR["dnd"], 2,
         nil, 2)
   end
+  if SELECTED and SELECTED[tostring(a)] then
+      local x_offset = 1
+      r.ImGui_DrawList_AddRect(f_draw_list, xs - x_offset, ys - x_offset, xe + x_offset, ye + x_offset, COLOR["selected"], 2,
+        nil, 1)
+  end
 
   local font_size = r.ImGui_GetFontSize(ctx)
   local char_size_w, char_size_h = r.ImGui_CalcTextSize(ctx, "A")
@@ -142,6 +151,15 @@ function ButtonDrawlist(splitter, name, color)
 
   r.ImGui_DrawList_AddTextEx( draw_list, nil, font_size, xs, ys + char_size_h, r.ImGui_GetColorEx(ctx, font_color), name, xe-xs)
   r.ImGui_DrawList_AddText(draw_list, xs, ys, 0xffffffff, note_name)
+  
+  if Pad[a] and Pad[a].Filter_ID then
+    local rv = r.TrackFX_GetParam(track, Pad[a].Filter_ID, 1)
+    if rv == 1 then   
+      local L, T = r.ImGui_GetItemRectMin(ctx)
+      local R, B = r.ImGui_GetItemRectMax(ctx)
+      r.ImGui_DrawList_AddRectFilled(f_draw_list, L, T, R, B + 25, 0xfde58372, rounding)
+    end
+  end
 end
 
 function DrawListButton(splitter, name, color, round_side, icon, hover, offset)
@@ -176,8 +194,9 @@ function DrawPads(loopmin, loopmax)
   local SPLITTER = r.ImGui_CreateDrawListSplitter(draw_list)
   r.ImGui_DrawListSplitter_Split(SPLITTER, 2)
   CheckDNDType()
-  FXLIST()
-
+  FXLIST() 
+  DoubleClickActions(loopmin, loopmax)
+  
   for a = loopmin, loopmax do
     notenum = a - 1
     note_name = getNoteName(notenum)
@@ -198,12 +217,15 @@ function DrawPads(loopmin, loopmax)
 
     r.ImGui_SetCursorPos(ctx, x, y)
     local ret = r.ImGui_InvisibleButton(ctx, pad_name .. "##" .. a, 90, 50)
-    ButtonDrawlist(SPLITTER, pad_name, Pad[a] and COLOR["Container"] or COLOR["n"])
+    ButtonDrawlist(SPLITTER, pad_name, Pad[a] and COLOR["Container"] or COLOR["n"], a)
     DndAddFX_TARGET(a)
     DndAddSample_TARGET(a)
     -- DndAddMultipleSamples_TARGET(a)
     DndMoveFX_TARGET_SWAP(a)
     PadMenu(a, note_name)
+    if r.ImGui_IsItemHovered(ctx) then
+      OnPad = true
+    end
     if ret then 
       ClickPadActions(a)
     else
@@ -217,25 +239,69 @@ function DrawPads(loopmin, loopmax)
 
     r.ImGui_SetCursorPos(ctx, x + 30, y + 50)
     if r.ImGui_InvisibleButton(ctx, "S##solo" .. a, 30, 25) then
-      if Pad[a] then
-        CountPads() -- pads_idx
-        if Pad[a].Pad_Num == 1 then
-          retval1 = false
-        else
-          retval1 = r.TrackFX_GetEnabled(track, Pad[a].Previous_Pad_ID)
+      if SELECTED then
+        Unmuted = 0
+        CountSelected = 0
+        for k, v in pairs(SELECTED) do
+          local k = tonumber(k)
+          if Pad[k] then
+          CountSelected = CountSelected + 1
+            if r.TrackFX_GetEnabled(track, Pad[k].Pad_ID) then
+              Unmuted = Unmuted + 1
+            end
+          end
         end
-        local retval2 = r.TrackFX_GetEnabled(track, Pad[a].Next_Pad_ID)
-        if retval1 == false and retval2 == false then -- unsolo
-          for i = 1, pads_idx do
+        if CountSelected == Unmuted then
+          AllUnmuted = true
+        end
+        CountPads() -- pads_idx
+        HowManyMuted = 0
+        for i = 1, pads_idx do
+          local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1)
+          local rv = r.TrackFX_GetEnabled(track, pad_id)
+          if not rv then
+            HowManyMuted = HowManyMuted + 1
+          end
+        end
+        if AllUnmuted and pads_idx - HowManyMuted == CountSelected then
+          for i = 1, pads_idx do -- unmute all
             local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1) -- 0 based
             r.TrackFX_SetEnabled(track, pad_id, true)
           end
-        else -- solo
-          for i = 1, pads_idx do
+        else
+          for i = 1, pads_idx do -- mute all
             local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1) -- 0 based
             r.TrackFX_SetEnabled(track, pad_id, false)
           end
-          r.TrackFX_SetEnabled(track, Pad[a].Pad_ID, true)
+          for k, v in pairs(SELECTED) do
+            local k = tonumber(k)
+            if Pad[k] then
+              r.TrackFX_SetEnabled(track, Pad[k].Pad_ID, true)
+            end
+          end
+        end
+        SELECTED = nil
+      else
+        if Pad[a] then
+          CountPads() -- pads_idx
+          if Pad[a].Pad_Num == 1 then
+            retval1 = false
+          else
+            retval1 = r.TrackFX_GetEnabled(track, Pad[a].Previous_Pad_ID)
+          end
+          local retval2 = r.TrackFX_GetEnabled(track, Pad[a].Next_Pad_ID)
+          if retval1 == false and retval2 == false then -- unsolo
+            for i = 1, pads_idx do
+              local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1) -- 0 based
+              r.TrackFX_SetEnabled(track, pad_id, true)
+            end
+          else -- solo
+            for i = 1, pads_idx do
+              local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1) -- 0 based
+              r.TrackFX_SetEnabled(track, pad_id, false)
+            end
+            r.TrackFX_SetEnabled(track, Pad[a].Pad_ID, true)
+          end
         end
       end
     end
@@ -247,13 +313,28 @@ function DrawPads(loopmin, loopmax)
     --end
 
     r.ImGui_SetCursorPos(ctx, x + 60, y + 50)
-    if r.ImGui_InvisibleButton(ctx, "M##mute" .. a, 30, 25) then
-      if Pad[a] then
+    if r.ImGui_InvisibleButton(ctx, "M##mute" .. a, 30, 25) then      
+      if SELECTED then
+        for k, v in pairs(SELECTED) do
+          local k = tonumber(k)
+          if Pad[k] and Pad[k].RS5k_ID then 
+            local retval = r.TrackFX_GetEnabled(track, Pad[k].Pad_ID)
+            if retval == true then
+              r.TrackFX_SetEnabled(track, Pad[k].Pad_ID, false)
+            else
+              r.TrackFX_SetEnabled(track, Pad[k].Pad_ID, true)
+            end
+          end
+        end
+        SELECTED = nil
+      else
+        if Pad[a] then
         local retval = r.TrackFX_GetEnabled(track, Pad[a].Pad_ID)
-        if retval == true then
-          r.TrackFX_SetEnabled(track, Pad[a].Pad_ID, false)
-        else
-          r.TrackFX_SetEnabled(track, Pad[a].Pad_ID, true)
+          if retval == true then
+            r.TrackFX_SetEnabled(track, Pad[a].Pad_ID, false)
+          else
+            r.TrackFX_SetEnabled(track, Pad[a].Pad_ID, true)
+          end
         end
       end
     end
@@ -392,7 +473,7 @@ function Run()
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_WindowBg(), COLOR["bg"])
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_TitleBg(), COLOR["bg"])
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_TitleBgActive(), COLOR["bg"])
-  local imgui_visible, imgui_open = r.ImGui_Begin(ctx, 'ReaDrum Machine', true, r.ImGui_WindowFlags_NoScrollWithMouse() | r.ImGui_WindowFlags_NoScrollbar() | r.ImGui_WindowFlags_NoCollapse())
+  local imgui_visible, imgui_open = r.ImGui_Begin(ctx, 'ReaDrum Machine', true, r.ImGui_WindowFlags_NoScrollWithMouse() | r.ImGui_WindowFlags_NoScrollbar())
   r.ImGui_PopStyleColor(ctx)
   r.ImGui_PopStyleColor(ctx)
   r.ImGui_PopStyleColor(ctx)
