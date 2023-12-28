@@ -1,10 +1,10 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.3
+-- @version 1.3.1
 -- @changelog 
---   + Added MIDI triggered low-pass filter to RDM Tools
---   # Tried to fix the crash user reported
+--   # Fixed explode multiple selected pads to track
+--   # Fixed crash when users choose cancel or close the window when setting pad's output pin mappings or exploding it to tracks
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
@@ -169,6 +169,9 @@ function ButtonDrawlist(splitter, name, color, a)
   r.ImGui_DrawList_AddTextEx( draw_list, nil, font_size, xs, ys + char_size_h, r.ImGui_GetColorEx(ctx, font_color), name, xe-xs)
   r.ImGui_DrawList_AddText(draw_list, xs, ys, 0xffffffff, note_name)
   
+  if Pad[a] and OPEN_PAD == a then
+    Highlight_Itm(f_draw_list, 0x256BB155, 0x256BB1ff)
+  end
   if Pad[a] and Pad[a].Filter_ID then
     local rv = r.TrackFX_GetParam(track, Pad[a].Filter_ID, 1)
     if rv == 1 then   
@@ -245,6 +248,8 @@ function DrawPads(loopmin, loopmax)
     end
     if ret then 
       ClickPadActions(a)
+    --elseif r.ImGui_IsItemClicked(ctx, 1) and Pad[a] and not CTRL then
+      --OPEN_PAD = toggle2(OPEN_PAD, a)
     else
       DndMoveFX_SRC(a)
     end
@@ -453,12 +458,16 @@ function Main()
   local openpad 
   if LAST_MENU then       -- Open pads manu
     r.ImGui_SetCursorPos(ctx, x + w_closed, y)
-    if r.ImGui_BeginChild(ctx, "child_menu", w_open + 250, h + 88) then
+    if r.ImGui_BeginChild(ctx, "child_menu", w_open + 135, h + 88) then
       local high = 128 - 16 * (LAST_MENU - 1 )
       local low = 128 - 16 * (LAST_MENU) + 1
       openpad = DrawPads(low, high)
       r.ImGui_EndChild(ctx)
     end
+  end
+  if OPEN_PAD ~= nil then
+    r.ImGui_SetCursorPos(ctx, 40, 0)
+    OpenRS5kInsidePad(OPEN_PAD, w_open)
   end
   r.ImGui_Dummy(ctx, w_closed + 10, h + 100)
   r.ImGui_EndGroup(ctx)
@@ -483,9 +492,13 @@ function Run()
       LAST_MENU = tonumber(n)
     end
   end
-
-  r.ImGui_SetNextWindowSizeConstraints(ctx, 500, 360, FLT_MAX, FLT_MAX)
-  r.ImGui_SetNextWindowSize(ctx, 400, 300, r.ImGui_Cond_FirstUseEver())
+  --if OPEN_PAD ~= nil then
+  --  main_w = 800
+  --else
+  --  main_w = 450
+  --end
+  r.ImGui_SetNextWindowSizeConstraints(ctx, 450, 360, FLT_MAX, FLT_MAX)
+  r.ImGui_SetNextWindowSize(ctx, 450, 300, r.ImGui_Cond_FirstUseEver())
   
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_WindowBg(), COLOR["bg"])
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_TitleBg(), COLOR["bg"])
@@ -518,7 +531,7 @@ end
 function Init()
   SetButtonState(1)
   r.atexit(Exit)
-
+  
   Run()
 end
 
