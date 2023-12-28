@@ -326,7 +326,7 @@ function OpenRS5kInsidePad(a, w_open)
     end
   end
   r.ImGui_SameLine(ctx, nil, 0)
-  if r.ImGui_BeginChild(ctx, "open_pad", w_open + 250 + 50, 220 + 88, true) then
+  if r.ImGui_BeginChild(ctx, "open_pad", 250 + 50, 220 + 88, false) then
     RS5kUI(RS5k)
     r.ImGui_EndChild(ctx)
   end
