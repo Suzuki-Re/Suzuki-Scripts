@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.3.2-pre1
+-- @version 1.3.2-pre2
 -- @changelog 
---   * experimental: Right click a pad to open RS5k parameters UI window. It's only available for the fixed layout.
+--   * experimental: Added arrow button to cycle through RS5k instances UI in pad. You can click RS5k instance name to float RS5k window.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
