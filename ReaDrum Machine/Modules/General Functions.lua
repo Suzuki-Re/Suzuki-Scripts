@@ -289,8 +289,25 @@ function UpdatePadID()
       Out_N_Low32L = out_n_low32l,
       Out_N_Low32R = out_n_low32r,
       Out_N_High32L = out_n_high32l,
-      Out_N_High32R = out_n_high32r
+      Out_N_High32R = out_n_high32r,
+      RS5k_Instances = {},
+      Sample_Name = {}
     }
+    for f = 1, Pad[rv + 1].FX_Num do
+      if f == 1 then
+        found_RS5k = 0
+      end
+      local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[rv + 1].Pad_Num - 1) -- 0 based
+      local FX_id = ConvertPathToNestedPath(pad_id, f)
+      local retval, buf = r.TrackFX_GetNamedConfigParm(track, FX_id, 'original_name')
+      if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
+        found_RS5k = found_RS5k + 1
+        Pad[rv + 1].RS5k_Instances[found_RS5k] = FX_id
+        local _, sample = r.TrackFX_GetNamedConfigParm(track, FX_id, "FILE")
+        local sample = sample:match("([^\\/]+)%.%w%w*$")
+        Pad[rv + 1].Sample_Name[found_RS5k] = sample
+      end
+    end
     rev, value = r.GetProjExtState(0, 'ReaDrum Machine', 'Rename' .. rv + 1)
     if rev == 1 then
       Pad[rv + 1].Rename = value

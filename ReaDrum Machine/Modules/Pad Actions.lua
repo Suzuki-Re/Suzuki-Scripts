@@ -235,103 +235,22 @@ function ClickPadActions(a)
   end
 end
 
-local function RS5kUI(RS5k)
-  -- integer reaper.PCM_Source_GetPeaks(PCM_source src, number peakrate, number starttime, integer numchannels, integer numsamplesperchannel, integer want_extra_type, reaper.array buf)
-
-  local rv = r.TrackFX_GetParam(track, RS5k, 0) -- volume knob
-  --r.ImGui_Button(ctx, "Volume", 50, 50)
-  --if r.ImGui_IsItemActive(ctx) then
-    --r.TrackFX_SetParam(track, RS5k, 0, v)
-  --end
-
-  local rv = r.TrackFX_GetParam(track, RS5k, 11) -- Obey Note-Offs Switch
-  if rv == 1 then -- on
-    note_offs = true
-  else -- off
-    note_offs = false
-  end
-  local rv, note_offs = r.ImGui_Checkbox(ctx, "Obey note-offs", note_offs)
-  if rv and SELECTED then
-    for k, v in pairs(SELECTED) do
-      UpdatePadID()
-      local k = tonumber(k)
-      if Pad[k] and Pad[k].RS5k_ID then 
-        local rv = r.TrackFX_GetParam(track, Pad[k].RS5k_ID, 11)
-        if rv == 0 then
-          r.TrackFX_SetParam(track, Pad[k].RS5k_ID, 11, 1) -- obey note offs on
-        else
-          r.TrackFX_SetParam(track, Pad[k].RS5k_ID, 11, 0)
-        end
-      end
-    end
-    SELECTED = nil
-  else
-    if rv and not note_offs then -- rv == true at the moment when clicking it and toggle note_offs boolean
-      r.TrackFX_SetParam(track, RS5k, 11, 0) -- off
-    elseif rv and note_offs then
-      r.TrackFX_SetParam(track, RS5k, 11, 1) -- on
-    end
-  end
-
-  r.ImGui_SameLine(ctx, nil, 0)
-
-  local rv = r.TrackFX_GetParam(track, RS5k, 12) -- Loop Switch
-  if rv == 1 then
-    loop = true
-  else
-    loop = false
-  end
-  local rv, loop = r.ImGui_Checkbox(ctx, "Loop", loop)
-  if rv and SELECTED then
-    for k, v in pairs(SELECTED) do
-      UpdatePadID()
-      local k = tonumber(k)
-      if Pad[k] and Pad[k].RS5k_ID then
-        local rv = r.TrackFX_GetParam(track, Pad[k].RS5k_ID, 12)
-        if rv == 0 then
-          local no = r.TrackFX_GetParam(track, Pad[k].RS5k_ID, 11)
-          if no == 0 then
-            r.TrackFX_SetParam(track, Pad[k].RS5k_ID, 11, 1) -- obey note offs on
-          end
-          r.TrackFX_SetParam(track, Pad[k].RS5k_ID, 12, 1) -- Loop on
-        else
-          r.TrackFX_SetParam(track, Pad[k].RS5k_ID, 12, 0)
-        end
-      end
-    end
-  SELECTED = nil
-  else
-    if rv and not loop then -- rv == true at the moment when clicking it and toggle note_offs boolean
-      r.TrackFX_SetParam(track, RS5k, 12, 0)
-    elseif rv and loop then
-      local rv = r.TrackFX_GetParam(track, RS5k, 11)
-      if rv == 0 then
-        r.TrackFX_SetParam(track, RS5k, 11, 1)
-      end
-      r.TrackFX_SetParam(track, RS5k, 12, 1)
-    end
-  end
-end
-
 -- right click --
 function OpenRS5kInsidePad(a, w_open)
   if not Pad[a] then return end 
-  CountPadFX(Pad[a].Pad_Num) -- padfx_idx
-  for f = 1, padfx_idx do
-    local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[a].Pad_Num - 1) -- 0 based
-    local FX_id = ConvertPathToNestedPath(pad_id, f)
-    local retval, buf = r.TrackFX_GetNamedConfigParm(track, FX_id, 'original_name')
-    if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
-      RS5k = FX_id
-    end
+  if not WhichRS5k then
+    WhichRS5k = 1
   end
+  UpdatePadID()
+  --r.ShowConsoleMsg(RS5k_instances[1])
   r.ImGui_SameLine(ctx, nil, 0)
   if r.ImGui_BeginChild(ctx, "open_pad", 250 + 50, 220 + 88, false) then
-    RS5kUI(RS5k)
+    FXUI(a)
     r.ImGui_EndChild(ctx)
   end
 end
 
+-- Ctrl + right click
 local function CreateNewChildTrack(insert_loc, child_num)
   r.InsertTrackAtIndex(insert_loc, false)
   local child_track = r.CSurf_TrackFromID(insert_loc + 1, false)
