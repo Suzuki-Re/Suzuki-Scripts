@@ -4,7 +4,9 @@
 -- @license GPL v3
 -- @version 1.0
 -- @changelog Initial Release
--- @about For anyone who save preset or project using the old RDM midi note filter.
+-- @about 
+-- For anyone who save preset or project using the old RDM midi note filter.
+-- Simply run the script in the track which has old RDM midi note filters. It replaces all RDM midi note filters with new RDM midi Utility.
 
 local r = reaper
 
