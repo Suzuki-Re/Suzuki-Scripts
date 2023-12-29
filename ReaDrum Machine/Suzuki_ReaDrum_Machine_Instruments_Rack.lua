@@ -1,7 +1,7 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.3.2
+-- @version 1.3.3-pre1
 -- @changelog 
 --   # Added Suzuki_Replace old RDM midi note filter with new RDM midi utility script to make the old projects and container presets users saved be compatible with RDM newer versions.
 -- @link https://forum.cockos.com/showthread.php?t=284566
@@ -248,8 +248,8 @@ function DrawPads(loopmin, loopmax)
     end
     if ret then 
       ClickPadActions(a)
-    --elseif r.ImGui_IsItemClicked(ctx, 1) and Pad[a] and not CTRL then
-      --OPEN_PAD = toggle2(OPEN_PAD, a)
+    elseif r.ImGui_IsItemClicked(ctx, 1) and Pad[a] and not CTRL then
+      OPEN_PAD = toggle2(OPEN_PAD, a)
     else
       DndMoveFX_SRC(a)
     end
@@ -492,13 +492,13 @@ function Run()
       LAST_MENU = tonumber(n)
     end
   end
-  --if OPEN_PAD ~= nil then
-  --  main_w = 800
-  --else
-  --  main_w = 450
-  --end
+  if OPEN_PAD ~= nil then
+    main_w = 800
+  else
+    main_w = 450
+  end
   r.ImGui_SetNextWindowSizeConstraints(ctx, 450, 360, FLT_MAX, FLT_MAX)
-  r.ImGui_SetNextWindowSize(ctx, 450, 300, r.ImGui_Cond_FirstUseEver())
+  r.ImGui_SetNextWindowSize(ctx, main_w, 300)
   
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_WindowBg(), COLOR["bg"])
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_TitleBg(), COLOR["bg"])
