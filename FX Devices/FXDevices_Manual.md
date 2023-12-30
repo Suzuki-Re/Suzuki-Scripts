@@ -68,8 +68,11 @@ Right clicking to add or remove band. [See op's post](https://forum.cockos.com/s
 ⑧Tooltip
 L = Left click, R = Right Click
 
-## Shortcut Editor
+## Band Split
+![](https://i.imgur.com/H75sj25.gif)
 
+## Shortcut Editor
+![](https://i.imgur.com/REFZaKD.gif)
 
 ## Container
 Container is supported.
@@ -83,6 +86,46 @@ Right clicking a pad shows FX layouts in the pad.
 
 ## Layout Editor
 ![](https://i.imgur.com/75nVi2W.gif)
+![](https://i.imgur.com/8hI4bPI.gif)
+![](https://i.imgur.com/7gofb0C.gif)
+![](https://i.imgur.com/HT4c5Pu.gif)
+![](https://i.imgur.com/Y8G8mDX.gif)
+![](https://i.imgur.com/79NLKFg.gif)
+![](https://i.imgur.com/8ouOgy1.gif)
 
-## Parameter Linking
+## Parameter Modulation
+### LFO
+![](https://i.imgur.com/txNyQ3s.gif)
+![](https://i.imgur.com/ZG7fqr5.gif)
+![](https://i.imgur.com/iw9AnxJ.gif)
+
+### Step Sequencer
+![](https://i.imgur.com/QMccvY2.gif)
+
+### Bipolar modulation
+Holding alt when assigning modulation activates bipolar modulation
+
+![](https://i.imgur.com/5yfUGWO.gif)
+
+### Morph
+Store preset into A and B slot, and then you can morph between them:
+
+![](https://i.imgur.com/iT91j3o.gif)
+
+Easily edit presets' values by holding down ctrl+option, or click on 'ENTER Edit Preset Value Mode' in Morph slider's context menu: (L-click to adjust A, R-click to adjust B)
+
+![](https://i.imgur.com/nhbBZN7.gif)
+
+If you want to exclude some parameters from morphing, you can set it in the blacklist settings window:
+
+![](https://i.imgur.com/IkM56Zf.gif)
+
+### Modulation Menu
+Ctrl + right click parameters.
+
+![](https://i.imgur.com/tuWPjzK.gif)
+
+### Parameter Linking
+Right drag/drop parameters.
+
 ![](https://i.imgur.com/vUpkH8K.gif)
