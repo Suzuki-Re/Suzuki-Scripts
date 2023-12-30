@@ -1,5 +1,4 @@
 --@noindex
---NoIndex: true
 
 r = reaper
 
@@ -22,7 +21,7 @@ end
 function AddNoteFilter(notenum, pad_num)
   local retval, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   local filter_id = ConvertPathToNestedPath(pad_id, 1)
-  r.TrackFX_AddByName(track, 'RDM MIDI Utility', false, filter_id)
+  r.TrackFX_AddByName(track, 'JS: RDM MIDI Utility', false, filter_id)
   r.TrackFX_Show(track, filter_id, 2)
   r.TrackFX_SetParam(track, filter_id, 0, notenum)                        -- key for filter, pad number = midi note
 end

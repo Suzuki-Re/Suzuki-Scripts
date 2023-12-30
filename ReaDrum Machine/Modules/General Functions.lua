@@ -1,5 +1,4 @@
 --@noindex
---NoIndex: true
 
 r = reaper
 
@@ -236,7 +235,7 @@ function FindNoteFilter(pad_num)
     for f = 1, padfx_idx do      
       local _, find_filter = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. f - 1) -- 0 based
       local retval, buf = r.TrackFX_GetNamedConfigParm(track, find_filter, 'fx_name')
-      if buf == "JS: RDM MIDI Utility" then
+      if buf == "JS: RDM MIDI Utility" or "JS: RDM MIDI Utility [Suzuki Scripts/ReaDrum Machine/JSFX/RDM_midi_utility.jsfx]" then
         fi = f
         break
       end
