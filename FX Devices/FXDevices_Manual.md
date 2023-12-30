@@ -100,7 +100,7 @@ Right clicking a pad shows FX layouts in the pad.
 ![](https://i.imgur.com/iw9AnxJ.gif)
 
 ### Step Sequencer
-![](https://i.imgur.com/QMccvY2.gif)
+![QMccvY2](https://github.com/Suzuki-Re/Suzuki-Scripts/assets/101462564/5578401e-c719-4949-ac1f-20cbfb5450a1)
 
 ### Bipolar modulation
 Holding alt when assigning modulation activates bipolar modulation
@@ -110,15 +110,16 @@ Holding alt when assigning modulation activates bipolar modulation
 ### Morph
 Store preset into A and B slot, and then you can morph between them:
 
-![](https://i.imgur.com/iT91j3o.gif)
+![iT91j3o](https://github.com/Suzuki-Re/Suzuki-Scripts/assets/101462564/3dda2dbc-0d1f-430b-972f-ebda16e1f9d3)
+
 
 Easily edit presets' values by holding down ctrl+option, or click on 'ENTER Edit Preset Value Mode' in Morph slider's context menu: (L-click to adjust A, R-click to adjust B)
 
-![](https://i.imgur.com/nhbBZN7.gif)
+![nhbBZN7](https://github.com/Suzuki-Re/Suzuki-Scripts/assets/101462564/abc5ffdf-0089-44df-9869-a090b877ffd4)
 
 If you want to exclude some parameters from morphing, you can set it in the blacklist settings window:
 
-![](https://i.imgur.com/IkM56Zf.gif)
+![IkM56Zf](https://github.com/Suzuki-Re/Suzuki-Scripts/assets/101462564/9882ef8b-55f4-4894-a0cf-d96195fc090d)
 
 ### Modulation Menu
 Ctrl + right click parameters.
