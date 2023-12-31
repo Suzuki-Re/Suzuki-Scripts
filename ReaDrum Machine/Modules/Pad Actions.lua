@@ -235,14 +235,14 @@ function ClickPadActions(a)
 end
 
 -- right click --
-function OpenRS5kInsidePad(a, w_open)
+function OpenRS5kInsidePad(a, y)
   if not Pad[a] then return end 
   if not WhichRS5k then
     WhichRS5k = 1
   end
   UpdatePadID()
-  --r.ShowConsoleMsg(RS5k_instances[1])
   r.ImGui_SameLine(ctx, nil, 0)
+  PositionOffset(10, y)
   if r.ImGui_BeginChild(ctx, "open_pad", 250 + 110, 220 + 88, false) then
     FXUI(a)
     r.ImGui_EndChild(ctx)

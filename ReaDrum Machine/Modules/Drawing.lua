@@ -226,7 +226,7 @@ local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
   end
 end
 
-local function PositionOffset(x_offset, y_offset)
+function PositionOffset(x_offset, y_offset)
   local x, y = r.ImGui_GetCursorScreenPos(ctx)
   r.ImGui_SetCursorScreenPos(ctx, x + x_offset, y + y_offset)
 end
@@ -300,7 +300,7 @@ end
 
 function FXUI(a)
   -- integer reaper.PCM_Source_GetPeaks(PCM_source src, number peakrate, number starttime, integer numchannels, integer numsamplesperchannel, integer want_extra_type, reaper.array buf)
-
+  if not Pad[a].RS5k_Instances[WhichRS5k] then WhichRS5k = 1 end
   ArrowButtons(a)
   r.ImGui_SameLine(ctx)
 
