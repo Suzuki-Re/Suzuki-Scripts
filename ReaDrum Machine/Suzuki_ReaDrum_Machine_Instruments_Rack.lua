@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.3.4
+-- @version 1.3.5
 -- @changelog 
---   + Added parameter knobs to RS5k UI section (only for fixed layout). Right click a pad to open UI. Shift drag for fine-tuning. I might change layout later, but use it as it is for now. 
+--   + Added parameter knobs to RS5k UI section (only for fixed layout). Right click a pad to open UI. Shift drag for fine-tuning. I might change layout later, but use it as it is for now. (Forgot to add images and fonts)
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
