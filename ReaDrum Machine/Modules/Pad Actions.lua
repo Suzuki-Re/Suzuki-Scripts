@@ -243,7 +243,7 @@ function OpenRS5kInsidePad(a, w_open)
   UpdatePadID()
   --r.ShowConsoleMsg(RS5k_instances[1])
   r.ImGui_SameLine(ctx, nil, 0)
-  if r.ImGui_BeginChild(ctx, "open_pad", 250 + 50, 220 + 88, false) then
+  if r.ImGui_BeginChild(ctx, "open_pad", 250 + 110, 220 + 88, false) then
     FXUI(a)
     r.ImGui_EndChild(ctx)
   end
