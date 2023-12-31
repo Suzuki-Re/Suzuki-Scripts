@@ -93,7 +93,9 @@ ctx = r.ImGui_CreateContext('ReaDrum Machine')
 draw_list = r.ImGui_GetWindowDrawList(ctx)
 
 ICONS_FONT = r.ImGui_CreateFont(script_path .. 'Fonts/Icons.ttf', 11)
+FONT = r.ImGui_CreateFont(script_path .. 'Fonts/Antonio-SemiBold.ttf', 16)
 r.ImGui_Attach(ctx, ICONS_FONT)
+r.ImGui_Attach(ctx, FONT)
 
 FLT_MIN, FLT_MAX = r.ImGui_NumericLimits_Float()
 
@@ -152,7 +154,10 @@ function ButtonDrawlist(splitter, name, color, a)
   r.ImGui_DrawList_AddTextEx(draw_list, nil, font_size, xs, ys + char_size_h, r.ImGui_GetColorEx(ctx, font_color), name, xe-xs)
   r.ImGui_DrawList_AddText(draw_list, xs, ys, 0xffffffff, note_name)
 
-  if Pad[a] and Pad[a].Filter_ID then
+  if Pad[a] and OPEN_PAD == a then -- open FX UI
+    Highlight_Itm(f_draw_list, 0x256BB155, 0x256BB1ff)
+  end
+  if Pad[a] and Pad[a].Filter_ID then -- flash pad
     local rv = r.TrackFX_GetParam(track, Pad[a].Filter_ID, 1)
     if rv == 1 then   
       local L, T = r.ImGui_GetItemRectMin(ctx)
@@ -229,8 +234,8 @@ function DrawPads(loopmin, loopmax)
     end
     if ret then 
       ClickPadActions(a)
-    --elseif r.ImGui_IsItemClicked(ctx, 1) and Pad[a] and not CTRL then
-    --  OPEN_PAD = toggle2(OPEN_PAD, a)
+    elseif r.ImGui_IsItemClicked(ctx, 1) and Pad[a] and not CTRL then
+      OPEN_PAD = toggle2(OPEN_PAD, a)
     else
       DndMoveFX_SRC(a)
     end
@@ -400,7 +405,9 @@ function Main()
   DrawPads(1, 128)
   if OPEN_PAD ~= nil then
     r.ImGui_SetCursorPos(ctx, 40, 0)
-    OpenRS5kInsidePad(OPEN_PAD, w_open)
+    local y = r.ImGui_GetScrollY(ctx)
+    y = y + 100
+    OpenRS5kInsidePad(OPEN_PAD, y - 155)
   end
   r.ImGui_PopStyleColor(ctx)
 end
@@ -419,10 +426,10 @@ function Run()
   if OPEN_PAD ~= nil then
     main_w = 800
   else
-    main_w = 450
+    main_w = 400
   end
-  r.ImGui_SetNextWindowSizeConstraints(ctx, 500, 320, FLT_MAX, FLT_MAX)
-  r.ImGui_SetNextWindowSize(ctx, main_w, 300, r.ImGui_Cond_FirstUseEver())
+  r.ImGui_SetNextWindowSizeConstraints(ctx, 400, 320, FLT_MAX, FLT_MAX)
+  r.ImGui_SetNextWindowSize(ctx, main_w, 300)
   
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_WindowBg(), COLOR["bg"])
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_TitleBg(), COLOR["bg"])

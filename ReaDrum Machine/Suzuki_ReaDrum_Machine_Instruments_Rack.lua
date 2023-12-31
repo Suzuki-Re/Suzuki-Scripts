@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.3.5
+-- @version 1.3.6
 -- @changelog 
---   + Added parameter knobs to RS5k UI section (only for fixed layout). Right click a pad to open UI. Shift drag for fine-tuning. I might change layout later, but use it as it is for now. (Forgot to add images and fonts)
+--   + Added the RS5k UI support for the srollable layout.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
@@ -172,10 +172,10 @@ function ButtonDrawlist(splitter, name, color, a)
   r.ImGui_DrawList_AddTextEx( draw_list, nil, font_size, xs, ys + char_size_h, r.ImGui_GetColorEx(ctx, font_color), name, xe-xs)
   r.ImGui_DrawList_AddText(draw_list, xs, ys, 0xffffffff, note_name)
   
-  if Pad[a] and OPEN_PAD == a then
+  if Pad[a] and OPEN_PAD == a then -- open FX UI
     Highlight_Itm(f_draw_list, 0x256BB155, 0x256BB1ff)
   end
-  if Pad[a] and Pad[a].Filter_ID then
+  if Pad[a] and Pad[a].Filter_ID then -- flash pad
     local rv = r.TrackFX_GetParam(track, Pad[a].Filter_ID, 1)
     if rv == 1 then   
       local L, T = r.ImGui_GetItemRectMin(ctx)
@@ -470,7 +470,7 @@ function Main()
   end
   if OPEN_PAD ~= nil then
     r.ImGui_SetCursorPos(ctx, 40, 0)
-    OpenRS5kInsidePad(OPEN_PAD, w_open)
+    OpenRS5kInsidePad(OPEN_PAD, 0)
   end
   r.ImGui_Dummy(ctx, w_closed + 10, h + 100)
   r.ImGui_EndGroup(ctx)
