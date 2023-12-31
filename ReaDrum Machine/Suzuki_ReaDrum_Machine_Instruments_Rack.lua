@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.3.4-pre1
+-- @version 1.3.4
 -- @changelog 
---   # Handling the case where TrackFX_AddByName automatically adds the path to MIDI Utility name.
+--   + Added parameter knobs to RS5k UI section (only for fixed layout). Right click a pad to open UI. Shift drag for fine-tuning. I might change layout later, but use it as it is for now. 
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
@@ -120,7 +120,9 @@ ctx = r.ImGui_CreateContext('ReaDrum Machine')
 draw_list = r.ImGui_GetWindowDrawList(ctx)
 
 ICONS_FONT = r.ImGui_CreateFont(script_path .. 'Fonts/Icons.ttf', 11)
+FONT = r.ImGui_CreateFont(script_path .. 'Fonts/Antonio-SemiBold.ttf', 16)
 r.ImGui_Attach(ctx, ICONS_FONT)
+r.ImGui_Attach(ctx, FONT)
 
 FLT_MIN, FLT_MAX = r.ImGui_NumericLimits_Float()
 

@@ -229,6 +229,8 @@ function DrawPads(loopmin, loopmax)
     end
     if ret then 
       ClickPadActions(a)
+    --elseif r.ImGui_IsItemClicked(ctx, 1) and Pad[a] and not CTRL then
+    --  OPEN_PAD = toggle2(OPEN_PAD, a)
     else
       DndMoveFX_SRC(a)
     end
@@ -396,7 +398,10 @@ function Main()
   --  r.ImGui_DrawList_AddRect(draw_list, wx+x-2, wy+y-2+33 * (i-1), wx+x+33, wy+y+33 * i, 0xFFFFFFFF)  -- white box when selected
 
   DrawPads(1, 128)
-
+  if OPEN_PAD ~= nil then
+    r.ImGui_SetCursorPos(ctx, 40, 0)
+    OpenRS5kInsidePad(OPEN_PAD, w_open)
+  end
   r.ImGui_PopStyleColor(ctx)
 end
 
@@ -411,9 +416,13 @@ function Run()
     r.ImGui_SetNextWindowDockID(ctx, set_dock_id)
     set_dock_id = nil
   end
-
+  if OPEN_PAD ~= nil then
+    main_w = 800
+  else
+    main_w = 450
+  end
   r.ImGui_SetNextWindowSizeConstraints(ctx, 500, 320, FLT_MAX, FLT_MAX)
-  r.ImGui_SetNextWindowSize(ctx, 400, 300, r.ImGui_Cond_FirstUseEver())
+  r.ImGui_SetNextWindowSize(ctx, main_w, 300, r.ImGui_Cond_FirstUseEver())
   
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_WindowBg(), COLOR["bg"])
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_TitleBg(), COLOR["bg"])
