@@ -11,7 +11,7 @@
 --   ### Prerequisites
 --   REAPER v7.06+, ReaImGui, and Sexan's FX Browser
 -- @provides
---   Fonts/Icons.ttf
+--   Fonts/*.ttf
 --   FXChains/*.RfxChain
 --   Images/*.png
 --   Modules/*.lua
