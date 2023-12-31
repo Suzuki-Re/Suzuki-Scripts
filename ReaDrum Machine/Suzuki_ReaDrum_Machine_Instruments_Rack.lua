@@ -13,6 +13,7 @@
 -- @provides
 --   Fonts/Icons.ttf
 --   FXChains/*.RfxChain
+--   Images/*.png
 --   Modules/*.lua
 --   [effect] JSFX/*.jsfx
 --   [main] Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable Layout).lua
