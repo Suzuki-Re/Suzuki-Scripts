@@ -163,6 +163,62 @@ local function CalculateStripUV(img, V)
   return uvmin, uvmax, w, h
 end
 
+local function RecallInfo(Str, ID, Type, untilwhere)
+  if Str then
+    local Out, LineChange
+    local Start, End = Str:find(ID)
+
+    if untilwhere then
+      LineChange = Str:find(untilwhere, Start)
+    else
+      LineChange = Str:find('\n', Start)
+    end
+    if End and Str and LineChange then
+      if Type == 'Num' then
+        Out = tonumber(string.sub(Str, End + 1, LineChange - 1))
+      elseif Type == 'Bool' then
+        if string.sub(Str, End + 1, LineChange - 1) == 'true' then Out = true else Out = false end
+      else
+        Out = string.sub(Str, End + 1, LineChange - 1)
+      end
+    end
+    if Out == '' then Out = nil end
+    return Out
+  end
+end
+
+local function Saveini(fxidx)
+  local file_path = script_path .. 'RS5k Default Values.ini'
+  os.remove(file_path)
+  local file = io.open(file_path, 'a+')
+
+  if file then
+    for parm = 0, 25 do
+      local value = r.TrackFX_GetParam(track, fxidx, parm)
+      local _, name = r.TrackFX_GetParamName(track, fxidx, parm)
+      file:write(parm, '. ', name, ' = ', value or '', '\n')
+    end
+  file:write('\n')
+  file:close()
+  end
+end
+
+local function Readini(fxidx)
+  local file_path = script_path .. 'RS5k Default Values.ini'
+  local file = io.open(file_path, 'r')
+
+  if file then
+    for parm = 0, 25 do
+      Content = file:read('*a')
+      local _, name = r.TrackFX_GetParamName(track, fxidx, parm)
+      local value = RecallInfo(Content, parm .. '. ' .. name .. ' = ', 'Num')
+      if value then
+        r.TrackFX_SetParam(track, fxidx, parm, value)
+      end
+    end
+  end
+end
+
 local function DefaultValueWindow(label, fxidx)
   local center = { r.ImGui_Viewport_GetCenter(r.ImGui_GetWindowViewport(ctx)) }
   r.ImGui_SetNextWindowPos(ctx, center[1], center[2], r.ImGui_Cond_Appearing(), 0.5, 0.5)
@@ -172,13 +228,7 @@ local function DefaultValueWindow(label, fxidx)
     end
     if r.ImGui_Button(ctx, 'YES', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Enter()) or
         r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_KeypadEnter()) then
-          RS5k_Default = {}
-          r.DeleteExtState("ReaDrum Machine", "RS5k_Default_Value", true)
-          for parm = 0, 25 do
-            RS5k_Default[parm] = r.TrackFX_GetParam(track, fxidx, parm)
-          end
-          local pExtStateStr = pickle(RS5k_Default) -- pickle table to string
-          r.SetExtState("ReaDrum Machine", "RS5k_Default_Value", pExtStateStr, true)
+        Saveini(fxidx)
       r.ImGui_CloseCurrentPopup(ctx)
     end
     r.ImGui_SetItemDefaultFocus(ctx)
@@ -224,12 +274,7 @@ local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
 
   r.ImGui_DrawList_AddTextEx(draw_list, FONT, 16, pos[1] + offset, BtnB, 0xffffffff, label) -- parameter name
   if r.ImGui_IsItemHovered(ctx) and r.ImGui_IsMouseDoubleClicked(ctx, 0) then -- reset value
-    if r.HasExtState("ReaDrum Machine", "RS5k_Default_Value") then
-      local d_value = r.GetExtState("ReaDrum Machine", "RS5k_Default_Value")
-      RS5k_Default = unpickle(d_value)
-      local p_value = RS5k_Default[parm]
-      r.TrackFX_SetParam(track, fxidx, parm, p_value)
-    end
+    Readini(fxidx)
   end
   if r.ImGui_IsItemClicked(ctx, 1) and CTRL then
     r.ImGui_OpenPopup(ctx, 'Do you want to save default value?##' .. label)

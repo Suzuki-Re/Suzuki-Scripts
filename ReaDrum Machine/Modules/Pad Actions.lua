@@ -32,7 +32,7 @@ end
 --------------------------------------------------------------------------------
 -- Pickle table serialization - Steve Dekorte, http://www.dekorte.com, Apr 2000 -- https://forum.cockos.com/showpost.php?p=2592436&postcount=7
 --------------------------------------------------------------------------------
-function pickle(t)
+local function pickle(t)
 	return Pickle:clone():pickle_(t)
 end
 
@@ -87,7 +87,7 @@ function Pickle:ref_(t)
 	return ref
 end
 
-function unpickle(s)
+local function unpickle(s)
 	if type(s) ~= "string" then
 		error("can't unpickle a " .. type(s) .. ", only strings")
 	end
@@ -476,9 +476,9 @@ local function ExplodePadsToTracks()
       Children_GUID = unpickle(pExtStateStr) -- unpickle extended state string value back into a table
     else
       Children_GUID = {
-        rcv_ch = {},
-        child_guid = {}
-      }
+  rcv_ch = {},
+  child_guid = {}
+}
     end
     for e = 1, pads_idx do
       if e > 64 then last_child = r.CSurf_TrackFromID(track_id + 1 + e, false) break end
