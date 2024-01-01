@@ -1,9 +1,12 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.3.6
+-- @version 1.3.7
 -- @changelog 
---   + Added the RS5k UI support for the srollable layout.
+--   + Added support for moving knobs with mousewheel.
+--   + Hovering over parameter knobs show values.
+--   + RDM remembers your default values now. Ctrl + right clicking parameters asks you if you want to save your current value as default, and then you can double-click knobs to reset values to default.
+--   # Pitch increase/decrease by one semitone.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
