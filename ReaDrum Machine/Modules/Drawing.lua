@@ -163,27 +163,19 @@ local function CalculateStripUV(img, V)
   return uvmin, uvmax, w, h
 end
 
-local function RecallInfo(Str, ID, Type, untilwhere)
-  if Str then
-    local Out, LineChange
-    local Start, End = Str:find(ID)
+--RecallInfo(Content, parm .. '. ' .. name .. ' = ', 'Num')
 
-    if untilwhere then
-      LineChange = Str:find(untilwhere, Start)
-    else
-      LineChange = Str:find('\n', Start)
-    end
+local function RecallInfo(Str, ID)
+  if Str then
+    local value, LineChange
+    local Start, End = Str:find(ID)
+    LineChange = Str:find('\n', Start)
+    
     if End and Str and LineChange then
-      if Type == 'Num' then
-        Out = tonumber(string.sub(Str, End + 1, LineChange - 1))
-      elseif Type == 'Bool' then
-        if string.sub(Str, End + 1, LineChange - 1) == 'true' then Out = true else Out = false end
-      else
-        Out = string.sub(Str, End + 1, LineChange - 1)
-      end
+      value = tonumber(string.sub(Str, End + 1, LineChange - 1))
     end
-    if Out == '' then Out = nil end
-    return Out
+    if value == '' then value = nil end
+    return value
   end
 end
 
@@ -203,18 +195,16 @@ local function Saveini(fxidx)
   end
 end
 
-local function Readini(fxidx)
+local function Readini(fxidx, parm)
   local file_path = script_path .. 'RS5k Default Values.ini'
   local file = io.open(file_path, 'r')
 
   if file then
-    for parm = 0, 25 do
-      Content = file:read('*a')
-      local _, name = r.TrackFX_GetParamName(track, fxidx, parm)
-      local value = RecallInfo(Content, parm .. '. ' .. name .. ' = ', 'Num')
-      if value then
-        r.TrackFX_SetParam(track, fxidx, parm, value)
-      end
+    Content = file:read('*a')
+    local _, name = r.TrackFX_GetParamName(track, fxidx, parm)
+    local value = RecallInfo(Content, parm .. '. ' .. name .. ' = ')
+    if value then
+      r.TrackFX_SetParam(track, fxidx, parm, value)
     end
   end
 end
@@ -274,12 +264,12 @@ local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
 
   r.ImGui_DrawList_AddTextEx(draw_list, FONT, 16, pos[1] + offset, BtnB, 0xffffffff, label) -- parameter name
   if r.ImGui_IsItemHovered(ctx) and r.ImGui_IsMouseDoubleClicked(ctx, 0) then -- reset value
-    Readini(fxidx)
+    Readini(fxidx, parm)
   end
   if r.ImGui_IsItemClicked(ctx, 1) and CTRL then
     r.ImGui_OpenPopup(ctx, 'Do you want to save default value?##' .. label)
-  --elseif r.ImGui_IsItemClicked(ctx, 0) and ALT then - input box
-    
+  --elseif r.ImGui_IsItemClicked(ctx, 0) and ALT then -- input box
+    --r.ImGui_OpenPopup(ctx, 'input value##' .. label)
   elseif r.ImGui_IsItemActive(ctx) then -- when dragging parameter
     local mouse_delta = { r.ImGui_GetMouseDelta(ctx) }
     if -mouse_delta[2] ~= 0.0 then
@@ -319,6 +309,29 @@ local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
       r.ImGui_PopTextWrapPos(ctx)
       r.ImGui_EndTooltip(ctx)
     end
+  end
+  if r.ImGui_BeginPopup(ctx, "input value##" .. label) then
+    if r.ImGui_IsWindowAppearing(ctx) then
+      r.ImGui_SetKeyboardFocusHere(ctx)
+    end
+    r.ImGui_Text(ctx, 'Put values:')
+    rv, input = r.ImGui_InputText(ctx, label, input)
+    if r.ImGui_Button(ctx, 'OK', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Enter()) or
+      r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_KeypadEnter()) then
+      for p = 0, 1 do
+        local _, p_value = r.TrackFX_FormatParamValueNormalized(track, fxidx, parm, p, "")
+        if p_value == input then
+          r.TrackFX_SetParamNormalized(track, fxidx, parm, p)
+          return
+        end
+      end
+    end
+    r.ImGui_SetItemDefaultFocus(ctx)
+    r.ImGui_SameLine(ctx)
+    if r.ImGui_Button(ctx, 'Close') then
+      r.ImGui_CloseCurrentPopup(ctx)
+    end
+    r.ImGui_EndPopup(ctx)
   end
   DefaultValueWindow(label, fxidx)
 
@@ -440,15 +453,15 @@ function FXUI(a)
   PositionOffset(0, 10)
   r.ImGui_Separator(ctx)
   PositionOffset(20, 10)
-  DrawImageKnob("Volume", a, Pad[a].RS5k_Instances[WhichRS5k], 0, 19, 3)
+  DrawImageKnob("Volume", "Volume", Pad[a].RS5k_Instances[WhichRS5k], 0, 19, 3)
   r.ImGui_SameLine(ctx, nil, 15)
-  DrawImageKnob("Min Vol.", a, Pad[a].RS5k_Instances[WhichRS5k], 2, 19, 2)
+  DrawImageKnob("Min Vol.", "Min Vol.", Pad[a].RS5k_Instances[WhichRS5k], 2, 19, 2)
   r.ImGui_SameLine(ctx, nil, 15)
-  DrawImageKnob("Pan", a, Pad[a].RS5k_Instances[WhichRS5k], 1, 19, 10)
+  DrawImageKnob("Pan", "Pan", Pad[a].RS5k_Instances[WhichRS5k], 1, 19, 10)
   r.ImGui_SameLine(ctx, nil, 15)
-  DrawImageKnob("Min Velocity", a, Pad[a].RS5k_Instances[WhichRS5k], 17, 19, -13)
+  DrawImageKnob("Min Velocity", "Min Velocity", Pad[a].RS5k_Instances[WhichRS5k], 17, 19, -13)
   r.ImGui_SameLine(ctx, nil, 20)
-  DrawImageKnob("Max Velocity", a, Pad[a].RS5k_Instances[WhichRS5k], 18, 19, -10)
+  DrawImageKnob("Max Velocity", "Max Velocity", Pad[a].RS5k_Instances[WhichRS5k], 18, 19, -10)
   PositionOffset(0, 30)
   r.ImGui_Separator(ctx)
   PositionOffset(10, 10)
