@@ -32,7 +32,7 @@ end
 --------------------------------------------------------------------------------
 -- Pickle table serialization - Steve Dekorte, http://www.dekorte.com, Apr 2000 -- https://forum.cockos.com/showpost.php?p=2592436&postcount=7
 --------------------------------------------------------------------------------
-local function pickle(t)
+function pickle(t)
 	return Pickle:clone():pickle_(t)
 end
 
@@ -87,7 +87,7 @@ function Pickle:ref_(t)
 	return ref
 end
 
-local function unpickle(s)
+function unpickle(s)
 	if type(s) ~= "string" then
 		error("can't unpickle a " .. type(s) .. ", only strings")
 	end
@@ -160,7 +160,7 @@ function ClickPadActions(a)
       else
         ClearPad(a, Pad[a].Pad_Num)
       end
-      rev, value = r.GetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a)
+      local rev, value = r.GetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a)
       if rev == 1 then
         r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, "")
       end
@@ -332,7 +332,6 @@ local function SetOutputPin(a, chan_num)
   local left = (chan_num - 1) * 2 -- each block has 16 stereo channel, which one?
   local right = left + 1
   
-
   local isincontainer, parent_container = r.TrackFX_GetNamedConfigParm(track, Pad[a].Pad_ID, 'parent_container')
   if isincontainer then
     local _, hm_cch = r.TrackFX_GetNamedConfigParm(track, parent_container, 'container_nch')
@@ -464,27 +463,40 @@ local function ExplodePadToTrackViaInput(chan_num)
 end
 
 local function ExplodePadsToTracks()
-    CountPads()
-    r.SetMediaTrackInfo_Value(track, 'I_NCHAN', 128)
+    local pads_idx = CountPads()
+    r.SetMediaTrackInfo_Value(track, 'I_NCHAN', pads_idx * 2)
     local drum_id = parent_id
-    r.TrackFX_SetNamedConfigParm(track, drum_id, 'container_nch', 128)
-    r.TrackFX_SetNamedConfigParm(track, drum_id, 'container_nch_out', 128)
+    r.TrackFX_SetNamedConfigParm(track, drum_id, 'container_nch', pads_idx * 2)
+    r.TrackFX_SetNamedConfigParm(track, drum_id, 'container_nch_out', pads_idx * 2)
     local drum_track = track
     local track_id = r.CSurf_TrackToID(track, false)
     r.Main_OnCommand(40001, 0)
+    local rv, pExtStateStr = r.GetProjExtState(0, "Suzuki_SetNSend_ch", track_guid .. "child_guid") -- read pickled table string value from project extended states
+    if rv ~= 0 then
+      Children_GUID = unpickle(pExtStateStr) -- unpickle extended state string value back into a table
+    else
+      Children_GUID = {
+        rcv_ch = {},
+        child_guid = {}
+      }
+    end
     for e = 1, pads_idx do
       if e > 64 then last_child = r.CSurf_TrackFromID(track_id + 1 + e, false) break end
       local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. e - 1) -- 0 based
       r.Main_OnCommand(40001, 0)
-      local retval, pad_name = r.TrackFX_GetNamedConfigParm(drum_track, pad_id, 'renamed_name')
-      local child = r.CSurf_TrackFromID(track_id + 1 + e, false)
-      r.GetSetMediaTrackInfo_String(child, 'P_NAME', pad_name, true) -- change child track's name to pad name
-      local send = r.CreateTrackSend(drum_track, child)
+      local _, pad_name = r.TrackFX_GetNamedConfigParm(drum_track, pad_id, 'renamed_name')
+      local child_track = r.CSurf_TrackFromID(track_id + 1 + e, false)
+      r.GetSetMediaTrackInfo_String(child_track, 'P_NAME', pad_name, true) -- change child track's name to pad name
+      local child_guid = r.GetTrackGUID(child_track)
+      Children_GUID.child_guid = child_guid
+      local send = r.CreateTrackSend(drum_track, child_track)
       local channel_offset = (e - 1) * 2 -- even number
       local num_channels = 0 -- stereo
       local send_info = (num_channels << 9) | channel_offset
       r.SetTrackSendInfo_Value(drum_track, 0, send, 'I_SRCCHAN', send_info) -- set send channel
-      if e <= 32 then
+      Children_GUID.rcv_ch = send_info
+
+      if e <= 32 then -- set pad's output pin
         l_pin_idx = 0 --left 
         r_pin_idx = 1 -- right
         if e <= 16 then -- use low for 1~16
@@ -510,11 +522,13 @@ local function ExplodePadsToTracks()
     end
     local bus_track = r.CSurf_TrackFromID(track_id + 1, false)
     r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERDEPTH', 1) -- parent folder
-    r.GetSetMediaTrackInfo_String(bus_track, 'P_NAME', "ReaDrum Bus", true)
+    r.GetSetMediaTrackInfo_String(bus_track, 'P_NAME', "RDM Bus", true)
     r.SetMediaTrackInfo_Value(last_child, 'I_FOLDERDEPTH', -1) -- last child track
     r.SetMediaTrackInfo_Value(bus_track, 'I_FOLDERCOMPACT', 1) -- collapse folder
     r.SetMediaTrackInfo_Value(drum_track, 'I_SELECTED', 1) -- select drum track
     r.SetMediaTrackInfo_Value(drum_track, 'B_MAINSEND', 0) -- turn off master send
+    local pExtStateStr = pickle(Children_GUID) -- pickle table to string
+    r.SetProjExtState(0, "Suzuki_SetNSend_ch", track_guid .. "child_guid", pExtStateStr) -- write pickled table as string to project extended state
 end
   
 local function RenameWindow(a, note_name)
