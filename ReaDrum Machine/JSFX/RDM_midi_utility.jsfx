@@ -1,10 +1,9 @@
 noindex: true
-
 desc:RDM MIDI Utility
 // Thanks SNJUK2!
 
 slider1:N=21<0,127,1> Note
-slider2:led=0<0,1,1> Led
+slider2:led=0<0,1,1> -Led 
 
 in_pin:none
 out_pin:none
@@ -20,12 +19,15 @@ function isNoteOff()(noteStatus == noteOff || (noteStatus == noteOn && msg3 == 0
 
  while (midirecv(offset,msg1,msg2,msg3)) (
        noteStatus = msg1 & $xF0;
+       
          isNoteOn() && msg2 == N  ? (
            led = 1;
            midisend(offset,msg1,N,msg3);
-         );
-       isNoteOff() && msg2 == N ? (
-          led = 0;
-          midisend(offset,msg1,N,msg3);
-       );
+           );
+         isNoteOff() && msg2 == N ? (
+           led = 0;
+           midisend(offset,msg1,N,msg3);
+           );
+           noteStatus != noteOn ? noteStatus != noteOff ? midisend(offset,msg1,msg2,msg3);
+         
  );
