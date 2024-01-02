@@ -1,9 +1,10 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.3.8
+-- @version 1.3.9
 -- @changelog 
---   # Fixed recalling default values
+--   + Added CC passthrough to MIDI utility. Thanks SNJUK2!
+--   # Fixed crash when creating a new track while opening RS5k UI
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
