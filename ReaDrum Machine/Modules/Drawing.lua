@@ -163,8 +163,6 @@ local function CalculateStripUV(img, V)
   return uvmin, uvmax, w, h
 end
 
---RecallInfo(Content, parm .. '. ' .. name .. ' = ', 'Num')
-
 local function RecallInfo(Str, ID)
   if Str then
     local value, LineChange
@@ -419,12 +417,13 @@ local function ArrowButtons(a)
   r.ImGui_PopButtonRepeat(ctx)
 end
 
-function FXUI(a)
+function RS5kUI(a)
   -- integer reaper.PCM_Source_GetPeaks(PCM_source src, number peakrate, number starttime, integer numchannels, integer numsamplesperchannel, integer want_extra_type, reaper.array buf)
-  if not Pad[a].RS5k_Instances[WhichRS5k] then WhichRS5k = 1 end
+  if not Pad[a] then return end
+  if not Pad[a].RS5k_Instances[WhichRS5k] and WhichRS5k > #Pad[a].RS5k_Instances then WhichRS5k = 1 end
   ArrowButtons(a)
   r.ImGui_SameLine(ctx)
-
+  
   if Pad[a].Sample_Name[WhichRS5k] then
     sample_name = Pad[a].Sample_Name[WhichRS5k]
   else

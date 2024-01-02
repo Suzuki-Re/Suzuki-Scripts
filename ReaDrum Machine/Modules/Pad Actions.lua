@@ -236,7 +236,7 @@ end
 
 -- right click --
 function OpenRS5kInsidePad(a, y)
-  if not Pad[a] then return end 
+  if not Pad[a] then OPEN_PAD = nil return end 
   if not WhichRS5k then
     WhichRS5k = 1
   end
@@ -244,7 +244,12 @@ function OpenRS5kInsidePad(a, y)
   r.ImGui_SameLine(ctx, nil, 0)
   PositionOffset(10, y)
   if r.ImGui_BeginChild(ctx, "open_pad", 250 + 110, 220 + 88, false) then
-    FXUI(a)
+    if not Pad[a] then -- to prevent crash when creating a new track (BeginChild -> do nothing -> Endchild)
+    elseif not Pad[a].RS5k_Instances[1] then
+      r.ImGui_TextDisabled(ctx, 'No RS5k inside pad')
+    else
+      RS5kUI(a)
+    end
     r.ImGui_EndChild(ctx)
   end
 end
