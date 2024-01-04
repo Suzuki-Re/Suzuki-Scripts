@@ -1,10 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.3.9
+-- @version 1.4.0
 -- @changelog 
---   + Added CC passthrough to MIDI utility. Thanks SNJUK2!
---   # Fixed crash when creating a new track while opening RS5k UI
+--   # Made "Explode all pads to tracks" action be compatible with "Explode pad to track" action.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
