@@ -228,8 +228,27 @@ local function DefaultValueWindow(label, fxidx)
   end
 end
 
-local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
+function ParameterTooltip(fxidx, parm)
+  if r.ImGui_BeginTooltip(ctx) then -- show parameter value
+    local _, parm_v = r.TrackFX_GetFormattedParamValue(track, fxidx, parm)
+    r.ImGui_PushTextWrapPos(ctx, r.ImGui_GetFontSize(ctx) * 35.0)
+    r.ImGui_PushFont(ctx, FONT)
+    r.ImGui_Text(ctx, parm_v)
+    r.ImGui_PopFont(ctx)
+    r.ImGui_PopTextWrapPos(ctx)
+    r.ImGui_EndTooltip(ctx)
+  end
+end
+
+function GetSetParamValues(fxidx, parm, drag_delta, step)
   local p_value = r.TrackFX_GetParamNormalized(track, fxidx, parm)
+  local p_value = p_value + (drag_delta * step)
+  if p_value < 0 then p_value = 0 end
+  if p_value > 1 then p_value = 1 end
+  r.TrackFX_SetParamNormalized(track, fxidx, parm, p_value)
+end
+
+local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
   local draw_list = r.ImGui_GetWindowDrawList(ctx)
   local Image = r.ImGui_CreateImage(r.GetResourcePath() .. "/Scripts/Suzuki Scripts/ReaDrum Machine/Images/FancyBlueKnob.png")
   local pos          = {r.ImGui_GetCursorScreenPos(ctx)}
@@ -243,19 +262,8 @@ local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
     local stepscale = 1
     if SHIFT then stepscale = 6 end
     local step = (1 - 0) / (200.0 * stepscale)
-    local p_value = p_value + (v * step * 4)
-    if p_value < 0 then p_value = 0 end
-    if p_value > 1 then p_value = 1 end
-    r.TrackFX_SetParamNormalized(track, fxidx, parm, p_value)
-    if r.ImGui_BeginTooltip(ctx) then -- show parameter value
-      local _, parm_v = r.TrackFX_GetFormattedParamValue(track, fxidx, parm)
-      r.ImGui_PushTextWrapPos(ctx, r.ImGui_GetFontSize(ctx) * 35.0)
-      r.ImGui_PushFont(ctx, FONT)
-      r.ImGui_Text(ctx, parm_v)
-      r.ImGui_PopFont(ctx)
-      r.ImGui_PopTextWrapPos(ctx)
-      r.ImGui_EndTooltip(ctx)
-    end
+    GetSetParamValues(fxidx, parm, (4 * v), step)
+    ParameterTooltip(fxidx, parm)
   end
   local BtnL, BtnT = r.ImGui_GetItemRectMin(ctx)
   local BtnR, BtnB = r.ImGui_GetItemRectMax(ctx)
@@ -278,35 +286,21 @@ local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
       end
       if SHIFT then stepscale = 3 end
       local step = (1 - 0) / (200.0 * stepscale)
-      local p_value = p_value + (-mouse_delta[2] * step)
-      if p_value < 0 then p_value = 0 end
-      if p_value > 1 then p_value = 1 end
       if SELECTED then
         for k, v in pairs(SELECTED) do
-          --UpdatePadID()
           local k = tonumber(k)
           if Pad[k] and Pad[k].RS5k_ID then
-            r.TrackFX_SetParamNormalized(track, Pad[k].RS5k_ID, parm, p_value)
+            GetSetParamValues(Pad[k].RS5k_ID, parm, -mouse_delta[2], step)
           end
         end
       else
-        r.TrackFX_SetParamNormalized(track, fxidx, parm, p_value)
+        GetSetParamValues(fxidx, parm, -mouse_delta[2], step)
       end
     end
     local _, Y_Pos = r.ImGui_GetCursorScreenPos(ctx)
     local window_padding = { r.ImGui_GetStyleVar(ctx, r.ImGui_StyleVar_WindowPadding()) }
-            r.ImGui_SetNextWindowPos(ctx, pos[1] + radius_outer / 2,
-                Y_Pos or pos[2] - line_height - window_padding[2] - 8)
-
-    if r.ImGui_BeginTooltip(ctx) then -- show parameter value
-      local _, parm_v = r.TrackFX_GetFormattedParamValue(track, fxidx, parm)
-      r.ImGui_PushTextWrapPos(ctx, r.ImGui_GetFontSize(ctx) * 35.0)
-      r.ImGui_PushFont(ctx, FONT)
-      r.ImGui_Text(ctx, parm_v)
-      r.ImGui_PopFont(ctx)
-      r.ImGui_PopTextWrapPos(ctx)
-      r.ImGui_EndTooltip(ctx)
-    end
+    r.ImGui_SetNextWindowPos(ctx, pos[1] + radius_outer / 2, Y_Pos or pos[2] - line_height - window_padding[2] - 8)
+    ParameterTooltip(fxidx, parm)
   end
   if r.ImGui_BeginPopup(ctx, "input value##" .. label) then
     if r.ImGui_IsWindowAppearing(ctx) then

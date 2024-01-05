@@ -120,13 +120,26 @@ function SendMidiNote(notenum) -- Thanks Sexan!
   end
 end
 
-local function AdjustPadVolume(a)
-  if not r.ImGui_IsItemHovered(ctx) then return end
+function AdjustPadVolume(a)
   if r.ImGui_IsMouseDragging(ctx, 0) then
     if Pad[a] then
-      local wet = r.TrackFX_GetParamFromIdent(track, Pad[a].Pad_ID, ":wet")
-      local volume = r.TrackFX_GetParam(track, Pad[a].Pad_ID, wet)
-      r.TrackFX_SetParam(track, Pad[a].Pad_ID, volume, v / 100)
+      local mouse_delta = { r.ImGui_GetMouseDelta(ctx) }
+      local stepscale = 1
+      local step = (1 - 0) / (200.0 * stepscale)
+      if SELECTED then
+        for k, v in pairs(SELECTED) do
+          local k = tonumber(k)
+          if Pad[k] then
+            local wet = r.TrackFX_GetParamFromIdent(track, Pad[k].Pad_ID, ":wet")
+            GetSetParamValues(Pad[k].Pad_ID, wet, -mouse_delta[2], step)
+            ParameterTooltip(Pad[k].Pad_ID, wet)
+          end
+        end
+      else
+        local wet = r.TrackFX_GetParamFromIdent(track, Pad[a].Pad_ID, ":wet")
+        GetSetParamValues(Pad[a].Pad_ID, wet, -mouse_delta[2], step)
+        ParameterTooltip(Pad[a].Pad_ID, wet)
+      end
     end
   end
 end
@@ -139,7 +152,6 @@ function ClearPad(a, pad_num)
 end
 
 function ClickPadActions(a)
-  -- if not r.ImGui_IsItemHovered(ctx) then return end
   if Pad[a] then
     if ALT then
       r.Undo_BeginBlock()
@@ -164,9 +176,12 @@ function ClickPadActions(a)
       UpdatePadID()
       r.PreventUIRefresh(-1)
       EndUndoBlock("CLEAR PAD")
-    elseif SHIFT and not r.ImGui_IsMouseDoubleClicked(ctx, 0) then
+    elseif SHIFT and not r.ImGui_IsMouseDoubleClicked(ctx, 0) and not r.ImGui_IsMouseDragging(ctx, 0) then
       if SELECTED and SELECTED[tostring(a)] then -- unselect
         SELECTED[tostring(a)] = nil
+        if #SELECTED == 0 then -- reset table if it's empty
+          SELECTED = nil
+        end
       else
         if not SELECTED then
           SELECTED = {}
@@ -178,7 +193,7 @@ function ClickPadActions(a)
         r.Undo_BeginBlock()      
         for k, v in pairs(SELECTED) do
           local k = tonumber(k)
-          if Pad[k] then -- open/close the rest
+          if Pad[k] then -- open/close
             local open = r.TrackFX_GetOpen(track, Pad[k].Pad_ID) -- 0 based
             if open then
               r.TrackFX_Show(track, Pad[k].Pad_ID, 2)           -- hide floating window
