@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.4.0
+-- @version 1.4.1
 -- @changelog 
---   # Made "Explode all pads to tracks" action be compatible with "Explode pad to track" action.
+--   + Added volume adjustment to each pad. Shift + dragging pad adjusts pad's (container) volume.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
@@ -253,6 +253,8 @@ function DrawPads(loopmin, loopmax)
       ClickPadActions(a)
     elseif r.ImGui_IsItemClicked(ctx, 1) and Pad[a] and not CTRL then
       OPEN_PAD = toggle2(OPEN_PAD, a)
+    elseif SHIFT and r.ImGui_IsMouseDragging(ctx, 0) and r.ImGui_IsItemActive(ctx) then
+      AdjustPadVolume(a)
     else
       DndMoveFX_SRC(a)
     end

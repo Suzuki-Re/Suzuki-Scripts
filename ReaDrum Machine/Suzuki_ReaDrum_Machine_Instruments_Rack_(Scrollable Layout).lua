@@ -1,12 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.2.8
+-- @version 1.4.1
 -- @noindex
 -- @changelog 
---   + Added toggle multi select (Shift + Click pad). Mute, solo, add FX, remove pad, rename, output pin mappings, explode, obey note-off, and loop are supported.
---   Alt + double clicking the outside of pads toggle selects all pads. Support for move, swap, and copy pads, adding samples, and load selected items to selected pads will be added in the future update.
---   + MIDI input triggers the drum pads to light up now.
+--   + Added volume adjustment to each pad. Shift + dragging pad adjusts pad's (container) volume.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. This is a version which lets users scroll vertically.
 
@@ -236,6 +234,8 @@ function DrawPads(loopmin, loopmax)
       ClickPadActions(a)
     elseif r.ImGui_IsItemClicked(ctx, 1) and Pad[a] and not CTRL then
       OPEN_PAD = toggle2(OPEN_PAD, a)
+    elseif SHIFT and r.ImGui_IsMouseDragging(ctx, 0) and r.ImGui_IsItemActive(ctx) then
+      AdjustPadVolume(a)
     else
       DndMoveFX_SRC(a)
     end
