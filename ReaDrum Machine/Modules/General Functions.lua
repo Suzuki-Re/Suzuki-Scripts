@@ -21,6 +21,12 @@ function CheckKeys()
   SPACE = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Space())
   ESC = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Escape())
 
+  UpArrow = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_UpArrow())
+  DownArrow = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_DownArrow())
+  
+  UpArrowReleased = r.ImGui_IsKeyReleased(ctx, r.ImGui_Key_UpArrow())
+  DownArrowReleased = r.ImGui_IsKeyReleased(ctx, r.ImGui_Key_DownArrow())
+
   Z = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Z())
 
   if HOME then CANVAS.off_x, CANVAS.off_y = 0, def_vertical_y_center end

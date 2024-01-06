@@ -314,19 +314,22 @@ end
 local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
   local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   local rs5k_id = ConvertPathToNestedPath(pad_id, add_pos)
-  local rv, payload = r.ImGui_GetDragDropPayloadFile(ctx, i) -- 0 based
+  local _, payload = r.ImGui_GetDragDropPayloadFile(ctx, i) -- 0 based
   r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
-  r.TrackFX_Show(track, rs5k_id, 2)
-  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)         -- Sample mode
-  r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '') -- remove file list
-  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', payload) -- add file
-  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')        -- always necessary
   Pad[a].RS5k_ID = rs5k_id
-  local filename = payload:match("([^\\/]+)%.%w%w*$")
-  r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
-  if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
-  r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
-  Pad[a].Name = filename
+  r.TrackFX_Show(track, rs5k_id, 2)
+  local ext = payload:match("([^%.]+)$")
+  if r.IsMediaExtension(ext, false) and #ext <= 4 and ext ~= "mid" then
+    r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)         -- Sample mode
+    r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '') -- remove file list
+    r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', payload) -- add file
+    r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')        -- always necessary
+    local filename = payload:match("([^\\/]+)%.%w%w*$")
+    r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
+    if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
+    r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
+    Pad[a].Name = filename
+  end
 end
 
 function DndAddSample_TARGET(a)
@@ -354,16 +357,19 @@ function DndAddSample_TARGET(a)
             retval, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'original_name')
             if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
               found = true
-              rv, payload = r.ImGui_GetDragDropPayloadFile(ctx, i)
-              r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'FILE0', payload) -- change file
-              r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'DONE', '')
-              local filename = payload:match("([^\\/]+)%.%w%w*$")
-              Pad[a].Name = filename
-              if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
-              r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
-              r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
-              r.TrackFX_SetParam(track, find_rs5k, 13, 0) -- Sample start offset, reset
-              r.TrackFX_SetParam(track, find_rs5k, 14, 1) -- Sample end offset, reset
+              local _, payload = r.ImGui_GetDragDropPayloadFile(ctx, i)
+              local ext = payload:match("([^%.]+)$")
+              if r.IsMediaExtension(ext, false) and #ext <= 4 and ext ~= "mid" then
+                r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'FILE0', payload) -- change file
+                r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'DONE', '')
+                local filename = payload:match("([^\\/]+)%.%w%w*$")
+                Pad[a].Name = filename
+                if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
+                r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
+                r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
+                r.TrackFX_SetParam(track, find_rs5k, 13, 0) -- Sample start offset, reset
+                r.TrackFX_SetParam(track, find_rs5k, 14, 1) -- Sample end offset, reset
+              end
             end
           end
           if not found then

@@ -392,6 +392,69 @@ local function LoopSwitch(a)
   end
 end
 
+local function ChangeSample(track, fxidx)
+  local rv, sample = r.TrackFX_GetNamedConfigParm(track, fxidx, "FILE0")
+
+  if not rv or sample == "" then return end
+
+  local dir, file = sample:match("^(.-)([^/\\]+)$")
+  if not dir or not file then return end
+
+  local files = {}
+  local i = 0
+  while true do
+    local file_name = r.EnumerateFiles(dir, i)
+    if not file_name then
+      break
+    end
+    local ext = file_name:match("([^%.]+)$")
+    if r.IsMediaExtension(ext, false) and #ext <= 4 and ext ~= "mid" then
+      table.insert(files, file_name)
+    end
+    i = i + 1
+  end
+
+  table.sort(files)
+
+  local idx
+  for i, file_name in ipairs(files) do
+    if file_name == file then
+      idx = i
+      break
+    end
+  end
+  
+  local new_idx
+  if UpArrow then
+    new_idx = idx - 1
+    if new_idx < 1 then
+      new_idx = #files
+    end
+  elseif DownArrow then
+    new_idx = idx + 1
+    if new_idx > #files then
+      new_idx = 1
+    end
+  elseif R then
+    new_idx = math.random(#files)
+    while new_idx == idx do
+      new_idx = math.random(#files)
+    end
+  else
+    return
+  end
+
+  local new_file = files[new_idx]
+  if not new_file then
+    return
+  end
+
+  local new_sample = dir .. new_file
+
+  r.TrackFX_SetNamedConfigParm(track, fxidx, "FILE0", new_sample)
+  r.TrackFX_SetNamedConfigParm(track, fxidx, "DONE", "")
+end
+
 local function ArrowButtons(a)
   local spacing = r.ImGui_GetStyleVar(ctx, r.ImGui_StyleVar_ItemInnerSpacing())
   r.ImGui_PushButtonRepeat(ctx, true)
@@ -429,6 +492,12 @@ function RS5kUI(a)
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_ButtonActive(),  0x9999996f)
   --r.ImGui_PushFont(ctx, FONT)
   local rv = r.ImGui_Button(ctx, "RS5k[" .. ('%d'):format(WhichRS5k) .. "] " .. sample_name) -- RS5k instance number + Sample name
+  if DownArrow or UpArrow or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_R()) then
+    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k])
+    r.StuffMIDIMessage(0, 0x90, Pad[a].Note_Num, 96)
+  elseif DownArrowReleased or UpArrowReleased or r.ImGui_IsKeyReleased(ctx, r.ImGui_Key_R()) then
+    r.StuffMIDIMessage(0, 0x80, Pad[a].Note_Num, 96) -- send note_r
+  end
   --r.ImGui_PopFont(ctx)
   if rv then
     local open = r.TrackFX_GetOpen(track, Pad[a].RS5k_Instances[WhichRS5k]) -- 0 based

@@ -600,20 +600,23 @@ local function AddSampleFromArrange(pad_num, add_pos, a, filenamebuf, start_offs
   r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
   Pad[a].RS5k_ID = rs5k_id
   r.TrackFX_Show(track, rs5k_id, 2)
-  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)             -- Sample mode
-  r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '')
-  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', filenamebuf) -- add file
-  r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')            -- always necessary
-  --r.TrackFX_SetParam(track, rs5k_id, 0, take_vol)  -- volume 0 .. 1 ..  4
-  r.TrackFX_SetParam(track, rs5k_id, 1, 0.5 + take_pan / 2)  -- pan 0 .. 1
-  --r.TrackFX_SetParam(track, rs5k_id, 11, 1)                           -- obey note offs
-  r.TrackFX_SetParam(track, rs5k_id, 13, start_offset)                -- Sample start offset
-  r.TrackFX_SetParam(track, rs5k_id, 14, end_offset)                  -- Sample end offset
-  r.TrackFX_SetParam(track, rs5k_id, 15, (take_pitch + 80) / 160)                  -- Pitch offset 0 .. 1
-  local filename = filenamebuf:match("([^\\/]+)%.%w%w*$")
-  if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
-  r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
-  Pad[a].Name = filename
+  local ext = filenamebuf:match("([^%.]+)$")
+  if r.IsMediaExtension(ext, false) and #ext <= 4 and ext ~= "mid" then
+    r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)             -- Sample mode
+    r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '')
+    r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', filenamebuf) -- add file
+    r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')            -- always necessary
+    --r.TrackFX_SetParam(track, rs5k_id, 0, take_vol)  -- volume 0 .. 1 ..  4
+    r.TrackFX_SetParam(track, rs5k_id, 1, 0.5 + take_pan / 2)  -- pan 0 .. 1
+    --r.TrackFX_SetParam(track, rs5k_id, 11, 1)                           -- obey note offs
+    r.TrackFX_SetParam(track, rs5k_id, 13, start_offset)                -- Sample start offset
+    r.TrackFX_SetParam(track, rs5k_id, 14, end_offset)                  -- Sample end offset
+    r.TrackFX_SetParam(track, rs5k_id, 15, (take_pitch + 80) / 160)                  -- Pitch offset 0 .. 1
+    local filename = filenamebuf:match("([^\\/]+)%.%w%w*$")
+    if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
+    r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
+    Pad[a].Name = filename
+  end
 end
   
 local function LoadItemsFromArrange(a)
