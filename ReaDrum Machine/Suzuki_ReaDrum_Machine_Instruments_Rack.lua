@@ -1,9 +1,11 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.4.1
+-- @version 1.4.2
 -- @changelog 
---   + Added volume adjustment to each pad. Shift + dragging pad adjusts pad's (container) volume.
+--   + Added sample change feature. Open RS5k UI, hover mouse over sample name, and then press up arrow (previous sample), down arrow (next sample) or R key (random sample).
+--   # Migrate tilr's repo to new one.
+--   # Prevent loading non-audio files (e.g. .txt, .mid).
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
@@ -51,7 +53,7 @@ function ThirdPartyDeps() -- FX Browser
   --reaper.ShowConsoleMsg((version))
 
   local midi_trigger_envelope = r.GetResourcePath() .. "/Effects/Suzuki Scripts/lewloiwc's Sound Design Suite/lewloiwc_midi_trigger_envelope.jsfx"
-  local sk_filter = r.GetResourcePath() .. "/Effects/ReaTeam JSFX/Filter/tilr_SKFilter.jsfx"
+  local sk_filter = r.GetResourcePath() .. "/Effects/tilr_jsfx/skfilter/skfilter.jsfx"
 
   local fx_browser_path
   local n, arch = r.GetAppVersion():match("(.+)/(.+)")
@@ -67,7 +69,8 @@ function ThirdPartyDeps() -- FX Browser
 
   local reapack_process
   local repos = {
-    { name = "Sexan_Scripts", url = 'https://github.com/GoranKovac/ReaScripts/raw/master/index.xml' }
+    {name = "Sexan_Scripts", url = 'https://github.com/GoranKovac/ReaScripts/raw/master/index.xml'},
+    {name = "tilr_jsfx", url = 'https://raw.githubusercontent.com/tiagolr/tilr_jsfx/master/index.xml'}
   }
 
   for i = 1, #repos do
@@ -102,7 +105,7 @@ function ThirdPartyDeps() -- FX Browser
       r.ReaPack_BrowsePackages('lewloiwc Sound Design Suite')
       return 'error lewloiwc Sound Design Suite'
     end
-     -- tilr SKFilter
+    -- tilr SKFilter
     if r.file_exists(sk_filter) then
       local found_filter = true
     else
