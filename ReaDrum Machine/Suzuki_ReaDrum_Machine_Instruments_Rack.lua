@@ -1,11 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.4.2
+-- @version 1.4.3
 -- @changelog 
---   + Added sample change feature. Open RS5k UI, hover mouse over sample name, and then press up arrow (previous sample), down arrow (next sample) or R key (random sample).
---   # Migrate tilr's repo to new one.
---   # Prevent loading non-audio files (e.g. .txt, .mid).
+--   # Hotfix: SKfilter's path and FXChain.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
@@ -53,7 +51,7 @@ function ThirdPartyDeps() -- FX Browser
   --reaper.ShowConsoleMsg((version))
 
   local midi_trigger_envelope = r.GetResourcePath() .. "/Effects/Suzuki Scripts/lewloiwc's Sound Design Suite/lewloiwc_midi_trigger_envelope.jsfx"
-  local sk_filter = r.GetResourcePath() .. "/Effects/tilr_jsfx/skfilter/skfilter.jsfx"
+  local sk_filter = r.GetResourcePath() .. "/Effects/tilr_jsfx/Filter/skfilter.jsfx"
 
   local fx_browser_path
   local n, arch = r.GetAppVersion():match("(.+)/(.+)")
