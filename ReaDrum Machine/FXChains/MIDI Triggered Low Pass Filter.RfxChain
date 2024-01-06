@@ -5,18 +5,17 @@ BYPASS 0 0
 FXID {4F27FDEF-155D-44C0-B0A2-1D74770CB048}
 WAK 0 0
 BYPASS 0 0
-<JS "ReaTeam JSFX/Filter/tilr_SKFilter.jsfx" ""
-  1 0 -2 0.155 0.7 0 0 - - 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+<JS "Tilr Scripts/skfilter/skfilter.jsfx" ""
+  1 0 -2 0.153 0.7 0 0 - - 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 >
-JS_DIMS 507 522
-FXID {2510E81A-94E9-434C-AB39-C18B87B19C7A}
+FXID {C791478B-32AE-42B0-8F7F-F86BBBF74792}
 <PROGRAMENV 3 0 "Cutoff / SKFilter"
-  PARAMBASE 0.155
+  PARAMBASE 0.153
   LFO 0
   LFOWT 1 1
   AUDIOCTL 0
   AUDIOCTLWT 1 1
   PLINK 1 1:-1 10 0 ""
-  MODWND 0 450 648 854 908
+  MODWND 0 884 650 1288 910
 >
 WAK 0 0
