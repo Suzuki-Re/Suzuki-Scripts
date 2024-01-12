@@ -1,12 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.4.2
+-- @version 1.4.1
 -- @noindex
 -- @changelog 
---   + Added sample change feature. Open RS5k UI, hover mouse over sample name, and then press up arrow (previous sample), down arrow (next sample) or R key (random sample).
---   # Migrate tilr's repo to new one.
---   # Prevent loading non-audio files (e.g. .txt, .mid).
+--   + Added volume adjustment to each pad. Shift + dragging pad adjusts pad's (container) volume.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. This is a version which lets users scroll vertically.
 
@@ -39,9 +37,6 @@ end
 function ThirdPartyDeps() -- FX Browser
   local version = tonumber(string.sub(r.GetAppVersion(), 0, 4))
   --reaper.ShowConsoleMsg((version))
-　
-　local midi_trigger_envelope = r.GetResourcePath() .. "/Effects/Suzuki Scripts/lewloiwc's Sound Design Suite/lewloiwc_midi_trigger_envelope.jsfx"
-  local sk_filter = r.GetResourcePath() .. "/Effects/tilr_jsfx/Filter/skfilter.jsfx"
 
   local fx_browser_path
   local n, arch = r.GetAppVersion():match("(.+)/(.+)")
@@ -57,8 +52,7 @@ function ThirdPartyDeps() -- FX Browser
 
   local reapack_process
   local repos = {
-    { name = "Sexan_Scripts", url = 'https://github.com/GoranKovac/ReaScripts/raw/master/index.xml' },
-    {name = "tilr_jsfx", url = 'https://raw.githubusercontent.com/tiagolr/tilr_jsfx/master/index.xml'}
+    { name = "Sexan_Scripts", url = 'https://github.com/GoranKovac/ReaScripts/raw/master/index.xml' }
   }
 
   for i = 1, #repos do
@@ -85,22 +79,6 @@ function ThirdPartyDeps() -- FX Browser
       r.ShowMessageBox("Sexan FX BROWSER is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
       r.ReaPack_BrowsePackages(fx_browser_reapack)
       return 'error Sexan FX BROWSER'
-    end
-            -- lewloiwc Sound Design Suite
-    if r.file_exists(midi_trigger_envelope) then
-      local found_midi_envelope = true
-    else
-      r.ShowMessageBox("lewloiwc Sound Design Suite is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
-      r.ReaPack_BrowsePackages('lewloiwc Sound Design Suite')
-      return 'error lewloiwc Sound Design Suite'
-    end
-    -- tilr SKFilter
-    if r.file_exists(sk_filter) then
-      local found_filter = true
-    else
-      r.ShowMessageBox("tilr SKFilter is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
-      r.ReaPack_BrowsePackages('tilr SKFilter')
-      return 'error tilr SKFilter'
     end
   end
 end
@@ -223,8 +201,10 @@ function DrawPads(loopmin, loopmax)
   DoubleClickActions(false, false)
 
   for a = loopmin, loopmax do
+    local midi_octave_offset = r.SNM_GetIntConfigVar("midioctoffs", 0)
+    midi_oct_offs = (midi_octave_offset - 1) * 12
     notenum = a - 1
-    note_name = getNoteName(notenum)
+    note_name = getNoteName(notenum + midi_oct_offs)
 
     if Pad[a] then
       if Pad[a].Rename then

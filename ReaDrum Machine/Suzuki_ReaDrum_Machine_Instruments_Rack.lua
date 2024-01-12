@@ -1,15 +1,15 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.4.3
+-- @version 1.4.4
 -- @changelog 
---   # Hotfix: SKfilter's path and FXChain.
+--   + Added midi octave name display ofsset support
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
 --   ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 --   ### Prerequisites
---   REAPER v7.06+, ReaImGui, and Sexan's FX Browser
+--   REAPER v7.06+, ReaImGui, S&M extension and Sexan's FX Browser
 -- @provides
 --   Fonts/*.ttf
 --   FXChains/*.RfxChain
@@ -222,8 +222,10 @@ function DrawPads(loopmin, loopmax)
   DoubleClickActions(loopmin, loopmax)
   
   for a = loopmin, loopmax do
+    local midi_octave_offset = r.SNM_GetIntConfigVar("midioctoffs", 0)
+    midi_oct_offs = (midi_octave_offset - 1) * 12
     notenum = a - 1
-    note_name = getNoteName(notenum)
+    note_name = getNoteName(notenum + midi_oct_offs)
 
     if Pad[a] then
       if Pad[a].Rename then
