@@ -698,7 +698,7 @@ local function LoadItemsFromArrange(a)
         local pads_idx = CountPads()                                             -- pads_idx = num
         AddPad(getNoteName(notenum + c - 1 - d), a + c - 1 - d) -- pad_id = loc, pad_num = num
         AddNoteFilter(notenum + c - 1 - d, pad_num)
-        AddSampleFromArrange(Pad[a + c - 1 - d].Pad_Num, 2, a + c - 1 - d, filenamebuf, start_offset, end_offset, take_pitch, getNoteName(notenum + c - 1 - d))
+        AddSampleFromArrange(Pad[a + c - 1 - d].Pad_Num, 2, a + c - 1 - d, filenamebuf, start_offset, end_offset, take_pitch, getNoteName(notenum + c - 1 - d + midi_oct_offs))
       elseif Pad[a + c - 1 - d].Pad_Num then
         CountPadFX(Pad[a + c - 1 - d].Pad_Num) -- padfx_idx = num
         local found = false
@@ -717,7 +717,7 @@ local function LoadItemsFromArrange(a)
         end
         if not found then
           AddSampleFromArrange(Pad[a + c - 1 - d].Pad_Num, padfx_idx + 1, a + c - 1 - d, filenamebuf, start_offset,
-            end_offset, take_pitch, getNoteName(notenum + c - 1 - d))
+            end_offset, take_pitch, getNoteName(notenum + c - 1 - d + midi_oct_offs))
         end
       end
     r.SetTrackMIDINoteNameEx(0, track, notenum + c - 1 - d, 0, 'test' .. notenum + c - 1 - d) -- rename in ME

@@ -347,7 +347,7 @@ function DndAddSample_TARGET(a)
           if not pads_idx then return end
           AddPad(getNoteName(notenum + i), a + i) -- pad_id = loc, pad_num = num
           AddNoteFilter(notenum + i, pad_num)
-          AddSamplesToRS5k(pad_num, 2, i, a + i, notenum + i, getNoteName(notenum + i)) -- Pad[a].Name
+          AddSamplesToRS5k(pad_num, 2, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs)) -- Pad[a].Name
         elseif Pad[a + i].Pad_Num then
           CountPadFX(Pad[a + i].Pad_Num) -- padfx_idx = num
           local found = false
@@ -364,6 +364,7 @@ function DndAddSample_TARGET(a)
                 r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'DONE', '')
                 local filename = payload:match("([^\\/]+)%.%w%w*$")
                 Pad[a].Name = filename
+                local note_name = getNoteName(notenum + i + midi_oct_offs)
                 if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
                 r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
                 r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
@@ -373,7 +374,7 @@ function DndAddSample_TARGET(a)
             end
           end
           if not found then
-            AddSamplesToRS5k(Pad[a + i].Pad_Num, padfx_idx + 1, i, a + i, notenum + i, getNoteName(notenum + i))
+            AddSamplesToRS5k(Pad[a + i].Pad_Num, padfx_idx + 1, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs))
           end
         end
       end

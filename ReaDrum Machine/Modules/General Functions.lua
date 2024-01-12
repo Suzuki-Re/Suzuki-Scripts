@@ -94,7 +94,7 @@ function get_fx_id_from_container_path(tr, idx1, ...) -- 1based
   end
 end
 
-function get_container_path_from_fx_id(tr, fxidx) -- returns a list of 1-based FXIDs as a table from a fx-address, e.g. 1, 2, 4
+local function get_container_path_from_fx_id(tr, fxidx) -- returns a list of 1-based FXIDs as a table from a fx-address, e.g. 1, 2, 4
   if fxidx & 0x2000000 then
     local ret = { }
     local n = reaper.TrackFX_GetCount(tr)
@@ -207,7 +207,7 @@ end
   
 function CountPadFX(pad_num)                                                        -- padfx_idx
   local _, which_pad = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
-  rv, padfx_idx = r.TrackFX_GetNamedConfigParm(track, which_pad, 'container_count') -- 0 based
+  rv, padfx_idx = r.TrackFX_GetNamedConfigParm(track, tonumber(which_pad), 'container_count') -- 0 based
   return padfx_idx
 end
   
@@ -298,21 +298,6 @@ function UpdatePadID()
       RS5k_Instances = {},
       Sample_Name = {}
     }
-    for f = 1, Pad[rv + 1].FX_Num do
-      if f == 1 then
-        found_RS5k = 0
-      end
-      local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[rv + 1].Pad_Num - 1) -- 0 based
-      local FX_id = ConvertPathToNestedPath(pad_id, f)
-      local retval, buf = r.TrackFX_GetNamedConfigParm(track, FX_id, 'original_name')
-      if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
-        found_RS5k = found_RS5k + 1
-        Pad[rv + 1].RS5k_Instances[found_RS5k] = FX_id
-        local _, sample = r.TrackFX_GetNamedConfigParm(track, FX_id, "FILE")
-        local sample = sample:match("([^\\/]+)%.%w%w*$")
-        Pad[rv + 1].Sample_Name[found_RS5k] = sample
-      end
-    end
     rev, value = r.GetProjExtState(0, 'ReaDrum Machine', 'Rename' .. rv + 1)
     if rev == 1 then
       Pad[rv + 1].Rename = value
@@ -320,13 +305,19 @@ function UpdatePadID()
     CountPadFX(p) -- Set Pad[a].Name
     local found = false
     for f = 1, padfx_idx do
+      if f == 1 then
+        found_RS5k = 0
+      end
       local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. f - 1) -- 0 based
-      local retval, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'original_name')
+      local _, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'original_name')
       if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
         Pad[rv + 1].RS5k_ID = find_rs5k
+        found_RS5k = found_RS5k + 1
+        Pad[rv + 1].RS5k_Instances[found_RS5k] = find_rs5k
         found = true
         local _, bf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'FILE0')  
         local filename = bf:match("([^\\/]+)%.%w%w*$")
+        Pad[rv + 1].Sample_Name[found_RS5k] = filename
         Pad[rv + 1].Name = filename
         if Pad[rv + 1].Rename then
           r.SetTrackMIDINoteNameEx(0, track, rv, 0, Pad[rv + 1].Rename)
