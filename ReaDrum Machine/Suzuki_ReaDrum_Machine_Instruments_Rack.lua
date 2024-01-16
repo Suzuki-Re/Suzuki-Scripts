@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.4.4
+-- @version 1.4.5
 -- @changelog 
---   + Added midi octave name display ofsset support
+--   # Updated tilr's repo name. Remove tilr_jsfx repository if you have it in the repository list.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
@@ -51,7 +51,8 @@ function ThirdPartyDeps() -- FX Browser
   --reaper.ShowConsoleMsg((version))
 
   local midi_trigger_envelope = r.GetResourcePath() .. "/Effects/Suzuki Scripts/lewloiwc's Sound Design Suite/lewloiwc_midi_trigger_envelope.jsfx"
-  local sk_filter = r.GetResourcePath() .. "/Effects/tilr_jsfx/Filter/skfilter.jsfx"
+  local sk_filter = r.GetResourcePath() .. "/Effects/Tilr/Filter/skfilter.jsfx"
+  local sk_filter2 = r.GetResourcePath() .. "/Effects/tilr_jsfx/Filter/skfilter.jsfx"
 
   local fx_browser_path
   local n, arch = r.GetAppVersion():match("(.+)/(.+)")
@@ -68,7 +69,7 @@ function ThirdPartyDeps() -- FX Browser
   local reapack_process
   local repos = {
     {name = "Sexan_Scripts", url = 'https://github.com/GoranKovac/ReaScripts/raw/master/index.xml'},
-    {name = "tilr_jsfx", url = 'https://raw.githubusercontent.com/tiagolr/tilr_jsfx/master/index.xml'}
+    {name = "Tilr", url = 'https://raw.githubusercontent.com/tiagolr/tilr_jsfx/master/index.xml'}
   }
 
   for i = 1, #repos do
@@ -104,7 +105,7 @@ function ThirdPartyDeps() -- FX Browser
       return 'error lewloiwc Sound Design Suite'
     end
     -- tilr SKFilter
-    if r.file_exists(sk_filter) then
+    if r.file_exists(sk_filter) or r.file_exists(sk_filter2) then
       local found_filter = true
     else
       r.ShowMessageBox("tilr SKFilter is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)

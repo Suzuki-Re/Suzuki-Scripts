@@ -1,10 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.4.1
+-- @version 1.4.5
 -- @noindex
 -- @changelog 
---   + Added volume adjustment to each pad. Shift + dragging pad adjusts pad's (container) volume.
+--   # Updated tilr's repo name. Remove tilr_jsfx repository if you have it in the repository list.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. This is a version which lets users scroll vertically.
 
@@ -41,6 +41,10 @@ function ThirdPartyDeps() -- FX Browser
   local fx_browser_path
   local n, arch = r.GetAppVersion():match("(.+)/(.+)")
 
+  local midi_trigger_envelope = r.GetResourcePath() .. "/Effects/Suzuki Scripts/lewloiwc's Sound Design Suite/lewloiwc_midi_trigger_envelope.jsfx"
+  local sk_filter = r.GetResourcePath() .. "/Effects/Tilr/Filter/skfilter.jsfx"
+  local sk_filter2 = r.GetResourcePath() .. "/Effects/tilr_jsfx/Filter/skfilter.jsfx"
+
   if n:match("^7%.") then
     fx_browser = r.GetResourcePath() .. "/Scripts/Sexan_Scripts/FX/Sexan_FX_Browser_ParserV7.lua"
     fx_browser_reapack = 'sexan fx browser parser v7'
@@ -52,7 +56,8 @@ function ThirdPartyDeps() -- FX Browser
 
   local reapack_process
   local repos = {
-    { name = "Sexan_Scripts", url = 'https://github.com/GoranKovac/ReaScripts/raw/master/index.xml' }
+    { name = "Sexan_Scripts", url = 'https://github.com/GoranKovac/ReaScripts/raw/master/index.xml' },
+    {name = "Tilr", url = 'https://raw.githubusercontent.com/tiagolr/tilr_jsfx/master/index.xml'}
   }
 
   for i = 1, #repos do
@@ -79,6 +84,22 @@ function ThirdPartyDeps() -- FX Browser
       r.ShowMessageBox("Sexan FX BROWSER is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
       r.ReaPack_BrowsePackages(fx_browser_reapack)
       return 'error Sexan FX BROWSER'
+    end
+    -- lewloiwc Sound Design Suite
+    if r.file_exists(midi_trigger_envelope) then
+      local found_midi_envelope = true
+    else
+      r.ShowMessageBox("lewloiwc Sound Design Suite is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ReaPack_BrowsePackages('lewloiwc Sound Design Suite')
+      return 'error lewloiwc Sound Design Suite'
+    end
+    -- tilr SKFilter
+    if r.file_exists(sk_filter) or r.file_exists(sk_filter2) then
+      local found_filter = true
+    else
+      r.ShowMessageBox("tilr SKFilter is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ReaPack_BrowsePackages('tilr SKFilter')
+      return 'error tilr SKFilter'
     end
   end
 end
