@@ -1,9 +1,10 @@
 noindex: true
 desc:RDM MIDI Utility
-// Thanks SNJUK2!
+author:Suzuki & SNJUK2
 
 slider1:N=21<0,127,1> Note
 slider2:led=0<0,1,1> -Led 
+slider3:0<0,16,1{OFF,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}> MIDI Choke Group
 
 in_pin:none
 out_pin:none
@@ -15,14 +16,22 @@ noteOff = $x80;
 function isNoteOn ()(noteStatus == noteOn && msg3);
 function isNoteOff()(noteStatus == noteOff || (noteStatus == noteOn && msg3 == 0));
 
+@slider
+
+choke = slider3 - 1;
+
 @block
 
  while (midirecv(offset,msg1,msg2,msg3)) (
        noteStatus = msg1 & $xF0;
+       channel = msg1 & $x0F;
        
-         isNoteOn() && msg2 == N  ? (
+         isNoteOn() && msg2 == N ? (
            led = 1;
            midisend(offset,msg1,N,msg3);
+           );
+         isNoteOn() && channel == choke && msg2 != N ? ( // if it receives notes in the same channel
+           (slider3 > 0 ? midisend(offset, noteOff + channel, N, msg3) ); // choke note
            );
          isNoteOff() && msg2 == N ? (
            led = 0;
@@ -31,3 +40,4 @@ function isNoteOff()(noteStatus == noteOff || (noteStatus == noteOn && msg3 == 0
            noteStatus != noteOn ? noteStatus != noteOff ? midisend(offset,msg1,msg2,msg3);
          
  );
+ 
