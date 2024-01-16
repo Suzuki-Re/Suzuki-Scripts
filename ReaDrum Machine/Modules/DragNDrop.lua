@@ -163,7 +163,7 @@ function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
             renamed_name = note_name 
           end
           r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
-          r.SetTrackMIDINoteNameEx(0, track, src_note, 0, "")
+          r.SetTrackMIDINoteNameEx(0, track, src_note, -1, "")
           local srcfx_idx = CountPadFX(src_num)
           local dstfx_pos = CountPadFX(Pad[a].Pad_Num)
           for m = 1, srcfx_idx do
@@ -325,7 +325,7 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', payload) -- add file
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')        -- always necessary
     local filename = payload:match("([^\\/]+)%.%w%w*$")
-    r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
+    r.SetTrackMIDINoteNameEx(0, track, notenum, -1, filename)
     if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
     r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
     Pad[a].Name = filename
@@ -367,7 +367,7 @@ function DndAddSample_TARGET(a)
                 local note_name = getNoteName(notenum + i + midi_oct_offs)
                 if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
                 r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
-                r.SetTrackMIDINoteNameEx(0, track, notenum, 0, filename)
+                r.SetTrackMIDINoteNameEx(0, track, notenum, -1, filename)
                 r.TrackFX_SetParam(track, find_rs5k, 13, 0) -- Sample start offset, reset
                 r.TrackFX_SetParam(track, find_rs5k, 14, 1) -- Sample end offset, reset
               end

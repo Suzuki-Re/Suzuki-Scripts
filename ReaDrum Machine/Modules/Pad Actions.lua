@@ -146,7 +146,7 @@ end
 
 function ClearPad(a, pad_num)
   local _, clear_pad = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
-  r.SetTrackMIDINoteNameEx(0, track, notenum, 0, "")                   -- remove note name
+  r.SetTrackMIDINoteNameEx(0, track, notenum, -1, "")                   -- remove note name
   r.TrackFX_Delete(track, clear_pad)
   Pad[a] = nil
 end
@@ -567,7 +567,7 @@ local function RenameWindow(a, note_name)
               local k = tonumber(k)
               if Pad[k] then 
                 r.TrackFX_SetNamedConfigParm(track, Pad[k].Pad_ID, "renamed_name", renamed_name)
-                r.SetTrackMIDINoteNameEx(0, track, notenum, 0, new_name)
+                r.SetTrackMIDINoteNameEx(0, track, notenum, -1, new_name)
                 Pad[k].Rename = new_name
                 r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. k, new_name)
               end
@@ -575,13 +575,60 @@ local function RenameWindow(a, note_name)
             SELECTED = nil
           else
             r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
-            r.SetTrackMIDINoteNameEx(0, track, notenum, 0, new_name)
+            r.SetTrackMIDINoteNameEx(0, track, notenum, -1, new_name)
             Pad[a].Rename = new_name
             r.SetProjExtState(0, 'ReaDrum Machine', 'Rename' .. a, new_name)
           end
         end
         r.PreventUIRefresh(-1)
         EndUndoBlock("RENAME PAD") 
+      end
+      r.ImGui_CloseCurrentPopup(ctx)
+    end
+    r.ImGui_SetItemDefaultFocus(ctx)
+    r.ImGui_SameLine(ctx)
+    if r.ImGui_Button(ctx, 'Cancel', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Escape()) then
+      r.ImGui_CloseCurrentPopup(ctx)
+    end
+    r.ImGui_EndPopup(ctx)
+  end
+end
+
+local function ChokeWindow(a)
+  local center = { r.ImGui_Viewport_GetCenter(r.ImGui_GetWindowViewport(ctx)) }
+  r.ImGui_SetNextWindowPos(ctx, center[1], center[2], r.ImGui_Cond_Appearing(), 0.5, 0.5)
+  if r.ImGui_BeginPopupModal(ctx, 'Set Choke Group?##' .. a, nil, r.ImGui_WindowFlags_AlwaysAutoResize()) then
+    if r.ImGui_IsWindowAppearing(ctx) then
+      r.ImGui_SetKeyboardFocusHere(ctx)
+    end
+    rv, group_num = r.ImGui_InputTextWithHint(ctx, '##Choke Group', 'CHOKE GROUP (1-16, 0 = OFF)', group_num,
+      r.ImGui_InputTextFlags_AutoSelectAll() | r.ImGui_InputTextFlags_CharsDecimal() | r.ImGui_InputTextFlags_CharsNoBlank())
+    IsInputEdited = r.ImGui_IsItemActive(ctx)
+    if r.ImGui_Button(ctx, 'OK', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Enter()) or
+        r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_KeypadEnter()) then
+      if not Pad[a] and not SELECTED then
+        r.ShowConsoleMsg("There's no pad. Insert FX or sample first.")
+      else
+        r.Undo_BeginBlock()
+        r.PreventUIRefresh(1)
+        if #group_num ~= 0 then
+          if tonumber(group_num) > 16 then group_num = 16 elseif tonumber(group_num) < 0 then group_num = 0 end
+          if SELECTED then
+            for k, v in pairs(SELECTED) do
+              local k = tonumber(k)
+              if Pad[k] then 
+                local _, filter_id = FindNoteFilter(Pad[k].Pad_Num)
+                r.TrackFX_SetParam(track, filter_id, 2, group_num)
+              end
+            end
+            SELECTED = nil
+          else
+            local _, filter_id = FindNoteFilter(Pad[a].Pad_Num)
+            r.TrackFX_SetParam(track, filter_id, 2, group_num)
+          end
+        end
+        r.PreventUIRefresh(-1)
+        EndUndoBlock("SET CHOKE GROUP") 
       end
       r.ImGui_CloseCurrentPopup(ctx)
     end
@@ -720,7 +767,7 @@ local function LoadItemsFromArrange(a)
             end_offset, take_pitch, getNoteName(notenum + c - 1 - d + midi_oct_offs))
         end
       end
-    r.SetTrackMIDINoteNameEx(0, track, notenum + c - 1 - d, 0, 'test' .. notenum + c - 1 - d) -- rename in ME
+    r.SetTrackMIDINoteNameEx(0, track, notenum + c - 1 - d, -1, 'test' .. notenum + c - 1 - d) -- rename in ME
     ::NEXT::
   end
   Take_GUID = nil
@@ -733,13 +780,17 @@ function PadMenu(a, note_name)
     r.ImGui_OpenPopup(ctx, "RIGHT_CLICK_MENU##" .. a)
   end
   local open_settings = false
+  local choke_settings = false
   if r.ImGui_BeginPopup(ctx, "RIGHT_CLICK_MENU##" .. a, r.ImGui_WindowFlags_NoMove()) then
     if r.ImGui_MenuItem(ctx, 'Load Selected Items from Arrange##' .. a) then
       LoadItemsFromArrange(a)
     end
     if r.ImGui_MenuItem(ctx, 'Rename Pad##' .. a) then
       open_settings = true
-    end 
+    end
+    if r.ImGui_MenuItem(ctx, 'Set Choke Group##' .. a) then
+      choke_settings = true
+    end
     if r.ImGui_MenuItem(ctx, "Set Pad's Output Pin Mappings##" .. a) then
       r.Undo_BeginBlock()
       local retval, chan_num = r.GetUserInputs('Set Stereo Output Channel', 1, 'Left or Right Output Channel Number', 2)
@@ -868,6 +919,10 @@ function PadMenu(a, note_name)
     r.ImGui_OpenPopup(ctx, 'Rename a pad?##' .. a)
   end
   RenameWindow(a, note_name)
+  if choke_settings then
+    r.ImGui_OpenPopup(ctx, 'Set Choke Group?##' .. a)
+  end
+  ChokeWindow(a)
 end
 
 --- outside of pads click action

@@ -243,11 +243,12 @@ function FindNoteFilter(pad_num)
       local retval, buf = r.TrackFX_GetNamedConfigParm(track, find_filter, 'fx_name')
       if buf == "JS: RDM MIDI Utility" or "JS: RDM MIDI Utility [Suzuki Scripts/ReaDrum Machine/JSFX/RDM_midi_utility.jsfx]" then
         fi = f
+        filter_id = find_filter
         break
       end
     end
   end
-  return fi
+  return fi, filter_id
 end
   
 function UpdatePadID()
@@ -320,16 +321,16 @@ function UpdatePadID()
         Pad[rv + 1].Sample_Name[found_RS5k] = filename
         Pad[rv + 1].Name = filename
         if Pad[rv + 1].Rename then
-          r.SetTrackMIDINoteNameEx(0, track, rv, 0, Pad[rv + 1].Rename)
+          r.SetTrackMIDINoteNameEx(0, track, rv, -1, Pad[rv + 1].Rename)
         elseif Pad[rv + 1].Name then
-          r.SetTrackMIDINoteNameEx(0, track, rv, 0, Pad[rv + 1].Name)
+          r.SetTrackMIDINoteNameEx(0, track, rv, -1, Pad[rv + 1].Name)
         else
-          r.SetTrackMIDINoteNameEx(0, track, rv, 0, "")
+          r.SetTrackMIDINoteNameEx(0, track, rv, -1, "")
         end
       end
       if not found then
         Pad[rv + 1].Name = nil
-        r.SetTrackMIDINoteNameEx(0, track, rv, 0, "")
+        r.SetTrackMIDINoteNameEx(0, track, rv, -1, "")
       end
     end
   end
