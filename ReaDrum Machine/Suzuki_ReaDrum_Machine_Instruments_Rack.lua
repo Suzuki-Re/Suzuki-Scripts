@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.4.5
+-- @version 1.4.6
 -- @changelog 
---   # Updated tilr's repo name. Remove tilr_jsfx repository if you have it in the repository list.
+--   + Added MIDI Choke Group Menu. Utility mutes note when it receives note in the specified channel. Don't forget to set "obey-note offs" to be on.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
