@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.4.6
+-- @version 1.4.7
 -- @changelog 
---   + Added MIDI Choke Group Menu. Utility mutes note when it receives note in the specified channel. Don't forget to set "obey-note offs" to be on.
+--   # Ignore obey note-offs when choke is on. It's muted only when users send other notes in the same channel.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
