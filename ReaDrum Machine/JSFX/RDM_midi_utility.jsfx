@@ -33,9 +33,12 @@ choke = slider3 - 1;
          isNoteOn() && channel == choke && msg2 != N ? ( // if it receives notes in the same channel
            (slider3 > 0 ? midisend(offset, noteOff + channel, N, msg3) ); // choke note
            );
-         isNoteOff() && msg2 == N ? (
+         slider3 == 0 && isNoteOff() && msg2 == N ? (
            led = 0;
            midisend(offset,msg1,N,msg3);
+           );
+           slider3 > 0 && isNoteOff() && msg2 == N ? ( // ignore obey note offs when choke is on
+           led = 0;
            );
            noteStatus != noteOn ? noteStatus != noteOff ? midisend(offset,msg1,msg2,msg3);
          
