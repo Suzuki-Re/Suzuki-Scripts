@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.4.7
+-- @version 1.4.8
 -- @changelog 
---   # Ignore obey note-offs when choke is on. It's muted only when users send other notes in the same channel.
+--   + Automatically turn on obey note-offs when setting midi choke channel.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
