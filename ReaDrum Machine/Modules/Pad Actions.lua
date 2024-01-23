@@ -619,12 +619,30 @@ local function ChokeWindow(a)
               if Pad[k] then 
                 local _, filter_id = FindNoteFilter(Pad[k].Pad_Num)
                 r.TrackFX_SetParam(track, filter_id, 2, group_num)
+                if group_num ~= 0 then
+                  for i = 1, Pad[k].FX_Num do
+                    local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, Pad[k].Pad_ID, "container_item." .. i - 1) -- 0 based
+                    local _, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'original_name')
+                    if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
+                      r.TrackFX_SetParam(track, find_rs5k, 11, 1) -- turn on obey note-offs
+                    end
+                  end
+                end
               end
             end
             SELECTED = nil
           else
             local _, filter_id = FindNoteFilter(Pad[a].Pad_Num)
             r.TrackFX_SetParam(track, filter_id, 2, group_num)
+            if group_num ~= 0 then
+              for i = 1, Pad[a].FX_Num do
+                local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, Pad[a].Pad_ID, "container_item." .. i - 1) -- 0 based
+                local _, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'original_name')
+                if buf == "VSTi: ReaSamplOmatic5000 (Cockos)" then
+                  r.TrackFX_SetParam(track, find_rs5k, 11, 1) -- turn on obey note-offs
+                end
+              end
+            end
           end
         end
         r.PreventUIRefresh(-1)

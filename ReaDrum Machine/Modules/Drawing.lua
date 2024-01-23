@@ -117,31 +117,6 @@ local function ParameterSwitch(a, label, parm)
   end
 end
 
-local function DrawKnobs(p_value, v_min, v_max, Radius)
-  local draw_list = r.ImGui_GetWindowDrawList(ctx)
-  local pos          = {r.ImGui_GetCursorScreenPos(ctx)}
-  local Radius       = Radius or 0
-  local radius_outer = Radius
-  local t = (p_value - v_min) / (v_max - v_min)
-  local ANGLE_MIN = 3.141592 * 0.75
-  local ANGLE_MAX = 3.141592 * 2.25
-  local angle = ANGLE_MIN + (ANGLE_MAX - ANGLE_MIN) * t
-  local angle_cos, angle_sin = math.cos(angle), math.sin(angle)
-  local radius_inner = radius_outer * 0.40
-  local center       = {pos[1] + radius_outer, pos[2] + radius_outer}
-  r.ImGui_DrawList_AddCircleFilled(draw_list, center[1], center[2], radius_outer,
-            r.ImGui_GetColor(ctx, r.ImGui_Col_Button()))
-  r.ImGui_DrawList_AddLine(draw_list, center[1] + angle_cos * radius_inner,
-            center[2] + angle_sin * radius_inner,
-            center[1] + angle_cos * (radius_outer - 2), center[2] + angle_sin * (radius_outer - 2),
-            0x123456ff, 2)
-  r.ImGui_DrawList_PathArcTo(draw_list, center[1], center[2], radius_outer / 2, ANGLE_MIN, angle)
-  r.ImGui_DrawList_PathStroke(draw_list, 0x99999922, nil, radius_outer * 0.6)
-  r.ImGui_DrawList_PathClear(draw_list)
-  r.ImGui_DrawList_AddCircleFilled(draw_list, center[1], center[2], radius_inner,
-  r.ImGui_GetColor(ctx, r.ImGui_IsItemActive(ctx) and r.ImGui_Col_FrameBgActive() or r.ImGui_IsItemHovered(ctx) and r.ImGui_Col_FrameBgHovered() or r.ImGui_Col_FrameBg()))
-end
-
 local function SetMinMax(Input, Min, Max)
   if Input >= Max then
       Input = Max

@@ -21,6 +21,7 @@ end
 function AddNoteFilter(notenum, pad_num)
   local retval, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   local filter_id = ConvertPathToNestedPath(pad_id, 1)
+  local filter_id = tonumber(filter_id)
   r.TrackFX_AddByName(track, 'JS: RDM MIDI Utility', false, filter_id)
   r.TrackFX_Show(track, filter_id, 2)
   r.TrackFX_SetParam(track, filter_id, 0, notenum)                        -- key for filter, pad number = midi note
@@ -315,6 +316,7 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
   local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   local rs5k_id = ConvertPathToNestedPath(pad_id, add_pos)
   local _, payload = r.ImGui_GetDragDropPayloadFile(ctx, i) -- 0 based
+  local rs5k_id = tonumber(rs5k_id)
   r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
   Pad[a].RS5k_ID = rs5k_id
   r.TrackFX_Show(track, rs5k_id, 2)
