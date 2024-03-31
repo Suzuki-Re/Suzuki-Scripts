@@ -909,22 +909,27 @@ function PadMenu(a, note_name)
       EndUndoBlock("CLEAR ALL PADS")
     end
     if r.ImGui_MenuItem(ctx, 'Toggle Open FX Chain Window') then
-      local rv, pc = r.TrackFX_GetNamedConfigParm(track, parent_id, "parent_container")
-      if not rv then
-        if r.TrackFX_GetOpen(track, parent_id) then
-          r.TrackFX_Show(track, parent_id, 0)
-        else
-          r.TrackFX_Show(track, parent_id, 1)
-        end
+      if not parent_id then 
+        local command_id = r.NamedCommandLookup("_S&M_TOGLFXCHAIN")
+        r.Main_OnCommand(command_id, 0)
       else
-        if r.TrackFX_GetOpen(track, pc) then
-          r.TrackFX_Show(track, pc, 2)
-          while rv do -- to close fx chain until the root
-            r.TrackFX_Show(track, pc, 0)
-            rv, pc = r.TrackFX_GetNamedConfigParm(track, pc, "parent_container")
+        local rv, pc = r.TrackFX_GetNamedConfigParm(track, parent_id, "parent_container")
+        if not rv then
+          if r.TrackFX_GetOpen(track, parent_id) then
+            r.TrackFX_Show(track, parent_id, 0)
+          else
+            r.TrackFX_Show(track, parent_id, 1)
           end
         else
-          r.TrackFX_Show(track, pc, 3)
+          if r.TrackFX_GetOpen(track, pc) then
+            r.TrackFX_Show(track, pc, 2)
+            while rv do -- to close fx chain until the root
+              r.TrackFX_Show(track, pc, 0)
+              rv, pc = r.TrackFX_GetNamedConfigParm(track, pc, "parent_container")
+            end
+          else
+            r.TrackFX_Show(track, pc, 3)
+          end
         end
       end
     end 
