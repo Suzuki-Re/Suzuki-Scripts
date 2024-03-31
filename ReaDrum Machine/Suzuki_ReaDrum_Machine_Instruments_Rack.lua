@@ -1,9 +1,10 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.4.8
+-- @version 1.4.9
 -- @changelog 
---   + Automatically turn on obey note-offs when setting midi choke channel.
+--   + Added SWS/S&M check
+--   # Fixed crash by triggering "Toggle Open FX Chain Window" menu when the track does not have RDM container
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
@@ -111,6 +112,14 @@ function ThirdPartyDeps() -- FX Browser
       r.ShowMessageBox("tilr SKFilter is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
       r.ReaPack_BrowsePackages('tilr SKFilter')
       return 'error tilr SKFilter'
+    end
+    -- SWS/S&M
+    if r.APIExists("CF_GetSWSVersion") then
+      local SWS_SnM = true
+    else
+      r.ShowMessageBox("SWS/S&M Extension is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ReaPack_BrowsePackages('SWS/S&M')
+      return 'error SWS/S&M'
     end
   end
 end
