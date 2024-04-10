@@ -198,6 +198,19 @@ local function GetSetParamValues(fxidx, parm, drag_delta, step)
     r.TrackFX_SetParamNormalized(LT_Track, fxidx, parm, p_value)
 end
 
+local function AdjustParamWheel(FX_Idx, P_Num)
+    if r.ImGui_IsItemHovered(ctx) and Mods == Ctrl and not r.ImGui_IsItemActive(ctx) then -- mousewheel to change values
+        local stepscale = 1
+        local step = (1 - 0) / (200.0 * stepscale)
+        GetSetParamValues(FX_Idx, P_Num, (4 * Wheel_V), step)
+        --ParameterTooltip(FX_Idx, P_Num)
+    elseif r.ImGui_IsItemHovered(ctx) and Mods == Ctrl + Shift and not r.ImGui_IsItemActive(ctx) then -- mousewheel to change values slightly
+        local stepscale = 6
+        local step = (1 - 0) / (200.0 * stepscale)
+        GetSetParamValues(FX_Idx, P_Num, (4 * Wheel_V), step)
+    end
+end
+
 ---@param ctx ImGui_Context
 ---@param label string
 ---@param labeltoShow string
@@ -303,15 +316,7 @@ function AddKnob(ctx, label, labeltoShow, p_value, v_min, v_max, Fx_P, FX_Idx, P
         KNOB = true
         DnD_PLink_TARGET(FxGUID, Fx_P, FX_Idx, P_Num)
         ButtonDraw(SPLITTER, FX[FxGUID].BgClr or CustomColorsDefault.FX_Devices_Bg, center, radius_outer)
-        if r.ImGui_IsItemHovered(ctx) and Mods == Ctrl and not r.ImGui_IsItemActive(ctx) then -- mousewheel to change values
-            local stepscale = 1
-            
-            -- if SHIFT then stepscale = 6 end
-            local step = (1 - 0) / (200.0 * stepscale)
-            GetSetParamValues(FX_Idx, P_Num, (4 * Wheel_V), step)
-            --ParameterTooltip(FX_Idx, P_Num)
-            
-        end
+        AdjustParamWheel(FX_Idx, P_Num)
     if V_Pos == 'Free' then
         local Ox, Oy = r.ImGui_GetCursorScreenPos(ctx)
         r.ImGui_DrawList_AddTextEx(draw_list, _G[V_Font], FX[FxGUID][Fx_P].V_FontSize or Knob_DefaultFontSize,
