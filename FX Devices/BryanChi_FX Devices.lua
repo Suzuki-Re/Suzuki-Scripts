@@ -1317,8 +1317,8 @@ end
 
 local function AutoFocus()
     local hwnd = r.JS_Window_FromPoint(r.GetMousePosition())
-    local txt = r.JS_Window_GetTitle(hwnd)
-    if txt == "FX Devices" then
+    focused_window = r.JS_Window_GetTitle(hwnd)
+    if focused_window == "FX Devices" then
         r.JS_Window_SetFocus(hwnd)
     end
 end
@@ -4068,7 +4068,7 @@ function loop()
             local spaceIfPreFX = 0
             if Trk[TrkID].PreFX[1] and Trk[TrkID].PostFX[1] and not Trk[TrkID].PostFX_Hide then spaceIfPreFX = 20 end
 
-            if Wheel_V ~= 0 and not DisableScroll then
+            if Wheel_V ~= 0 and not DisableScroll and focused_window == "FX Devices" then
                 if Ctrl_Scroll then
                     if Mods == Ctrl then
                         Horizontal_Scroll(20)
