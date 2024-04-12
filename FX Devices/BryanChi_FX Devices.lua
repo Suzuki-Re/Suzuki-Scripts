@@ -1,6 +1,6 @@
 -- @description FX Devices
 -- @author Bryan Chi
--- @version 1.0beta11.1 mousewheel mod
+-- @version 1.0beta11.1 settings mod
 -- @changelog
 --  - +Added custom color tweak for RDM by user's request
 --  - Fixed opening Pad when Ctrl+right clicking pad (opening menu)
@@ -236,8 +236,26 @@ StepSEQ_H = 100
 SEQ_Default_Num_of_Steps = 8
 SEQ_Default_Denom = 1
 
+local function StoreSettings()
+    local data = tableToString(
+        {
+            reverse_scroll = Reverse_Scroll,
+            ctrl_scroll = Ctrl_Scroll,
+        }
+    )
+    r.SetExtState("FXDEVICES", "Settings", data, true)
+end
 
-
+if r.HasExtState("FXDEVICES", "Settings") then
+    stored_data = r.GetExtState("FXDEVICES", "Settings")
+    if stored_data ~= nil then
+        local storedTable = stringToTable(stored_data)
+        if storedTable ~= nil then
+            Reverse_Scroll = storedTable.reverse_scroll
+            Ctrl_Scroll = storedTable.ctrl_scroll
+        end
+    end
+end
 
 ----------- Custom Colors-------------------
 CustomColors = { 'Window_BG', 'FX_Devices_Bg', 'FX_Layer_Container_BG', 'Space_Between_FXs', 'Morph_A', 'Morph_B',
@@ -845,7 +863,7 @@ end
 
 GetLTParam()
 
-ctx = r.ImGui_CreateContext('FX Device', r.ImGui_ConfigFlags_DockingEnable())
+ctx = r.ImGui_CreateContext('FX Devices', r.ImGui_ConfigFlags_DockingEnable())
 
 
 
@@ -1284,6 +1302,27 @@ end
 
 ---------------------------- End For Before GUI ----------------------------
 
+local function Horizontal_Scroll(value)
+    if Reverse_Scroll then
+        Scroll_V = -Wheel_V
+    else
+        Scroll_V = Wheel_V
+    end
+    if -CursorStartX + Scroll_V * value < value then
+        r.ImGui_SetNextWindowScroll(ctx, 0, 0) -- scroll to the left side when scroll value is bigger than the rest space value
+    else
+        r.ImGui_SetNextWindowScroll(ctx, -CursorStartX + Scroll_V * value, 0) -- scroll horizontally
+    end
+end
+
+local function AutoFocus()
+    local hwnd = r.JS_Window_FromPoint(r.GetMousePosition())
+    local txt = r.JS_Window_GetTitle(hwnd)
+    if txt == "FX Devices" then
+        r.JS_Window_SetFocus(hwnd)
+    end
+end
+
 function loop()
     GetLT_FX_Num()
     GetLTParam()
@@ -1298,18 +1337,11 @@ function loop()
         ChangeFont_Var = nil
     end
 
-
-
-
     if Dock_Now then
         r.ImGui_SetNextWindowDockID(ctx, -1)
     end
     Dock_Now = nil
     ProC.ChanSplit = nil
-
-
-
-
 
     if LT_Track then TrkClr = r.ImGui_ColorConvertNative(r.GetTrackColor(LT_Track)) end
     TrkClr = ((TrkClr or 0) << 8) | 0x66 -- shift 0x00RRGGBB to 0xRRGGBB00 then add 0xFF for 100% opacity
@@ -1317,11 +1349,12 @@ function loop()
     r.ImGui_PushStyleColor(ctx, r.ImGui_Col_MenuBarBg(), TrkClr or 0x00000000)
     r.ImGui_PushStyleColor(ctx, r.ImGui_Col_WindowBg(), Window_BG or CustomColorsDefault.Window_BG)
     --------------------------==  BEGIN GUI----------------------------------------------------------------------------
-    local visible, open = r.ImGui_Begin(ctx, 'FX Device', true,
+    local visible, open = r.ImGui_Begin(ctx, 'FX Devices', true,
         r.ImGui_WindowFlags_NoScrollWithMouse() + r.ImGui_WindowFlags_NoScrollbar() + r.ImGui_WindowFlags_MenuBar() +
         r.ImGui_WindowFlags_NoCollapse() + r.ImGui_WindowFlags_NoNav())
     r.ImGui_PopStyleColor(ctx, 2) -- for menu  bar and window BG
 
+    AutoFocus()
 
     local Viewport = r.ImGui_GetWindowViewport(ctx)
     VP.w, VP.h     = r.ImGui_Viewport_GetSize(Viewport)
@@ -1336,10 +1369,6 @@ function loop()
     Ctrl  = r.ImGui_Mod_Ctrl()
     Shift = r.ImGui_Mod_Shift()
     Apl   = r.ImGui_Mod_Super()
-
-
-
-
 
     if visible then
         VP.w, VP.h = r.ImGui_Viewport_GetSize(Viewport)
@@ -1636,7 +1665,6 @@ function loop()
                 if select(2, r.ImGui_MenuItem(ctx, 'Style Editor', shoirtcutIn, p_selected, enabledIn)) then
                     OpenStyleEditor = toggle(OpenStyleEditor)
                 end
-
                 if select(2, r.ImGui_MenuItem(ctx, 'Keyboard Shortcut Editor', shoirtcutIn, p_selected, enabledIn)) then
                     OpenKBEditor = toggle(OpenKBEditor)
                 end
@@ -1644,6 +1672,12 @@ function loop()
                     if select(2, r.ImGui_MenuItem(ctx, 'Dock script', shoirtcutIn, p_selected, enabledIn)) then
                         Dock_Now = true
                     end
+                end
+                if r.ImGui_BeginMenu(ctx, "General Behavior") then
+                    _, Reverse_Scroll = r.ImGui_Checkbox(ctx, "Reverse Scroll", Reverse_Scroll)
+                    _, Ctrl_Scroll = r.ImGui_Checkbox(ctx, "Ctrl Scroll", Ctrl_Scroll)
+                    StoreSettings()
+                    r.ImGui_EndMenu(ctx)
                 end
                 if select(2, r.ImGui_MenuItem(ctx,"Rescan Plugin List")) then
                     FX_LIST, CAT = MakeFXFiles()
@@ -4034,18 +4068,20 @@ function loop()
             local spaceIfPreFX = 0
             if Trk[TrkID].PreFX[1] and Trk[TrkID].PostFX[1] and not Trk[TrkID].PostFX_Hide then spaceIfPreFX = 20 end
 
-            if Wheel_V ~= 0 and not DisableScroll then 
-                if Mods == 0 then -- 0 = not mods key
-                    if -CursorStartX + Wheel_V * 20 < 20 then
-                        r.ImGui_SetNextWindowScroll(ctx, 0, 0) -- scroll to the left side when scroll value is bigger than the rest space value
-                    else
-                        r.ImGui_SetNextWindowScroll(ctx, -CursorStartX + Wheel_V * 20, 0) -- scroll horizontally
+            if Wheel_V ~= 0 and not DisableScroll then
+                if Ctrl_Scroll then
+                    if Mods == Ctrl then
+                        Horizontal_Scroll(20)
+                    elseif Mods == Ctrl + Shift then
+                        Horizontal_Scroll(10)
+                    elseif Mods == Shift then -- to prevent a weird behavior which is not related to Horizontal_Scroll function
+                        r.ImGui_SetNextWindowScroll(ctx, -CursorStartX, 0)
                     end
-                elseif Mods == Shift then
-                    if -CursorStartX + Wheel_V * 10 < 10 then
-                        r.ImGui_SetNextWindowScroll(ctx, 0, 0)
-                    else
-                        r.ImGui_SetNextWindowScroll(ctx, -CursorStartX + Wheel_V * 10, 0) -- scroll horizontally slightly
+                else
+                    if Mods == 0 then -- 0 = not mods key
+                        Horizontal_Scroll(20)
+                    elseif Mods == Shift then
+                        Horizontal_Scroll(10)
                     end
                 end
             end
