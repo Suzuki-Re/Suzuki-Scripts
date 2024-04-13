@@ -1,11 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.4.9
+-- @version 1.5.0
 -- @noindex
 -- @changelog 
---   + Added SWS/S&M check
---   # Fixed crash by triggering "Toggle Open FX Chain Window" menu when the track does not have RDM container
+--   + Added ReaImGui backward compatibility
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. This is a version which lets users scroll vertically.
 
@@ -15,6 +14,7 @@ package.path       = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]] .
     "?.lua;" -- GET DIRECTORY FOR REQUIRE
 package.path       = package.path ..
     debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]] .. "../ImGui_Tools/?.lua;"
+local reaimgui_force_version = "0.8.7.6"
 script_path  = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]];
 PATH         = debug.getinfo(1).source:match("@?(.*[\\|/])")
 Pad          = {}
@@ -33,6 +33,13 @@ COLOR              = {
 if not r.ImGui_GetVersion then
   r.ShowMessageBox("ReaImGui is required.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
   return r.ReaPack_BrowsePackages('dear imgui')
+end
+
+if reaimgui_force_version then
+  local reaimgui_shim_file_path = r.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/imgui.lua'
+  if r.file_exists(reaimgui_shim_file_path) then
+    dofile(reaimgui_shim_file_path)(reaimgui_force_version)
+  end
 end
 
 function ThirdPartyDeps() -- FX Browser
