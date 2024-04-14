@@ -1,5 +1,5 @@
 -- @noindex
--- settings mod
+-- settings mod fix
 r = reaper
 
 local function GetPayload()
@@ -326,9 +326,9 @@ function AddKnob(ctx, label, labeltoShow, p_value, v_min, v_max, Fx_P, FX_Idx, P
         KNOB = true
         DnD_PLink_TARGET(FxGUID, Fx_P, FX_Idx, P_Num)
         ButtonDraw(SPLITTER, FX[FxGUID].BgClr or CustomColorsDefault.FX_Devices_Bg, center, radius_outer)
-        if focused_window == "FX Devices" then
-            AdjustParamWheel(LT_Track, FX_Idx, P_Num)
-        end
+        --if focused_window == "FX Devices" then
+        --    AdjustParamWheel(LT_Track, FX_Idx, P_Num)
+        --end
     if V_Pos == 'Free' then
         local Ox, Oy = r.ImGui_GetCursorScreenPos(ctx)
         r.ImGui_DrawList_AddTextEx(draw_list, _G[V_Font], FX[FxGUID][Fx_P].V_FontSize or Knob_DefaultFontSize,

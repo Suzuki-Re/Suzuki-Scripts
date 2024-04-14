@@ -1,6 +1,6 @@
 -- @description FX Devices
 -- @author Bryan Chi
--- @version 1.0beta11.1 settings mod
+-- @version 1.0beta11.1 settings mod fix
 -- @changelog
 --  - +Added custom color tweak for RDM by user's request
 --  - Fixed opening Pad when Ctrl+right clicking pad (opening menu)
@@ -88,8 +88,8 @@
 
 ---@type string
 CurrentDirectory = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]] -- GET DIRECTORY FOR REQUIRE
-package.path = CurrentDirectory .. "?.lua;"
-
+package.path = CurrentDirectory .. "?.lua;" .. reaper.GetResourcePath() .. '/Scripts/ReaTeam Extensions/API/?.lua'
+require("imgui")("0.8.7.4")
 
 function ThirdPartyDeps()
     local ultraschall_path = reaper.GetResourcePath() .. "/UserPlugins/ultraschall_api.lua"
@@ -4068,7 +4068,7 @@ function loop()
             local spaceIfPreFX = 0
             if Trk[TrkID].PreFX[1] and Trk[TrkID].PostFX[1] and not Trk[TrkID].PostFX_Hide then spaceIfPreFX = 20 end
 
-            if Wheel_V ~= 0 and not DisableScroll and focused_window == "FX Devices" then
+            if Wheel_V ~= 0 and not DisableScroll then
                 if Ctrl_Scroll then
                     if Mods == Ctrl then
                         Horizontal_Scroll(20)
