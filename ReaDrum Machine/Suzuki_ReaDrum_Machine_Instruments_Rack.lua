@@ -1,15 +1,18 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.5.0
+-- @version 1.5.1
 -- @changelog 
---   + Added ReaImGui backward compatibility
+--   + Added a feature to carry over pitch/rate in Media Explorer into the sampler.
+--   You can optionally enable/disable this settings via actions called "Apply preview pitch/rate to inserted media item" and "Assign detected pitch when inserting into sampler".
+--   A new sample will be rendered when applying rate settings (except for 1.0) because ReaSamplomatic 5000 does not have a rate related parameter.
+--   + Added js extension check
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
 --   ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 --   ### Prerequisites
---   REAPER v7.06+, ReaImGui, S&M extension and Sexan's FX Browser
+--   REAPER v7.06+, ReaImGui, S&M extension, js extension and Sexan's FX Browser
 -- @provides
 --   Fonts/*.ttf
 --   FXChains/*.RfxChain
@@ -119,6 +122,14 @@ function ThirdPartyDeps() -- FX Browser
       r.ShowMessageBox("tilr SKFilter is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
       r.ReaPack_BrowsePackages('tilr SKFilter')
       return 'error tilr SKFilter'
+    end
+    -- js extension
+    if r.APIExists("JS_ReaScriptAPI_Version") then
+      local js_extension = true
+    else
+      r.ShowMessageBox("js Extension is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ReaPack_BrowsePackages('js_ReascriptAPI')
+      return 'error js Extension'
     end
     -- SWS/S&M
     if r.APIExists("CF_GetSWSVersion") then
