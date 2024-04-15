@@ -354,7 +354,7 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, 
   local apply_pr = r.GetToggleCommandStateEx(32063, 42164) -- Apply preview pitch/rate to inserted media item
   local assign_p = r.GetToggleCommandStateEx(32063, 42318) -- Assign detected pitch when inserting into sampler
   local rs5k_id = tonumber(rs5k_id)
-  r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
+  r.TrackFX_AddByName(track, 'reasamplomatic.dll', false, rs5k_id)
   Pad[a].RS5k_ID = rs5k_id
   r.TrackFX_Show(track, rs5k_id, 2)
   local ext = payload:match("([^%.]+)$")
