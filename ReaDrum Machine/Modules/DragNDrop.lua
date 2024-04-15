@@ -1,11 +1,9 @@
 --@noindex
 
 r = reaper
-dofile(r.ImGui_GetBuiltinPath() .. '/imgui.lua') '0.9'
-local ImGui = require 'imgui' '0.9'
 
 local function GetPayload()
-  local retval, dndtype, payload = ImGui.GetDragDropPayload(ctx)
+  local retval, dndtype, payload = r.ImGui_GetDragDropPayload(ctx)
   if retval then
     return dndtype, payload
   end
@@ -30,34 +28,34 @@ function AddNoteFilter(notenum, pad_num)
 end
 
 function DndAddFX_SRC(fx)
-  if ImGui.BeginDragDropSource(ctx, ImGui.DragDropFlags_AcceptBeforeDelivery) then
-    ImGui.SetDragDropPayload(ctx, 'DND ADD FX', fx)
-    ImGui.Text(ctx, fx)
-    ImGui.EndDragDropSource(ctx)
+  if r.ImGui_BeginDragDropSource(ctx, r.ImGui_DragDropFlags_AcceptBeforeDelivery()) then
+    r.ImGui_SetDragDropPayload(ctx, 'DND ADD FX', fx)
+    r.ImGui_Text(ctx, fx)
+    r.ImGui_EndDragDropSource(ctx)
   end
 end
 
 function DndMoveFX_SRC(a)
   -- if CTRL then return end
   if Pad[a] then
-    if ImGui.BeginDragDropSource(ctx, ImGui.DragDropFlags_AcceptBeforeDelivery | ImGui.DragDropFlags_SourceNoPreviewTooltip) then
+    if r.ImGui_BeginDragDropSource(ctx, r.ImGui_DragDropFlags_AcceptBeforeDelivery() | r.ImGui_DragDropFlags_SourceNoPreviewTooltip()) then
       local data = Pad[a].TblIdx
-      ImGui.SetDragDropPayload(ctx, 'DND MOVE FX', data)
+      r.ImGui_SetDragDropPayload(ctx, 'DND MOVE FX', data)
       -- Display preview (could be anything, e.g. when dragging an image we could decide to display
       -- the filename and a small preview of the image, etc.)
       -- CreateCustomPreviewData(tbl,i)
-      -- ImGui.Text(ctx, Pad[a].Note_Num)
-      ImGui.EndDragDropSource(ctx)
+      -- r.ImGui_Text(ctx, Pad[a].Note_Num)
+      r.ImGui_EndDragDropSource(ctx)
     end
   end
 end
   
 function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
   if not DND_MOVE_FX then return end
-  ImGui.PushStyleColor(ctx, ImGui.Col_DragDropTarget, 0)
-  if ImGui.BeginDragDropTarget(ctx) then
-    local ret, payload = ImGui.AcceptDragDropPayload(ctx, 'DND MOVE FX')
-    ImGui.EndDragDropTarget(ctx)
+  r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), 0)
+  if r.ImGui_BeginDragDropTarget(ctx) then
+    local ret, payload = r.ImGui_AcceptDragDropPayload(ctx, 'DND MOVE FX')
+    r.ImGui_EndDragDropTarget(ctx)
     r.Undo_BeginBlock()
     r.PreventUIRefresh(1)
     GetDrumMachineIdx(track)
@@ -253,16 +251,16 @@ function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
       end
     end
   end
-  ImGui.PopStyleColor(ctx)
+  r.ImGui_PopStyleColor(ctx)
 end
 
 function DndAddFX_TARGET(a)
   if not DND_ADD_FX then return end
   InsertDrumMachine()
-  ImGui.PushStyleColor(ctx, ImGui.Col_DragDropTarget, 0)
-  if ImGui.BeginDragDropTarget(ctx) then
-    local ret, payload = ImGui.AcceptDragDropPayload(ctx, 'DND ADD FX')
-    ImGui.EndDragDropTarget(ctx)
+  r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), 0)
+  if r.ImGui_BeginDragDropTarget(ctx) then
+    local ret, payload = r.ImGui_AcceptDragDropPayload(ctx, 'DND ADD FX')
+    r.ImGui_EndDragDropTarget(ctx)
     if ret and SELECTED then
       r.Undo_BeginBlock()
       for k, v in pairs(SELECTED) do
@@ -311,13 +309,50 @@ function DndAddFX_TARGET(a)
       end
     end
   end
-  ImGui.PopStyleColor(ctx)
+  r.ImGui_PopStyleColor(ctx)
 end
 
-local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
+local function MX_GetVolume(mx)
+  local vol_hwnd = r.JS_Window_FindChildByID(mx, 1047) -- Use Spy++ in order to check Control ID
+  local volume = r.JS_Window_GetTitle(vol_hwnd)
+  return tonumber(volume:match('[^%a]+'))
+end
+
+local function MX_GetPitch(mx)
+  local pitch_hwnd = r.JS_Window_FindChildByID(mx, 1021)
+  local pitch = r.JS_Window_GetTitle(pitch_hwnd)
+  return tonumber(pitch)
+end
+
+local function MX_GetRate(mx)
+  local rate_hwnd = r.JS_Window_FindChildByID(mx, 1454)
+  local rate = r.JS_Window_GetTitle(rate_hwnd)
+  return tonumber(rate)
+end
+
+local function MX_ApplyRate(mx)
+  r.SelectAllMediaItems(0, false)    -- unselect all
+  r.JS_WindowMessage_Send(mx, "WM_COMMAND", 41010, 0, 0, 0) -- insert media loop disabled
+  r.Main_OnCommand(41588, 0) -- glue
+  local item = r.GetSelectedMediaItem(0, 0)                  -- 0 based
+  local take = r.GetActiveTake(item)
+  local take_src = r.GetMediaItemTake_Source(take)
+  local filenamebuf = r.GetMediaSourceFileName(take_src)
+  r.Main_OnCommand(40184, 0) -- remove items no prompting
+  return filenamebuf
+end
+
+local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, pitch, rate, volume)
   local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   local rs5k_id = ConvertPathToNestedPath(pad_id, add_pos)
-  local _, payload = ImGui.GetDragDropPayloadFile(ctx, i) -- 0 based
+  local _, payload = r.ImGui_GetDragDropPayloadFile(ctx, i) -- 0 based
+  --local src = r.PCM_Source_CreateFromFile(payload)
+  --local src_length = r.GetMediaSourceLength(src)
+  --r.PCM_Source_Destroy(src)
+  --local start_offset = start_offs / src_length
+  --local end_offset = end_offs / src_length
+  local apply_pr = r.GetToggleCommandStateEx(32063, 42164) -- Apply preview pitch/rate to inserted media item
+  local assign_p = r.GetToggleCommandStateEx(32063, 42318) -- Assign detected pitch when inserting into sampler
   local rs5k_id = tonumber(rs5k_id)
   r.TrackFX_AddByName(track, 'ReaSamplomatic5000', false, rs5k_id)
   Pad[a].RS5k_ID = rs5k_id
@@ -328,6 +363,14 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '') -- remove file list
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', payload) -- add file
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')        -- always necessary
+    --r.TrackFX_SetParam(track, rs5k_id, 13, start_offset) -- Sample start offset
+    --r.TrackFX_SetParam(track, rs5k_id, 14, end_offset) -- Sample end offset
+    if rate ~= 1 and apply_pr == 1 then -- Apply rate in MX and glue it when settings is on and ignore if the rate is 1.
+      payload = MX_ApplyRate(mx)
+    end
+    if apply_pr == 1 or assign_p == 1 then -- Apply pitch in MX when settings is on
+      r.TrackFX_SetParam(track, rs5k_id, 15, (pitch + 80) / 160) -- apply mx pitch
+    end
     local filename = payload:match("([^\\/]+)%.%w%w*$")
     r.SetTrackMIDINoteNameEx(0, track, notenum, -1, filename)
     if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
@@ -337,9 +380,13 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name)
 end
 
 function DndAddSample_TARGET(a)
-  if ImGui.BeginDragDropTarget(ctx) then
-    local rv, count = ImGui.AcceptDragDropPayloadFiles(ctx)
+  if r.ImGui_BeginDragDropTarget(ctx) then
+    local rv, count = r.ImGui_AcceptDragDropPayloadFiles(ctx)
     if rv then
+      local mx = r.OpenMediaExplorer('', false)
+      local pitch = MX_GetPitch(mx)
+      local rate = MX_GetRate(mx)
+      local volume = MX_GetVolume(mx)
       InsertDrumMachine()
       GetDrumMachineIdx(track) -- parent_id = num
       if not parent_id then return end
@@ -351,7 +398,7 @@ function DndAddSample_TARGET(a)
           if not pads_idx then return end
           AddPad(getNoteName(notenum + i), a + i) -- pad_id = loc, pad_num = num
           AddNoteFilter(notenum + i, pad_num)
-          AddSamplesToRS5k(pad_num, 2, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs)) -- Pad[a].Name
+          AddSamplesToRS5k(pad_num, 2, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs), mx, pitch, rate, volume) -- Pad[a].Name
         elseif Pad[a + i].Pad_Num then
           CountPadFX(Pad[a + i].Pad_Num) -- padfx_idx = num
           local found = false
@@ -361,7 +408,9 @@ function DndAddSample_TARGET(a)
             retval, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'fx_ident')
             if buf == r.GetResourcePath() .. "\\Plugins\\FX\\reasamplomatic.dll<1920167789" or buf == r.GetResourcePath() .. "/Plugins/FX/reasamplomatic.dll<1920167789" then
               found = true
-              local _, payload = ImGui.GetDragDropPayloadFile(ctx, i)
+              local _, payload = r.ImGui_GetDragDropPayloadFile(ctx, i)
+              local src = r.PCM_Source_CreateFromFile(payload)
+              local src_length = r.GetMediaSourceLength(src)
               local ext = payload:match("([^%.]+)$")
               if r.IsMediaExtension(ext, false) and #ext <= 4 and ext ~= "mid" then
                 r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'FILE0', payload) -- change file
@@ -374,24 +423,25 @@ function DndAddSample_TARGET(a)
                 r.SetTrackMIDINoteNameEx(0, track, notenum, -1, filename)
                 r.TrackFX_SetParam(track, find_rs5k, 13, 0) -- Sample start offset, reset
                 r.TrackFX_SetParam(track, find_rs5k, 14, 1) -- Sample end offset, reset
+                r.TrackFX_SetParam(track, find_rs5k, 15, (pitch + 80) / 160) -- pitch
               end
             end
           end
           if not found then
-            AddSamplesToRS5k(Pad[a + i].Pad_Num, padfx_idx + 1, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs))
+            AddSamplesToRS5k(Pad[a + i].Pad_Num, padfx_idx + 1, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs), mx, pitch, rate, volume)
           end
         end
       end
       r.PreventUIRefresh(-1)
       EndUndoBlock("ADD SAMPLES")
     end
-    ImGui.EndDragDropTarget(ctx)
+    r.ImGui_EndDragDropTarget(ctx)
   end
 end
 
 function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
-  if ImGui.BeginDragDropTarget(ctx) then
-    local rv, count = ImGui.AcceptDragDropPayloadFiles(ctx)
+  if r.ImGui_BeginDragDropTarget(ctx) then
+    local rv, count = r.ImGui_AcceptDragDropPayloadFiles(ctx)
     if rv and not Pad[a] then
       InsertDrumMachine()
       GetDrumMachineIdx(track)  -- parent_id = num
@@ -410,15 +460,15 @@ function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
       for i = 0, count - 1 do
         local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
         local _, rs5k_id = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. padfx_idx + 1 + i)
-        AddSamplesToRS5k(pad_num, padfx_idx + 2 + i, i, a, note_name)
+        AddSamplesToRS5k(pad_num, padfx_idx + 2 + i, i, a, note_name, mx, pitch, rate, volume)
       end
     elseif rv and Pad[a].Pad_Num then
       GetDrumMachineIdx(track) -- parent_id = num
       CountPadFX(Pad[a].Pad_Num)
       for i = 0, count - 1 do
-        AddSamplesToRS5k(Pad[a].Pad_Num, padfx_idx + 1 + i, i, a, note_name)
+        AddSamplesToRS5k(Pad[a].Pad_Num, padfx_idx + 1 + i, i, a, note_name, mx, pitch, rate, volume)
       end
     end
-    ImGui.EndDragDropTarget(ctx)
+    r.ImGui_EndDragDropTarget(ctx)
   end
 end

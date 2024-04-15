@@ -1,8 +1,6 @@
 --@noindex
 
 r = reaper
-dofile(r.ImGui_GetBuiltinPath() .. '/imgui.lua') '0.9'
-local ImGui = require 'imgui' '0.9'
 
 local min, max = math.min, math.max
 function IncreaseDecreaseBrightness(color, amt, no_alpha)
@@ -63,26 +61,26 @@ function RememberTab(a, b) -- toggle + remember the last state of tab menu
 end
 
 function HighlightHvredItem()
-  local DL = ImGui.GetForegroundDrawList(ctx)
-  L, T = ImGui.GetItemRectMin(ctx)
-  R, B = ImGui.GetItemRectMax(ctx)
-  if ImGui.IsMouseHoveringRect(ctx, L, T, R, B) then
-      ImGui.DrawList_AddRect(DL, L, T, R, B, 0x99999999)
-      ImGui.DrawList_AddRectFilled(DL, L, T, R, B, 0x99999933)
+  local DL = r.ImGui_GetForegroundDrawList(ctx)
+  L, T = r.ImGui_GetItemRectMin(ctx)
+  R, B = r.ImGui_GetItemRectMax(ctx)
+  if r.ImGui_IsMouseHoveringRect(ctx, L, T, R, B) then
+      r.ImGui_DrawList_AddRect(DL, L, T, R, B, 0x99999999)
+      r.ImGui_DrawList_AddRectFilled(DL, L, T, R, B, 0x99999933)
       if IsLBtnClicked then
-          ImGui.DrawList_AddRect(DL, L, T, R, B, 0x999999dd)
-          ImGui.DrawList_AddRectFilled(DL, L, T, R, B, 0xffffff66)
+          r.ImGui_DrawList_AddRect(DL, L, T, R, B, 0x999999dd)
+          r.ImGui_DrawList_AddRectFilled(DL, L, T, R, B, 0xffffff66)
           return true
       end
   end
 end
 
 function Highlight_Itm(drawlist, FillClr, OutlineClr)
-  local L, T = ImGui.GetItemRectMin(ctx);
-  local R, B = ImGui.GetItemRectMax(ctx);
+  local L, T = r.ImGui_GetItemRectMin(ctx);
+  local R, B = r.ImGui_GetItemRectMax(ctx);
   
-  if FillClr then ImGui.DrawList_AddRectFilled(drawlist, L, T, R, B, FillClr, rounding) end
-  if OutlineClr then ImGui.DrawList_AddRect(drawlist, L, T, R, B, OutlineClr, rounding) end
+  if FillClr then r.ImGui_DrawList_AddRectFilled(drawlist, L, T, R, B, FillClr, rounding) end
+  if OutlineClr then r.ImGui_DrawList_AddRect(drawlist, L, T, R, B, OutlineClr, rounding) end
 end
 
 local function ParameterSwitch(a, label, parm)
@@ -93,9 +91,9 @@ local function ParameterSwitch(a, label, parm)
   else -- off
     switch = false
   end
-  --ImGui.PushFont(ctx, FONT)
-  local rv, switch = ImGui.Checkbox(ctx, label, switch)
-  --ImGui.PopFont(ctx)
+  --r.ImGui_PushFont(ctx, FONT)
+  local rv, switch = r.ImGui_Checkbox(ctx, label, switch)
+  --r.ImGui_PopFont(ctx)
   if rv and SELECTED then
     for k, v in pairs(SELECTED) do
       UpdatePadID()
@@ -132,7 +130,7 @@ end
 
 local function CalculateStripUV(img, V)
   local V = V or 0 
-  local w, h = ImGui.Image_GetSize(img)
+  local w, h = r.ImGui_Image_GetSize(img)
   local FrameNum = h / w
   local StepizedV = (SetMinMax(math.floor(V * FrameNum), 0, FrameNum - 1) / FrameNum)
   local uvmin = (1 / FrameNum) * StepizedV * FrameNum
@@ -185,35 +183,35 @@ local function Readini(fxidx, parm)
 end
 
 local function DefaultValueWindow(label, fxidx)
-  local center = { ImGui.Viewport_GetCenter(ImGui.GetWindowViewport(ctx)) }
-  ImGui.SetNextWindowPos(ctx, center[1], center[2], ImGui.Cond_Appearing, 0.5, 0.5)
-  if ImGui.BeginPopupModal(ctx, 'Do you want to save default value?##' .. label, nil, ImGui.WindowFlags_AlwaysAutoResize) then
-    if ImGui.IsWindowAppearing(ctx) then
-      ImGui.SetKeyboardFocusHere(ctx)
+  local center = { r.ImGui_Viewport_GetCenter(r.ImGui_GetWindowViewport(ctx)) }
+  r.ImGui_SetNextWindowPos(ctx, center[1], center[2], r.ImGui_Cond_Appearing(), 0.5, 0.5)
+  if r.ImGui_BeginPopupModal(ctx, 'Do you want to save default value?##' .. label, nil, r.ImGui_WindowFlags_AlwaysAutoResize()) then
+    if r.ImGui_IsWindowAppearing(ctx) then
+      r.ImGui_SetKeyboardFocusHere(ctx)
     end
-    if ImGui.Button(ctx, 'YES', 120, 0) or ImGui.IsKeyPressed(ctx, ImGui.Key_Enter) or
-        ImGui.IsKeyPressed(ctx, ImGui.Key_KeypadEnter) then
+    if r.ImGui_Button(ctx, 'YES', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Enter()) or
+        r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_KeypadEnter()) then
         Saveini(fxidx)
-      ImGui.CloseCurrentPopup(ctx)
+      r.ImGui_CloseCurrentPopup(ctx)
     end
-    ImGui.SetItemDefaultFocus(ctx)
-    ImGui.SameLine(ctx)
-    if ImGui.Button(ctx, 'NO', 120, 0) or ImGui.IsKeyPressed(ctx, ImGui.Key_Escape) then
-      ImGui.CloseCurrentPopup(ctx)
+    r.ImGui_SetItemDefaultFocus(ctx)
+    r.ImGui_SameLine(ctx)
+    if r.ImGui_Button(ctx, 'NO', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Escape()) then
+      r.ImGui_CloseCurrentPopup(ctx)
     end
-    ImGui.EndPopup(ctx)
+    r.ImGui_EndPopup(ctx)
   end
 end
 
 function ParameterTooltip(fxidx, parm)
-  if ImGui.BeginTooltip(ctx) then -- show parameter value
+  if r.ImGui_BeginTooltip(ctx) then -- show parameter value
     local _, parm_v = r.TrackFX_GetFormattedParamValue(track, fxidx, parm)
-    ImGui.PushTextWrapPos(ctx, ImGui.GetFontSize(ctx) * 35.0)
-    ImGui.PushFont(ctx, FONT)
-    ImGui.Text(ctx, parm_v)
-    ImGui.PopFont(ctx)
-    ImGui.PopTextWrapPos(ctx)
-    ImGui.EndTooltip(ctx)
+    r.ImGui_PushTextWrapPos(ctx, r.ImGui_GetFontSize(ctx) * 35.0)
+    r.ImGui_PushFont(ctx, FONT)
+    r.ImGui_Text(ctx, parm_v)
+    r.ImGui_PopFont(ctx)
+    r.ImGui_PopTextWrapPos(ctx)
+    r.ImGui_EndTooltip(ctx)
   end
 end
 
@@ -226,35 +224,35 @@ function GetSetParamValues(fxidx, parm, drag_delta, step)
 end
 
 local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
-  local draw_list = ImGui.GetWindowDrawList(ctx)
-  local Image = ImGui.CreateImage(r.GetResourcePath() .. "/Scripts/Suzuki Scripts/ReaDrum Machine/Images/FancyBlueKnob.png")
-  local pos          = {ImGui.GetCursorScreenPos(ctx)}
+  local draw_list = r.ImGui_GetWindowDrawList(ctx)
+  local Image = r.ImGui_CreateImage(r.GetResourcePath() .. "/Scripts/Suzuki Scripts/ReaDrum Machine/Images/FancyBlueKnob.png")
+  local pos          = {r.ImGui_GetCursorScreenPos(ctx)}
   local Radius       = Radius or 0
   local radius_outer = Radius
   local center       = {pos[1] + radius_outer, pos[2] + radius_outer}
-  local line_height = ImGui.GetTextLineHeight(ctx)
-  local rv = ImGui.InvisibleButton(ctx, label .. "##" .. label_id, radius_outer * 2, radius_outer * 2 + line_height + 0 + (-line_height or 0))
-  if ImGui.IsItemHovered(ctx) and not ImGui.IsItemActive(ctx) then -- mousewheel to change values
-    local v, h = ImGui.GetMouseWheel(ctx)
+  local line_height = r.ImGui_GetTextLineHeight(ctx)
+  local rv = r.ImGui_InvisibleButton(ctx, label .. "##" .. label_id, radius_outer * 2, radius_outer * 2 + line_height + 0 + (-line_height or 0))
+  if r.ImGui_IsItemHovered(ctx) and not r.ImGui_IsItemActive(ctx) then -- mousewheel to change values
+    local v, h = r.ImGui_GetMouseWheel(ctx)
     local stepscale = 1
     if SHIFT then stepscale = 6 end
     local step = (1 - 0) / (200.0 * stepscale)
     GetSetParamValues(fxidx, parm, (4 * v), step)
     ParameterTooltip(fxidx, parm)
   end
-  local BtnL, BtnT = ImGui.GetItemRectMin(ctx)
-  local BtnR, BtnB = ImGui.GetItemRectMax(ctx)
+  local BtnL, BtnT = r.ImGui_GetItemRectMin(ctx)
+  local BtnR, BtnB = r.ImGui_GetItemRectMax(ctx)
 
-  ImGui.DrawList_AddTextEx(draw_list, FONT, 16, pos[1] + offset, BtnB, 0xffffffff, label) -- parameter name
-  if ImGui.IsItemHovered(ctx) and ImGui.IsMouseDoubleClicked(ctx, 0) then -- reset value
+  r.ImGui_DrawList_AddTextEx(draw_list, FONT, 16, pos[1] + offset, BtnB, 0xffffffff, label) -- parameter name
+  if r.ImGui_IsItemHovered(ctx) and r.ImGui_IsMouseDoubleClicked(ctx, 0) then -- reset value
     Readini(fxidx, parm)
   end
-  if ImGui.IsItemClicked(ctx, 1) and CTRL then
-    ImGui.OpenPopup(ctx, 'Do you want to save default value?##' .. label)
-  --elseif ImGui.IsItemClicked(ctx, 0) and ALT then -- input box
-    --ImGui.OpenPopup(ctx, 'input value##' .. label)
-  elseif ImGui.IsItemActive(ctx) then -- when dragging parameter
-    local mouse_delta = { ImGui.GetMouseDelta(ctx) }
+  if r.ImGui_IsItemClicked(ctx, 1) and CTRL then
+    r.ImGui_OpenPopup(ctx, 'Do you want to save default value?##' .. label)
+  --elseif r.ImGui_IsItemClicked(ctx, 0) and ALT then -- input box
+    --r.ImGui_OpenPopup(ctx, 'input value##' .. label)
+  elseif r.ImGui_IsItemActive(ctx) then -- when dragging parameter
+    local mouse_delta = { r.ImGui_GetMouseDelta(ctx) }
     if -mouse_delta[2] ~= 0.0 then
       if label == "Pitch" then
         stepscale = 0.8
@@ -274,19 +272,19 @@ local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
         GetSetParamValues(fxidx, parm, -mouse_delta[2], step)
       end
     end
-    local _, Y_Pos = ImGui.GetCursorScreenPos(ctx)
-    local window_padding = { ImGui.GetStyleVar(ctx, ImGui.StyleVar_WindowPadding) }
-    ImGui.SetNextWindowPos(ctx, pos[1] + radius_outer / 2, Y_Pos or pos[2] - line_height - window_padding[2] - 8)
+    local _, Y_Pos = r.ImGui_GetCursorScreenPos(ctx)
+    local window_padding = { r.ImGui_GetStyleVar(ctx, r.ImGui_StyleVar_WindowPadding()) }
+    r.ImGui_SetNextWindowPos(ctx, pos[1] + radius_outer / 2, Y_Pos or pos[2] - line_height - window_padding[2] - 8)
     ParameterTooltip(fxidx, parm)
   end
-  if ImGui.BeginPopup(ctx, "input value##" .. label) then
-    if ImGui.IsWindowAppearing(ctx) then
-      ImGui.SetKeyboardFocusHere(ctx)
+  if r.ImGui_BeginPopup(ctx, "input value##" .. label) then
+    if r.ImGui_IsWindowAppearing(ctx) then
+      r.ImGui_SetKeyboardFocusHere(ctx)
     end
-    ImGui.Text(ctx, 'Put values:')
-    rv, input = ImGui.InputText(ctx, label, input)
-    if ImGui.Button(ctx, 'OK', 120, 0) or ImGui.IsKeyPressed(ctx, ImGui.Key_Enter) or
-      ImGui.IsKeyPressed(ctx, ImGui.Key_KeypadEnter) then
+    r.ImGui_Text(ctx, 'Put values:')
+    rv, input = r.ImGui_InputText(ctx, label, input)
+    if r.ImGui_Button(ctx, 'OK', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Enter()) or
+      r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_KeypadEnter()) then
       for p = 0, 1 do
         local _, p_value = r.TrackFX_FormatParamValueNormalized(track, fxidx, parm, p, "")
         if p_value == input then
@@ -295,30 +293,30 @@ local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
         end
       end
     end
-    ImGui.SetItemDefaultFocus(ctx)
-    ImGui.SameLine(ctx)
-    if ImGui.Button(ctx, 'Close') then
-      ImGui.CloseCurrentPopup(ctx)
+    r.ImGui_SetItemDefaultFocus(ctx)
+    r.ImGui_SameLine(ctx)
+    if r.ImGui_Button(ctx, 'Close') then
+      r.ImGui_CloseCurrentPopup(ctx)
     end
-    ImGui.EndPopup(ctx)
+    r.ImGui_EndPopup(ctx)
   end
   DefaultValueWindow(label, fxidx)
 
   if Image then
-    local w, h = ImGui.Image_GetSize(Image)
+    local w, h = r.ImGui_Image_GetSize(Image)
     if h > w * 5 then -- It's probably a strip knob file
       local scale = 2
       local sz = radius_outer * scale
       uvmin, uvmax = CalculateStripUV(Image, r.TrackFX_GetParamNormalized(track, fxidx, parm))
-      ImGui.DrawList_AddImage(draw_list, Image, center[1] - sz / 2, center[2] - sz / 2, center[1] + sz / 2,
+      r.ImGui_DrawList_AddImage(draw_list, Image, center[1] - sz / 2, center[2] - sz / 2, center[1] + sz / 2,
               center[2] + sz / 2, 0, uvmin, 1, uvmax, 0xffffffff)
     end
   end
 end
 
 function PositionOffset(x_offset, y_offset)
-  local x, y = ImGui.GetCursorScreenPos(ctx)
-  ImGui.SetCursorScreenPos(ctx, x + x_offset, y + y_offset)
+  local x, y = r.ImGui_GetCursorScreenPos(ctx)
+  r.ImGui_SetCursorScreenPos(ctx, x + x_offset, y + y_offset)
 end
 
 local function LoopSwitch(a)
@@ -329,9 +327,9 @@ local function LoopSwitch(a)
   else
     loop = false
   end
-  --ImGui.PushFont(ctx, FONT)
-  local rv, loop = ImGui.Checkbox(ctx, "Loop", loop)
-  --ImGui.PopFont(ctx)
+  --r.ImGui_PushFont(ctx, FONT)
+  local rv, loop = r.ImGui_Checkbox(ctx, "Loop", loop)
+  --r.ImGui_PopFont(ctx)
   if rv and SELECTED then
     for k, v in pairs(SELECTED) do
       UpdatePadID()
@@ -362,9 +360,9 @@ local function LoopSwitch(a)
     end
   end
   if loop then
-    ImGui.SameLine(ctx, nil, 8)
+    r.ImGui_SameLine(ctx, nil, 8)
     DrawImageKnob("XFade", a, Pad[a].RS5k_Instances[WhichRS5k], 22, 15, 0)
-    ImGui.SameLine(ctx, nil, 8)
+    r.ImGui_SameLine(ctx, nil, 8)
     DrawImageKnob("Start Pos", "Loop", Pad[a].RS5k_Instances[WhichRS5k], 23, 15, -3)
   end
 end
@@ -433,22 +431,22 @@ local function ChangeSample(track, fxidx)
 end
 
 local function ArrowButtons(a)
-  local spacing = ImGui.GetStyleVar(ctx, ImGui.StyleVar_ItemInnerSpacing)
-  ImGui.PushButtonRepeat(ctx, true)
-  if ImGui.ArrowButton(ctx, '##left', ImGui.Dir_Left) then
+  local spacing = r.ImGui_GetStyleVar(ctx, r.ImGui_StyleVar_ItemInnerSpacing())
+  r.ImGui_PushButtonRepeat(ctx, true)
+  if r.ImGui_ArrowButton(ctx, '##left', r.ImGui_Dir_Left()) then
     WhichRS5k = WhichRS5k - 1
     if WhichRS5k < 1 then
       WhichRS5k = #Pad[a].RS5k_Instances
     end 
   end
-  ImGui.SameLine(ctx, 0.0, spacing)
-  if ImGui.ArrowButton(ctx, '##right', ImGui.Dir_Right) then
+  r.ImGui_SameLine(ctx, 0.0, spacing)
+  if r.ImGui_ArrowButton(ctx, '##right', r.ImGui_Dir_Right()) then
     WhichRS5k = WhichRS5k + 1
     if WhichRS5k > #Pad[a].RS5k_Instances then
       WhichRS5k = 1
     end 
   end
-  ImGui.PopButtonRepeat(ctx)
+  r.ImGui_PopButtonRepeat(ctx)
 end
 
 function RS5kUI(a)
@@ -456,26 +454,26 @@ function RS5kUI(a)
   if not Pad[a] then return end
   if not Pad[a].RS5k_Instances[WhichRS5k] and WhichRS5k > #Pad[a].RS5k_Instances then WhichRS5k = 1 end
   ArrowButtons(a)
-  ImGui.SameLine(ctx)
+  r.ImGui_SameLine(ctx)
   
   if Pad[a].Sample_Name[WhichRS5k] then
     sample_name = Pad[a].Sample_Name[WhichRS5k]
   else
     sample_name = "Empty"
   end
-  ImGui.SameLine(ctx)
-  ImGui.PushStyleColor(ctx, ImGui.Col_Button,        0x99999900)
-  ImGui.PushStyleColor(ctx, ImGui.Col_ButtonHovered, 0x9999993c)
-  ImGui.PushStyleColor(ctx, ImGui.Col_ButtonActive,  0x9999996f)
-  --ImGui.PushFont(ctx, FONT)
-  local rv = ImGui.Button(ctx, "RS5k[" .. ('%d'):format(WhichRS5k) .. "] " .. sample_name) -- RS5k instance number + Sample name
-  if DownArrow or UpArrow or ImGui.IsKeyPressed(ctx, ImGui.Key_R) then
+  r.ImGui_SameLine(ctx)
+  r.ImGui_PushStyleColor(ctx, r.ImGui_Col_Button(),        0x99999900)
+  r.ImGui_PushStyleColor(ctx, r.ImGui_Col_ButtonHovered(), 0x9999993c)
+  r.ImGui_PushStyleColor(ctx, r.ImGui_Col_ButtonActive(),  0x9999996f)
+  --r.ImGui_PushFont(ctx, FONT)
+  local rv = r.ImGui_Button(ctx, "RS5k[" .. ('%d'):format(WhichRS5k) .. "] " .. sample_name) -- RS5k instance number + Sample name
+  if DownArrow or UpArrow or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_R()) then
     ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k])
     r.StuffMIDIMessage(0, 0x90, Pad[a].Note_Num, 96)
-  elseif DownArrowReleased or UpArrowReleased or ImGui.IsKeyReleased(ctx, ImGui.Key_R) then
+  elseif DownArrowReleased or UpArrowReleased or r.ImGui_IsKeyReleased(ctx, r.ImGui_Key_R()) then
     r.StuffMIDIMessage(0, 0x80, Pad[a].Note_Num, 96) -- send note_r
   end
-  --ImGui.PopFont(ctx)
+  --r.ImGui_PopFont(ctx)
   if rv then
     local open = r.TrackFX_GetOpen(track, Pad[a].RS5k_Instances[WhichRS5k]) -- 0 based
     if open then
@@ -484,56 +482,56 @@ function RS5kUI(a)
       r.TrackFX_Show(track, Pad[a].RS5k_Instances[WhichRS5k], 3)           -- show floating window
     end
   end
-  ImGui.PopStyleColor(ctx, 3)
+  r.ImGui_PopStyleColor(ctx, 3)
 
   ParameterSwitch(a, "Obey note-offs", 11)
-  ImGui.SameLine(ctx, nil, 10)
+  r.ImGui_SameLine(ctx, nil, 10)
   LoopSwitch(a)
   PositionOffset(0, 10)
-  ImGui.Separator(ctx)
+  r.ImGui_Separator(ctx)
   PositionOffset(20, 10)
   DrawImageKnob("Volume", "Volume", Pad[a].RS5k_Instances[WhichRS5k], 0, 19, 3)
-  ImGui.SameLine(ctx, nil, 15)
+  r.ImGui_SameLine(ctx, nil, 15)
   DrawImageKnob("Min Vol.", "Min Vol.", Pad[a].RS5k_Instances[WhichRS5k], 2, 19, 2)
-  ImGui.SameLine(ctx, nil, 15)
+  r.ImGui_SameLine(ctx, nil, 15)
   DrawImageKnob("Pan", "Pan", Pad[a].RS5k_Instances[WhichRS5k], 1, 19, 10)
-  ImGui.SameLine(ctx, nil, 15)
+  r.ImGui_SameLine(ctx, nil, 15)
   DrawImageKnob("Min Velocity", "Min Velocity", Pad[a].RS5k_Instances[WhichRS5k], 17, 19, -13)
-  ImGui.SameLine(ctx, nil, 20)
+  r.ImGui_SameLine(ctx, nil, 20)
   DrawImageKnob("Max Velocity", "Max Velocity", Pad[a].RS5k_Instances[WhichRS5k], 18, 19, -10)
   PositionOffset(0, 30)
-  ImGui.Separator(ctx)
+  r.ImGui_Separator(ctx)
   PositionOffset(10, 10)
   DrawImageKnob("A", a, Pad[a].RS5k_Instances[WhichRS5k], 9, 19, 17)
-  ImGui.SameLine(ctx, nil, 8)
+  r.ImGui_SameLine(ctx, nil, 8)
   DrawImageKnob("D", a, Pad[a].RS5k_Instances[WhichRS5k], 24, 19, 17)
-  ImGui.SameLine(ctx, nil, 8)
+  r.ImGui_SameLine(ctx, nil, 8)
   DrawImageKnob("S", a, Pad[a].RS5k_Instances[WhichRS5k], 25, 19, 17)
-  ImGui.SameLine(ctx, nil, 8)
+  r.ImGui_SameLine(ctx, nil, 8)
   DrawImageKnob("R", a, Pad[a].RS5k_Instances[WhichRS5k], 10, 19, 17)
-  ImGui.SameLine(ctx, nil, 14)
+  r.ImGui_SameLine(ctx, nil, 14)
   DrawImageKnob("Pitch", a, Pad[a].RS5k_Instances[WhichRS5k], 15, 19, 10)
-  ImGui.SameLine(ctx, nil, 8)
+  r.ImGui_SameLine(ctx, nil, 8)
   DrawImageKnob("Bend", a, Pad[a].RS5k_Instances[WhichRS5k], 16, 19, 10)
   PositionOffset(0, 30)
-  ImGui.Separator(ctx)
+  r.ImGui_Separator(ctx)
   PositionOffset(10, 10)
   DrawImageKnob("Start Pos", "Sample", Pad[a].RS5k_Instances[WhichRS5k], 13, 19, -3)
-  ImGui.SameLine(ctx, nil, 14)
+  r.ImGui_SameLine(ctx, nil, 14)
   DrawImageKnob("End Pos", a, Pad[a].RS5k_Instances[WhichRS5k], 14, 19, 0)
-  ImGui.SameLine(ctx, nil, 14)
+  r.ImGui_SameLine(ctx, nil, 14)
   DrawImageKnob("Probability", a, Pad[a].RS5k_Instances[WhichRS5k], 19, 19, -10)
-  ImGui.SameLine(ctx, nil, 20)
+  r.ImGui_SameLine(ctx, nil, 20)
   PositionOffset(0, 10)
   ParameterSwitch(a, "Round-Robin", 20)
-  --ImGui.PushStyleColor(ctx, ImGui.Col_Button,        0x99999900)
-  --ImGui.PushStyleColor(ctx, ImGui.Col_ButtonHovered, 0x9999993c)
-  --ImGui.PushStyleColor(ctx, ImGui.Col_ButtonActive,  0x9999996f)
-  --ImGui.Button(ctx, "Volume", 50, 50)
-  --if ImGui.IsItemActive(ctx) then
+  --r.ImGui_PushStyleColor(ctx, r.ImGui_Col_Button(),        0x99999900)
+  --r.ImGui_PushStyleColor(ctx, r.ImGui_Col_ButtonHovered(), 0x9999993c)
+  --r.ImGui_PushStyleColor(ctx, r.ImGui_Col_ButtonActive(),  0x9999996f)
+  --r.ImGui_Button(ctx, "Volume", 50, 50)
+  --if r.ImGui_IsItemActive(ctx) then
     --r.TrackFX_SetParam(track, RS5k, 0, v)
   --end
-  --ImGui.PopStyleColor(ctx, 3)
+  --r.ImGui_PopStyleColor(ctx, 3)
   --DrawKnobs(p_value, 0, 1, 20)
   
 end
