@@ -1,6 +1,8 @@
 --@noindex
 
 r = reaper
+dofile(r.ImGui_GetBuiltinPath() .. '/imgui.lua') '0.9'
+local ImGui = require 'imgui' '0.9'
 
 function SetButtonState(set) -- Set ToolBar Button State
   local is_new_value, filename, sec, cmd, mode, resolution, val = r.get_action_context()
@@ -13,21 +15,21 @@ function Exit()
 end
 
 function CheckKeys()
-  ALT = r.ImGui_GetKeyMods(ctx) == r.ImGui_Mod_Alt()
-  CTRL = r.ImGui_GetKeyMods(ctx) == r.ImGui_Mod_Shortcut()
-  SHIFT = r.ImGui_GetKeyMods(ctx) == r.ImGui_Mod_Shift()
+  ALT = ImGui.GetKeyMods(ctx) == ImGui.Mod_Alt
+  CTRL = ImGui.GetKeyMods(ctx) == ImGui.Mod_Shortcut
+  SHIFT = ImGui.GetKeyMods(ctx) == ImGui.Mod_Shift
 
-  HOME = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Home())
-  SPACE = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Space())
-  ESC = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Escape())
+  HOME = ImGui.IsKeyPressed(ctx, ImGui.Key_Home)
+  SPACE = ImGui.IsKeyPressed(ctx, ImGui.Key_Space)
+  ESC = ImGui.IsKeyPressed(ctx, ImGui.Key_Escape)
 
-  UpArrow = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_UpArrow())
-  DownArrow = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_DownArrow())
+  UpArrow = ImGui.IsKeyPressed(ctx, ImGui.Key_UpArrow)
+  DownArrow = ImGui.IsKeyPressed(ctx, ImGui.Key_DownArrow)
   
-  UpArrowReleased = r.ImGui_IsKeyReleased(ctx, r.ImGui_Key_UpArrow())
-  DownArrowReleased = r.ImGui_IsKeyReleased(ctx, r.ImGui_Key_DownArrow())
+  UpArrowReleased = ImGui.IsKeyReleased(ctx, ImGui.Key_UpArrow)
+  DownArrowReleased = ImGui.IsKeyReleased(ctx, ImGui.Key_DownArrow)
 
-  Z = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Z())
+  Z = ImGui.IsKeyPressed(ctx, ImGui.Key_Z)
 
   if HOME then CANVAS.off_x, CANVAS.off_y = 0, def_vertical_y_center end
 
@@ -37,7 +39,7 @@ function CheckKeys()
     -- CHECK IF TRACK CHANGED
     TRACK = r.GetSelectedTrack2(0, 0, true)
   end                            -- UNDO
-  if r.ImGui_GetKeyMods(ctx) == r.ImGui_Mod_Shortcut() | r.ImGui_Mod_Shift() and Z then
+  if ImGui.GetKeyMods(ctx) == ImGui.Mod_Shortcut | ImGui.Mod_Shift and Z then
     r.Main_OnCommand(40030, 0)   -- REDO
   end
 
@@ -45,13 +47,13 @@ function CheckKeys()
 
   -- ACTIVATE CTRL ONLY IF NOT PREVIOUSLY DRAGGING
   if not CTRL_DRAG then
-    CTRL_DRAG = (not MOUSE_DRAG and CTRL) and r.ImGui_IsMouseDragging(ctx, 0)
+    CTRL_DRAG = (not MOUSE_DRAG and CTRL) and ImGui.IsMouseDragging(ctx, 0)
   end
-  MOUSE_DRAG = r.ImGui_IsMouseDragging(ctx, 0)
+  MOUSE_DRAG = ImGui.IsMouseDragging(ctx, 0)
 end
 
 function CheckStaleData()
-  if r.ImGui_IsMouseReleased(ctx, 0) then
+  if ImGui.IsMouseReleased(ctx, 0) then
       CTRL_DRAG = nil
   --    DRAG_PREVIEW = nil
   end

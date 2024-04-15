@@ -1,7 +1,8 @@
 --@noindex
 
 r = reaper
-
+dofile(r.ImGui_GetBuiltinPath() .. '/imgui.lua') '0.9'
+local ImGui = require 'imgui' '0.9'
 
 local function ClickAddFX(FX_Name)
   if SELECTED then
@@ -92,39 +93,39 @@ end
 local FILTER = ''
 local function FilterBox()
   local MAX_FX_SIZE = 300
-  r.ImGui_PushItemWidth(ctx, MAX_FX_SIZE)
-  if r.ImGui_IsWindowAppearing(ctx) then r.ImGui_SetKeyboardFocusHere(ctx) end
-  _, FILTER = r.ImGui_InputTextWithHint(ctx, '##input', "SEARCH FX", FILTER)
+  ImGui.PushItemWidth(ctx, MAX_FX_SIZE)
+  if ImGui.IsWindowAppearing(ctx) then ImGui.SetKeyboardFocusHere(ctx) end
+  _, FILTER = ImGui.InputTextWithHint(ctx, '##input', "SEARCH FX", FILTER)
   local filtered_fx = Filter_actions(FILTER)
   local filter_h = #filtered_fx == 0 and 0 or (#filtered_fx > 40 and 20 * 17 or (17 * #filtered_fx))
   ADDFX_Sel_Entry = SetMinMax(ADDFX_Sel_Entry or 1, 1, #filtered_fx)
   if #filtered_fx ~= 0 then
-    if r.ImGui_BeginChild(ctx, "##popupp", MAX_FX_SIZE, filter_h) then
+    if ImGui.BeginChild(ctx, "##popupp", MAX_FX_SIZE, filter_h) then
       for i = 1, #filtered_fx do
-        if r.ImGui_Selectable(ctx, filtered_fx[i].name, i == ADDFX_Sel_Entry) then
+        if ImGui.Selectable(ctx, filtered_fx[i].name, i == ADDFX_Sel_Entry) then
           ClickAddFX(filtered_fx[i].name)
-          r.ImGui_CloseCurrentPopup(ctx)
+          ImGui.CloseCurrentPopup(ctx)
           LAST_USED_FX = filtered_fx[i].name
         end
         DndAddFX_SRC(filtered_fx[i].name)
       end
-      r.ImGui_EndChild(ctx)
+      ImGui.EndChild(ctx)
     end
-    if r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Enter()) then
+    if ImGui.IsKeyPressed(ctx, ImGui.Key_Enter) then
       ClickAddFX(filtered_fx[ADDFX_Sel_Entry].name)
       LAST_USED_FX = filtered_fx[filtered_fx[ADDFX_Sel_Entry].name]
       ADDFX_Sel_Entry = nil
       FILTER = ''
-      r.ImGui_CloseCurrentPopup(ctx)
-    elseif r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_UpArrow()) then
+      ImGui.CloseCurrentPopup(ctx)
+    elseif ImGui.IsKeyPressed(ctx, ImGui.Key_UpArrow) then
       ADDFX_Sel_Entry = ADDFX_Sel_Entry - 1
-    elseif r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_DownArrow()) then
+    elseif ImGui.IsKeyPressed(ctx, ImGui.Key_DownArrow) then
       ADDFX_Sel_Entry = ADDFX_Sel_Entry + 1
     end
   end
-  if r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Escape()) then
+  if ImGui.IsKeyPressed(ctx, ImGui.Key_Escape) then
     FILTER = ''
-    r.ImGui_CloseCurrentPopup(ctx)
+    ImGui.CloseCurrentPopup(ctx)
   end
   return #filtered_fx ~= 0
 end
@@ -134,13 +135,13 @@ local function DrawFxChains(tbl, path)
   path = path or ""
   for i = 1, #tbl do
     if tbl[i].dir then
-      if r.ImGui_BeginMenu(ctx, tbl[i].dir) then
+      if ImGui.BeginMenu(ctx, tbl[i].dir) then
         DrawFxChains(tbl[i], table.concat({ path, os_separator, tbl[i].dir }))
-        r.ImGui_EndMenu(ctx)
+        ImGui.EndMenu(ctx)
       end
     end
     if type(tbl[i]) ~= "table" then
-      if r.ImGui_Selectable(ctx, tbl[i]) then
+      if ImGui.Selectable(ctx, tbl[i]) then
         if TRACK then
           ClickAddFX(table.concat({ path, os_separator, tbl[i], extension }))
         end
@@ -152,7 +153,7 @@ end
 
 local function DrawItems(tbl, main_cat_name)
   for i = 1, #tbl do
-    if r.ImGui_BeginMenu(ctx, tbl[i].name) then
+    if ImGui.BeginMenu(ctx, tbl[i].name) then
       for j = 1, #tbl[i].fx do
         if tbl[i].fx[j] then
           local name = tbl[i].fx[j]
@@ -163,7 +164,7 @@ local function DrawItems(tbl, main_cat_name)
             -- STRIP SUFFIX (DEVELOPER) FROM THESE CATEGORIES
             name = name:gsub(' %(' .. Literalize(tbl[i].name) .. '%)', "")
           end
-          if r.ImGui_Selectable(ctx, name) then
+          if ImGui.Selectable(ctx, name) then
             if TRACK then
               ClickAddFX(tbl[i].fx[j])
               LAST_USED_FX = tbl[i].fx[j]
@@ -172,7 +173,7 @@ local function DrawItems(tbl, main_cat_name)
           DndAddFX_SRC(tbl[i].fx[j])
         end
       end
-      r.ImGui_EndMenu(ctx)
+      ImGui.EndMenu(ctx)
     end
   end
 end
@@ -183,7 +184,7 @@ function Frame()
   for i = 1, #CAT do
     if CAT[i].name ~= "TRACK TEMPLATES" then
       if #CAT[i].list ~= 0 then
-        if r.ImGui_BeginMenu(ctx, CAT[i].name) then
+        if ImGui.BeginMenu(ctx, CAT[i].name) then
           if CAT[i].name == "FX CHAINS" then
             DrawFxChains(CAT[i].list)
       --elseif CAT[i].name == "TRACK TEMPLATES" then
@@ -191,43 +192,43 @@ function Frame()
           else
             DrawItems(CAT[i].list, CAT[i].name)
           end
-          r.ImGui_EndMenu(ctx)
+          ImGui.EndMenu(ctx)
         end
       end
     end
   end
-  if r.ImGui_BeginMenu(ctx, "RDM TOOLS") then
+  if ImGui.BeginMenu(ctx, "RDM TOOLS") then
     r.Undo_BeginBlock()
-    if r.ImGui_Selectable(ctx, "Reverse Effect") then
+    if ImGui.Selectable(ctx, "Reverse Effect") then
       ClickAddFX("Reverse Audio (Methode Double-Buffer)")
       LAST_USED_FX = "Reverse Effect"
     end
     DndAddFX_SRC("Reverse Audio (Methode Double-Buffer)")
     EndUndoBlock("ADD REVERSE EFFECTS")
-    if r.ImGui_Selectable(ctx, "MIDI Triggered Low Pass Filter") then
+    if ImGui.Selectable(ctx, "MIDI Triggered Low Pass Filter") then
       ClickAddFX("../Scripts/Suzuki Scripts/ReaDrum Machine/FXChains/MIDI Triggered Low Pass Filter.RfxChain")
       LAST_USED_FX = "MIDI Triggered Low Pass Filter"
     end
     DndAddFX_SRC("../Scripts/Suzuki Scripts/ReaDrum Machine/FXChains/MIDI Triggered Low Pass Filter.RfxChain")
-    r.ImGui_EndMenu(ctx)
+    ImGui.EndMenu(ctx)
   end
-  if r.ImGui_Selectable(ctx, "CONTAINER") then
+  if ImGui.Selectable(ctx, "CONTAINER") then
     ClickAddFX("Container")
     LAST_USED_FX = "Container"
   end
   DndAddFX_SRC("Container")
-  if r.ImGui_Selectable(ctx, "VIDEO PROCESSOR") then
+  if ImGui.Selectable(ctx, "VIDEO PROCESSOR") then
     ClickAddFX("Video processor")
     LAST_USED_FX = "Video processor"
   end
   DndAddFX_SRC("Video processor")
   if LAST_USED_FX then
-    if r.ImGui_Selectable(ctx, "RECENT: " .. LAST_USED_FX) then
+    if ImGui.Selectable(ctx, "RECENT: " .. LAST_USED_FX) then
       ClickAddFX(LAST_USED_FX)
     end
   DndAddFX_SRC(LAST_USED_FX)
   end
-  if r.ImGui_Selectable(ctx, "RESCAN FX LIST") then
+  if ImGui.Selectable(ctx, "RESCAN FX LIST") then
     FX_LIST, CAT = MakeFXFiles()
   end
 end
