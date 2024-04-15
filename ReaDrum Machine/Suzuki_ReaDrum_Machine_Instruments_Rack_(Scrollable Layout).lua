@@ -1,13 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.5.1
+-- @version 1.5.2
 -- @noindex
 -- @changelog 
---   + Added a feature to carry over pitch/rate in Media Explorer into the sampler.
---   You can optionally enable/disable this settings via actions called "Apply preview pitch/rate to inserted media item" and "Assign detected pitch when inserting into sampler".
---   A new sample will be rendered when applying rate settings (except for 1.0) because ReaSamplomatic 5000 does not have a rate related parameter.
---   + Added js extension check
+--   # Handled renaming in the native FX Browser
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. This is a version which lets users scroll vertically.
 
