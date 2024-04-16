@@ -332,14 +332,69 @@ end
 
 local function MX_ApplyRate(mx)
   r.SelectAllMediaItems(0, false)    -- unselect all
+  local insert_sel = r.GetToggleCommandStateEx(32063, 40063) -- Options: Insert media on selected track
+  if insert_sel ~= 1 then
+    insert_new = true
+    r.JS_WindowMessage_Send(mx, "WM_COMMAND", 40063, 0, 0, 0) -- Options: Insert media on selected track
+  end
   r.JS_WindowMessage_Send(mx, "WM_COMMAND", 41010, 0, 0, 0) -- insert media loop disabled
-  r.Main_OnCommand(41588, 0) -- glue
-  local item = r.GetSelectedMediaItem(0, 0)                  -- 0 based
-  local take = r.GetActiveTake(item)
-  local take_src = r.GetMediaItemTake_Source(take)
-  local filenamebuf = r.GetMediaSourceFileName(take_src)
-  r.Main_OnCommand(40184, 0) -- remove items no prompting
-  return filenamebuf
+  local selectedmedia_num = r.CountSelectedMediaItems(0)
+  for c = 1, selectedmedia_num do -- storing info about which items are selected
+    local item = r.GetSelectedMediaItem(0, c - 1)                  -- 0 based
+    local item_guid = r.BR_GetMediaItemGUID(item)
+    if not payload_num then
+      payload_num = {}
+    end
+    payload_num[c] = item_guid
+  end
+  r.SelectAllMediaItems(0, false)    -- unselect all
+  for c = 1, selectedmedia_num do -- glue and store a new source name one by one
+    local item = r.BR_GetMediaItemByGUID(0, payload_num[c])
+    r.SetMediaItemSelected(item, true)
+    r.Main_OnCommand(41588, 0) -- glue
+    local item = r.GetSelectedMediaItem(0, 0)                  -- 0 based
+    local take = r.GetActiveTake(item)
+    local take_src = r.GetMediaItemTake_Source(take)
+    if not payload_name then
+      payload_name = {}
+    end
+    payload_name[c] = r.GetMediaSourceFileName(take_src)
+    r.DeleteTrackMediaItem(track, item)
+  end
+  if insert_new then
+    r.JS_WindowMessage_Send(mx, "WM_COMMAND", 40054, 0, 0, 0) -- Options: Insert media on new track
+    insert_new = false
+  end
+end
+
+local function MX_GetTimeSelection() -- https://forum.cockos.com/showpost.php?p=2473651&postcount=1601
+  local mx_title = r.JS_Localize('Media Explorer', 'common')
+  local mx = r.JS_Window_Find(mx_title, true)
+  if not mx then return false end
+
+  -- Simulate mouse event on waveform to read out time selection
+  local x, y = r.GetMousePosition()
+  local wave_hwnd = r.JS_Window_FindChildByID(mx, 1046)
+  local c_x, c_y = r.JS_Window_ScreenToClient(wave_hwnd, x, y)
+  r.JS_WindowMessage_Send(wave_hwnd, 'WM_MOUSEFIRST', c_y, 0, c_x, 0)
+
+  -- If a time selection exists, it will be shown in the wave info window
+  local wave_info_hwnd = r.JS_Window_FindChildByID(mx, 1014)
+  local wave_info = r.JS_Window_GetTitle(wave_info_hwnd)
+  local pattern = ': ([^%s]+) .-: ([^%s]+)'
+  local start_timecode, end_timecode = wave_info:match(pattern)
+
+  if not start_timecode then return false end
+
+  -- Convert timecode to seconds
+  local start_mins, start_secs = start_timecode:match('^(.-):(.-)$')
+  start_secs = tonumber(start_secs) + tonumber(start_mins) * 60
+
+  local end_mins, end_secs = end_timecode:match('^(.-):(.-)$')
+  end_secs = tonumber(end_secs) + tonumber(end_mins) * 60
+
+  -- Note: When no media file is loaded, start and end are both 0
+  return start_secs ~= end_secs, start_secs, end_secs
 end
 
 local function RS5k_File()
@@ -354,7 +409,7 @@ local function RS5k_File()
   return file_name
 end
 
-local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, pitch, rate, volume)
+local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, pitch, rate, volume, apply_pr, assign_p)
   local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   local rs5k_id = ConvertPathToNestedPath(pad_id, add_pos)
   local _, payload = r.ImGui_GetDragDropPayloadFile(ctx, i) -- 0 based
@@ -363,8 +418,9 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, 
   --r.PCM_Source_Destroy(src)
   --local start_offset = start_offs / src_length
   --local end_offset = end_offs / src_length
-  local apply_pr = r.GetToggleCommandStateEx(32063, 42164) -- Apply preview pitch/rate to inserted media item
-  local assign_p = r.GetToggleCommandStateEx(32063, 42318) -- Assign detected pitch when inserting into sampler
+  if i == 0 and rate ~= 1 and apply_pr == 1 then -- Apply rate in MX and glue it when settings is on and ignore if the rate is 1.
+    MX_ApplyRate(mx)
+  end
   local rs5k_id = tonumber(rs5k_id)
   local rs5k_name = RS5k_File()
   r.TrackFX_AddByName(track, rs5k_name, false, rs5k_id)
@@ -374,13 +430,13 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, 
   if r.IsMediaExtension(ext, false) and #ext <= 4 and ext ~= "mid" then
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)         -- Sample mode
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '') -- remove file list
+    if rate ~= 1 and apply_pr == 1 then 
+      payload = payload_name[i + 1] -- i = 0 based
+    end
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', payload) -- add file
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')        -- always necessary
     --r.TrackFX_SetParam(track, rs5k_id, 13, start_offset) -- Sample start offset
     --r.TrackFX_SetParam(track, rs5k_id, 14, end_offset) -- Sample end offset
-    if rate ~= 1 and apply_pr == 1 then -- Apply rate in MX and glue it when settings is on and ignore if the rate is 1.
-      payload = MX_ApplyRate(mx)
-    end
     if apply_pr == 1 or assign_p == 1 then -- Apply pitch in MX when settings is on
       r.TrackFX_SetParam(track, rs5k_id, 15, (pitch + 80) / 160) -- apply mx pitch
     end
@@ -400,6 +456,8 @@ function DndAddSample_TARGET(a)
       local pitch = MX_GetPitch(mx)
       local rate = MX_GetRate(mx)
       local volume = MX_GetVolume(mx)
+      local apply_pr = r.GetToggleCommandStateEx(32063, 42164) -- Apply preview pitch/rate to inserted media item
+      local assign_p = r.GetToggleCommandStateEx(32063, 42318) -- Assign detected pitch when inserting into sampler
       InsertDrumMachine()
       GetDrumMachineIdx(track) -- parent_id = num
       if not parent_id then return end
@@ -411,10 +469,13 @@ function DndAddSample_TARGET(a)
           if not pads_idx then return end
           AddPad(getNoteName(notenum + i), a + i) -- pad_id = loc, pad_num = num
           AddNoteFilter(notenum + i, pad_num)
-          AddSamplesToRS5k(pad_num, 2, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs), mx, pitch, rate, volume) -- Pad[a].Name
+          AddSamplesToRS5k(pad_num, 2, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs), mx, pitch, rate, volume, apply_pr, assign_p) -- Pad[a].Name
         elseif Pad[a + i].Pad_Num then
           CountPadFX(Pad[a + i].Pad_Num) -- padfx_idx = num
           local found = false
+          if i == 0 and rate ~= 1 and apply_pr == 1 then -- Apply rate in MX and glue it when settings is on and ignore if the rate is 1.
+            MX_ApplyRate(mx)
+          end
           for rs5k_pos = 1, padfx_idx do
             local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[a + i].Pad_Num - 1) -- 0 based
             local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. rs5k_pos - 1)
@@ -425,8 +486,11 @@ function DndAddSample_TARGET(a)
               if num == "1920167789" then
                 found = true
                 local _, payload = r.ImGui_GetDragDropPayloadFile(ctx, i)
-                local src = r.PCM_Source_CreateFromFile(payload)
-                local src_length = r.GetMediaSourceLength(src)
+                if rate ~= 1 and apply_pr == 1 then 
+                  payload = payload_name[i + 1] -- i = 0 based
+                end
+                --local src = r.PCM_Source_CreateFromFile(payload)
+                --local src_length = r.GetMediaSourceLength(src)
                 local ext = payload:match("([^%.]+)$")
                 if r.IsMediaExtension(ext, false) and #ext <= 4 and ext ~= "mid" then
                   r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'FILE0', payload) -- change file
@@ -445,7 +509,7 @@ function DndAddSample_TARGET(a)
             end
           end
           if not found then
-            AddSamplesToRS5k(Pad[a + i].Pad_Num, padfx_idx + 1, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs), mx, pitch, rate, volume)
+            AddSamplesToRS5k(Pad[a + i].Pad_Num, padfx_idx + 1, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs), mx, pitch, rate, volume, apply_pr, assign_p)
           end
         end
         r.PreventUIRefresh(-1)
@@ -477,13 +541,13 @@ function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
       for i = 0, count - 1 do
         local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
         local _, rs5k_id = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. padfx_idx + 1 + i)
-        AddSamplesToRS5k(pad_num, padfx_idx + 2 + i, i, a, note_name, mx, pitch, rate, volume)
+        AddSamplesToRS5k(pad_num, padfx_idx + 2 + i, i, a, note_name, mx, pitch, rate, volume, apply_pr, assign_p)
       end
     elseif rv and Pad[a].Pad_Num then
       GetDrumMachineIdx(track) -- parent_id = num
       CountPadFX(Pad[a].Pad_Num)
       for i = 0, count - 1 do
-        AddSamplesToRS5k(Pad[a].Pad_Num, padfx_idx + 1 + i, i, a, note_name, mx, pitch, rate, volume)
+        AddSamplesToRS5k(Pad[a].Pad_Num, padfx_idx + 1 + i, i, a, note_name, mx, pitch, rate, volume, apply_pr, assign_p)
       end
     end
     r.ImGui_EndDragDropTarget(ctx)
