@@ -1,9 +1,9 @@
 -- @description Suzuki Track Template Shortcut Generator
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.0
+-- @version 1.1
 -- @changelog 
---   Initial Release
+--   # imgui shims
 -- @about 
 --   # Track Template Shortcut Generator
 --   Track Template Shortcut Generator creates scripts to load your track templates. 
@@ -12,6 +12,9 @@
 --   The generated script will be automatically saved to the folder "Suzuki Scripts/Track Template Shortcut Generator/Insert Track Template Scripts/", and will also be registered to the action list.
 --   ### Prerequisites
 --   ReaImGui
+
+package.path = reaper.ImGui_GetBuiltinPath() .. '/?.lua'
+require 'imgui' '0.8.7'
 
 local input_title = "Track Template Shortcut Generator"
 
