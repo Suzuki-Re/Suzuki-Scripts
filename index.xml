@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="46fdc6ea0ab283da1b6e0526192a54b9082e082d">
+<index version="1" name="Suzuki Scripts" commit="98189865e22087397be8cbba7356326ac6803e3a">
   <category name="Development">
     <reapack name="Suzuki_Check stereo channels input bitmask for last touched track or take FX (inside Container).lua" type="script" desc="Check stereo channels input bitmask for last touched track or take FX (inside Container)">
       <metadata>
@@ -1739,6 +1739,10 @@ A new sample will be rendered when applying rate settings (except for 1.0) becau
       <version name="1.0" author="Suzuki" time="2023-12-23T22:30:31Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/17a8c2c4f9178ea0c0a995a66d43cc3d6e7b9ed5/Track/Track%20Template%20Shortcut%20Generator/Suzuki_Track%20template%20shortcut%20generator.lua</source>
+      </version>
+      <version name="1.1" author="Suzuki" time="2024-04-16T11:30:35Z">
+        <changelog><![CDATA[# imgui shims]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/98189865e22087397be8cbba7356326ac6803e3a/Track/Track%20Template%20Shortcut%20Generator/Suzuki_Track%20template%20shortcut%20generator.lua</source>
       </version>
     </reapack>
   </category>
