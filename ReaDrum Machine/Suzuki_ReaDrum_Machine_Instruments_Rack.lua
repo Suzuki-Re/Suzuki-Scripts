@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.5.3
+-- @version 1.5.4
 -- @changelog 
---   # Fixed a bug for Linux
+--   # Fixed a rate related bug
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
