@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.5.2
+-- @version 1.5.3
 -- @changelog 
---   # Handled renaming in the native FX Browser
+--   # Fixed a bug for Linux
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about 
 --   # ReaDrum Machine
