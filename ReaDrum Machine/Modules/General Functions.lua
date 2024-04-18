@@ -312,25 +312,21 @@ function UpdatePadID()
       end
       local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. f - 1) -- 0 based
       local _, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'fx_ident')
-      if buf:find("<") then
-        local num_str = buf:match(".<%d+")
-        local num = num_str:match("%d+")
-        if num == "1920167789" then
-          Pad[rv + 1].RS5k_ID = find_rs5k
-          found_RS5k = found_RS5k + 1
-          Pad[rv + 1].RS5k_Instances[found_RS5k] = find_rs5k
-          found = true
-          local _, bf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'FILE0')  
-          local filename = bf:match("([^\\/]+)%.%w%w*$")
-          Pad[rv + 1].Sample_Name[found_RS5k] = filename
-          Pad[rv + 1].Name = filename
-          if Pad[rv + 1].Rename then
-            r.SetTrackMIDINoteNameEx(0, track, rv, -1, Pad[rv + 1].Rename)
-          elseif Pad[rv + 1].Name then
-            r.SetTrackMIDINoteNameEx(0, track, rv, -1, Pad[rv + 1].Name)
-          else
-            r.SetTrackMIDINoteNameEx(0, track, rv, -1, "")
-          end
+      if buf:find("1920167789") then
+        Pad[rv + 1].RS5k_ID = find_rs5k
+        found_RS5k = found_RS5k + 1
+        Pad[rv + 1].RS5k_Instances[found_RS5k] = find_rs5k
+        found = true
+        local _, bf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'FILE0')  
+        local filename = bf:match("([^\\/]+)%.%w%w*$")
+        Pad[rv + 1].Sample_Name[found_RS5k] = filename
+        Pad[rv + 1].Name = filename
+        if Pad[rv + 1].Rename then
+          r.SetTrackMIDINoteNameEx(0, track, rv, -1, Pad[rv + 1].Rename)
+        elseif Pad[rv + 1].Name then
+          r.SetTrackMIDINoteNameEx(0, track, rv, -1, Pad[rv + 1].Name)
+        else
+          r.SetTrackMIDINoteNameEx(0, track, rv, -1, "")
         end
       end
       if not found then

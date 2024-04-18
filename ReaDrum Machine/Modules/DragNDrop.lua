@@ -472,7 +472,7 @@ function DndAddSample_TARGET(a)
           AddSamplesToRS5k(pad_num, 2, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs), mx, pitch, rate, volume, apply_pr, assign_p) -- Pad[a].Name
         elseif Pad[a + i].Pad_Num then
           CountPadFX(Pad[a + i].Pad_Num) -- padfx_idx = num
-          local found = false
+          found = false
           if i == 0 and rate ~= 1 and apply_pr == 1 then -- Apply rate in MX and glue it when settings is on and ignore if the rate is 1.
             MX_ApplyRate(mx)
           end
@@ -480,45 +480,42 @@ function DndAddSample_TARGET(a)
             local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[a + i].Pad_Num - 1) -- 0 based
             local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. rs5k_pos - 1)
             local retval, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'fx_ident') -- by default \\Plugins\\FX\\reasamplomatic.dll<1920167789 or /Applications/REAPER.app/Contents/Plugins/FX/reasamplomatic.vst.dylib<1920167789
-            if buf:find("<") then    
-              local num_str = buf:match(".<%d+")
-              local num = num_str:match("%d+")
-              if num == "1920167789" then
-                found = true
-                local _, payload = r.ImGui_GetDragDropPayloadFile(ctx, i)
-                if rate ~= 1 and apply_pr == 1 then 
-                  payload = payload_name[i + 1] -- i = 0 based
-                end
+            if buf:find("1920167789") then    
+              found = true
+              local _, payload = r.ImGui_GetDragDropPayloadFile(ctx, i)
+              if rate ~= 1 and apply_pr == 1 then 
+                payload = payload_name[i + 1] -- i = 0 based
+              end
                 --local src = r.PCM_Source_CreateFromFile(payload)
                 --local src_length = r.GetMediaSourceLength(src)
-                local ext = payload:match("([^%.]+)$")
-                if r.IsMediaExtension(ext, false) and #ext <= 4 and ext ~= "mid" then
-                  r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'FILE0', payload) -- change file
-                  r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'DONE', '')
-                  local filename = payload:match("([^\\/]+)%.%w%w*$")
-                  Pad[a].Name = filename
-                  local note_name = getNoteName(notenum + i + midi_oct_offs)
-                  if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
-                  r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
-                  r.SetTrackMIDINoteNameEx(0, track, notenum, -1, filename)
-                  r.TrackFX_SetParam(track, find_rs5k, 13, 0) -- Sample start offset, reset
-                  r.TrackFX_SetParam(track, find_rs5k, 14, 1) -- Sample end offset, reset
-                  r.TrackFX_SetParam(track, find_rs5k, 15, (pitch + 80) / 160) -- pitch
-                end
+              local ext = payload:match("([^%.]+)$")
+              if r.IsMediaExtension(ext, false) and #ext <= 4 and ext ~= "mid" then
+                r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'FILE0', payload) -- change file
+                r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'DONE', '')
+                local filename = payload:match("([^\\/]+)%.%w%w*$")
+                Pad[a].Name = filename
+                local note_name = getNoteName(notenum + i + midi_oct_offs)
+                if Pad[a].Rename then renamed_name = note_name .. ": " .. Pad[a].Rename elseif filename then renamed_name = note_name .. ": " .. filename else renamed_name = note_name end
+                r.TrackFX_SetNamedConfigParm(track, Pad[a].Pad_ID, "renamed_name", renamed_name)
+                r.SetTrackMIDINoteNameEx(0, track, notenum, -1, filename)
+                r.TrackFX_SetParam(track, find_rs5k, 13, 0) -- Sample start offset, reset
+                r.TrackFX_SetParam(track, find_rs5k, 14, 1) -- Sample end offset, reset
+                r.TrackFX_SetParam(track, find_rs5k, 15, (pitch + 80) / 160) -- pitch
               end
             end
           end
-          if not found then
-            AddSamplesToRS5k(Pad[a + i].Pad_Num, padfx_idx + 1, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs), mx, pitch, rate, volume, apply_pr, assign_p)
-          end
         end
-        r.PreventUIRefresh(-1)
-        EndUndoBlock("ADD SAMPLES")
+        if not found then
+          AddSamplesToRS5k(Pad[a + i].Pad_Num, padfx_idx + 1, i, a + i, notenum + i, getNoteName(notenum + i + midi_oct_offs), mx, pitch, rate, volume, apply_pr, assign_p)
+        end
       end
-      r.ImGui_EndDragDropTarget(ctx)
+      r.PreventUIRefresh(-1)
+      EndUndoBlock("ADD SAMPLES")
     end
+    r.ImGui_EndDragDropTarget(ctx)
   end
 end
+
 
 function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
   if r.ImGui_BeginDragDropTarget(ctx) then

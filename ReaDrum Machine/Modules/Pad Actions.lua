@@ -623,12 +623,8 @@ local function ChokeWindow(a)
                   for i = 1, Pad[k].FX_Num do
                     local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, Pad[k].Pad_ID, "container_item." .. i - 1) -- 0 based
                     local _, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'fx_ident')
-                    if buf:find("<") then
-                      local num_str = buf:match(".<%d+")
-                      local num = num_str:match("%d+")
-                      if num == "1920167789" then
-                        r.TrackFX_SetParam(track, find_rs5k, 11, 1) -- turn on obey note-offs
-                      end
+                    if buf:find("1920167789") then                  
+                      r.TrackFX_SetParam(track, find_rs5k, 11, 1) -- turn on obey note-offs
                     end
                   end
                 end
@@ -642,12 +638,8 @@ local function ChokeWindow(a)
               for i = 1, Pad[a].FX_Num do
                 local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, Pad[a].Pad_ID, "container_item." .. i - 1) -- 0 based
                 local _, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'fx_ident')
-                if buf:find("<") then
-                  local num_str = buf:match(".<%d+")
-                  local num = num_str:match("%d+")
-                  if num == "1920167789" then
-                    r.TrackFX_SetParam(track, find_rs5k, 11, 1) -- turn on obey note-offs
-                  end
+                if buf:find("1920167789") then
+                  r.TrackFX_SetParam(track, find_rs5k, 11, 1) -- turn on obey note-offs
                 end
               end
             end
@@ -779,17 +771,13 @@ local function LoadItemsFromArrange(a)
           local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[a + c - 1 - d].Pad_Num - 1) -- 0 based
           local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. rs5k_pos - 1) -- 0 based
           local retval, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'fx_ident')
-          if buf:find("<") then
-            local num_str = buf:match(".<%d+")
-            local num = num_str:match("%d+")
-            if num == "1920167789" then
-              found = true
-              r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'FILE0', filenamebuf)   -- change file
-              r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'DONE', '')
-              --r.TrackFX_SetParam(track, find_rs5k, 11, 1)                            -- obey note offs
-              r.TrackFX_SetParam(track, find_rs5k, 13, start_offset)                 -- Sample start offset
-              r.TrackFX_SetParam(track, find_rs5k, 14, end_offset)                   -- Sample end offset
-            end
+          if buf:find("1920167789") then
+            found = true
+            r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'FILE0', filenamebuf)   -- change file
+            r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'DONE', '')
+            --r.TrackFX_SetParam(track, find_rs5k, 11, 1)                            -- obey note offs
+            r.TrackFX_SetParam(track, find_rs5k, 13, start_offset)                 -- Sample start offset
+            r.TrackFX_SetParam(track, find_rs5k, 14, end_offset)                   -- Sample end offset
           end
         end
         if not found then
