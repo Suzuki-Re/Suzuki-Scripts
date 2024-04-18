@@ -1,11 +1,11 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.5.4
--- @changelog 
---   # Fixed a rate related bug
+-- @version 1.5.5
+-- @changelog
+--   # Fixed a swap bug
 -- @link https://forum.cockos.com/showthread.php?t=284566
--- @about 
+-- @about
 --   # ReaDrum Machine
 --   ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 --   ### Prerequisites
@@ -19,26 +19,26 @@
 --   [main] Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable Layout).lua
 --   [main] Scripts/*.lua
 
-local r            = reaper
-os_separator = package.config:sub(1, 1)
-package.path       = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]] ..
+local r                      = reaper
+os_separator                 = package.config:sub(1, 1)
+package.path                 = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]] ..
     "?.lua;" -- GET DIRECTORY FOR REQUIRE
-package.path       = package.path ..
+package.path                 = package.path ..
     debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]] .. "../ImGui_Tools/?.lua;"
 local reaimgui_force_version = "0.8.7.6"
-script_path  = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]];
-PATH         = debug.getinfo(1).source:match("@?(.*[\\|/])")
-Pad          = {}
-OnPad = {}
+script_path                  = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]];
+PATH                         = debug.getinfo(1).source:match("@?(.*[\\|/])")
+Pad                          = {}
+OnPad                        = {}
 
-COLOR              = {
+COLOR                        = {
   ["n"]           = 0xff,
   ["Container"]   = 0x123456FF,
   ["dnd"]         = 0x00b4d8ff,
   ["dnd_replace"] = 0xdc5454ff,
   ["dnd_swap"]    = 0xcd6dc6ff,
   ["selected"]    = 0x9400d3ff,
-  ["bg"] = 0x141414ff
+  ["bg"]          = 0x141414ff
 }
 
 --- PRE-REQUISITES ---
@@ -58,7 +58,8 @@ function ThirdPartyDeps() -- FX Browser
   local version = tonumber(string.sub(r.GetAppVersion(), 0, 4))
   --reaper.ShowConsoleMsg((version))
 
-  local midi_trigger_envelope = r.GetResourcePath() .. "/Effects/Suzuki Scripts/lewloiwc's Sound Design Suite/lewloiwc_midi_trigger_envelope.jsfx"
+  local midi_trigger_envelope = r.GetResourcePath() ..
+      "/Effects/Suzuki Scripts/lewloiwc's Sound Design Suite/lewloiwc_midi_trigger_envelope.jsfx"
   local sk_filter = r.GetResourcePath() .. "/Effects/Tilr/Filter/skfilter.jsfx"
   local sk_filter2 = r.GetResourcePath() .. "/Effects/tilr_jsfx/Filter/skfilter.jsfx"
 
@@ -76,8 +77,8 @@ function ThirdPartyDeps() -- FX Browser
 
   local reapack_process
   local repos = {
-    {name = "Sexan_Scripts", url = 'https://github.com/GoranKovac/ReaScripts/raw/master/index.xml'},
-    {name = "Tilr", url = 'https://raw.githubusercontent.com/tiagolr/tilr_jsfx/master/index.xml'}
+    { name = "Sexan_Scripts", url = 'https://github.com/GoranKovac/ReaScripts/raw/master/index.xml' },
+    { name = "Tilr",          url = 'https://raw.githubusercontent.com/tiagolr/tilr_jsfx/master/index.xml' }
   }
 
   for i = 1, #repos do
@@ -108,7 +109,8 @@ function ThirdPartyDeps() -- FX Browser
     if r.file_exists(midi_trigger_envelope) then
       local found_midi_envelope = true
     else
-      r.ShowMessageBox("lewloiwc Sound Design Suite is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ShowMessageBox("lewloiwc Sound Design Suite is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES",
+        0)
       r.ReaPack_BrowsePackages('lewloiwc Sound Design Suite')
       return 'error lewloiwc Sound Design Suite'
     end
@@ -175,35 +177,37 @@ function ButtonDrawlist(splitter, name, color, a)
   if r.ImGui_IsItemActive(ctx) then
     r.ImGui_DrawList_AddRect(draw_list, xs, ys, xe, ye, 0x22FF44FF)
   end
-  if DND_MOVE_FX and r.ImGui_IsMouseHoveringRect(ctx,xs,ys,xe,ye) then
+  if DND_MOVE_FX and r.ImGui_IsMouseHoveringRect(ctx, xs, ys, xe, ye) then
     local x_offset = 2
     r.ImGui_DrawList_AddRect(f_draw_list, xs - x_offset, ys - x_offset, xe + x_offset, ye + x_offset, 0xFF0000FF, 2,
-        nil, 2)
+      nil, 2)
   end
-  if DND_ADD_FX and r.ImGui_IsMouseHoveringRect(ctx,xs,ys,xe,ye) then
+  if DND_ADD_FX and r.ImGui_IsMouseHoveringRect(ctx, xs, ys, xe, ye) then
     local x_offset = 2
     r.ImGui_DrawList_AddRect(f_draw_list, xs - x_offset, ys - x_offset, xe + x_offset, ye + x_offset, COLOR["dnd"], 2,
-        nil, 2)
+      nil, 2)
   end
   if SELECTED and SELECTED[tostring(a)] then
-      local x_offset = 1
-      r.ImGui_DrawList_AddRect(f_draw_list, xs - x_offset, ys - x_offset, xe + x_offset, ye + x_offset, COLOR["selected"], 2,
-        nil, 1)
+    local x_offset = 1
+    r.ImGui_DrawList_AddRect(f_draw_list, xs - x_offset, ys - x_offset, xe + x_offset, ye + x_offset, COLOR["selected"],
+      2,
+      nil, 1)
   end
 
   local font_size = r.ImGui_GetFontSize(ctx)
   local char_size_w, char_size_h = r.ImGui_CalcTextSize(ctx, "A")
   local font_color = CalculateFontColor(color)
 
-  r.ImGui_DrawList_AddTextEx( draw_list, nil, font_size, xs, ys + char_size_h, r.ImGui_GetColorEx(ctx, font_color), name, xe-xs)
+  r.ImGui_DrawList_AddTextEx(draw_list, nil, font_size, xs, ys + char_size_h, r.ImGui_GetColorEx(ctx, font_color), name,
+    xe - xs)
   r.ImGui_DrawList_AddText(draw_list, xs, ys, 0xffffffff, note_name)
-  
+
   if Pad[a] and OPEN_PAD == a then -- open FX UI
     Highlight_Itm(f_draw_list, 0x256BB155, 0x256BB1ff)
   end
   if Pad[a] and Pad[a].Filter_ID then -- flash pad
     local rv = r.TrackFX_GetParam(track, Pad[a].Filter_ID, 1)
-    if rv == 1 then   
+    if rv == 1 then
       local L, T = r.ImGui_GetItemRectMin(ctx)
       local R, B = r.ImGui_GetItemRectMax(ctx)
       r.ImGui_DrawList_AddRectFilled(f_draw_list, L, T, R, B + 25, 0xfde58372, rounding)
@@ -243,9 +247,9 @@ function DrawPads(loopmin, loopmax)
   local SPLITTER = r.ImGui_CreateDrawListSplitter(draw_list)
   r.ImGui_DrawListSplitter_Split(SPLITTER, 2)
   CheckDNDType()
-  FXLIST() 
+  FXLIST()
   DoubleClickActions(loopmin, loopmax)
-  
+
   for a = loopmin, loopmax do
     local midi_octave_offset = r.SNM_GetIntConfigVar("midioctoffs", 0)
     midi_oct_offs = (midi_octave_offset - 1) * 12
@@ -277,7 +281,7 @@ function DrawPads(loopmin, loopmax)
     if r.ImGui_IsItemHovered(ctx) then
       OnPad = true
     end
-    if ret then 
+    if ret then
       ClickPadActions(a)
     elseif r.ImGui_IsItemClicked(ctx, 1) and Pad[a] and not CTRL then
       OPEN_PAD = toggle2(OPEN_PAD, a)
@@ -290,7 +294,7 @@ function DrawPads(loopmin, loopmax)
     r.ImGui_SetCursorPos(ctx, x, y + 50)
     r.ImGui_InvisibleButton(ctx, "▶##play" .. a, 30, 25)
     SendMidiNote(notenum)
-    DrawListButton(SPLITTER,"-", COLOR["n"], nil, true)
+    DrawListButton(SPLITTER, "-", COLOR["n"], nil, true)
 
     r.ImGui_SetCursorPos(ctx, x + 30, y + 50)
     if r.ImGui_InvisibleButton(ctx, "S##solo" .. a, 30, 25) then
@@ -300,7 +304,7 @@ function DrawPads(loopmin, loopmax)
         for k, v in pairs(SELECTED) do
           local k = tonumber(k)
           if Pad[k] then
-          CountSelected = CountSelected + 1
+            CountSelected = CountSelected + 1
             if r.TrackFX_GetEnabled(track, Pad[k].Pad_ID) then
               Unmuted = Unmuted + 1
             end
@@ -319,12 +323,12 @@ function DrawPads(loopmin, loopmax)
           end
         end
         if AllUnmuted and pads_idx - HowManyMuted == CountSelected then
-          for i = 1, pads_idx do -- unmute all
+          for i = 1, pads_idx do                                                                         -- unmute all
             local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1) -- 0 based
             r.TrackFX_SetEnabled(track, pad_id, true)
           end
         else
-          for i = 1, pads_idx do -- mute all
+          for i = 1, pads_idx do                                                                         -- mute all
             local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1) -- 0 based
             r.TrackFX_SetEnabled(track, pad_id, false)
           end
@@ -345,12 +349,12 @@ function DrawPads(loopmin, loopmax)
             retval1 = r.TrackFX_GetEnabled(track, Pad[a].Previous_Pad_ID)
           end
           local retval2 = r.TrackFX_GetEnabled(track, Pad[a].Next_Pad_ID)
-          if retval1 == false and retval2 == false then -- unsolo
+          if retval1 == false and retval2 == false then                                                    -- unsolo
             for i = 1, pads_idx do
               local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1) -- 0 based
               r.TrackFX_SetEnabled(track, pad_id, true)
             end
-          else -- solo
+          else                                                                                             -- solo
             for i = 1, pads_idx do
               local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. i - 1) -- 0 based
               r.TrackFX_SetEnabled(track, pad_id, false)
@@ -368,11 +372,11 @@ function DrawPads(loopmin, loopmax)
     --end
 
     r.ImGui_SetCursorPos(ctx, x + 60, y + 50)
-    if r.ImGui_InvisibleButton(ctx, "M##mute" .. a, 30, 25) then      
+    if r.ImGui_InvisibleButton(ctx, "M##mute" .. a, 30, 25) then
       if SELECTED then
         for k, v in pairs(SELECTED) do
           local k = tonumber(k)
-          if Pad[k] and Pad[k].RS5k_ID then 
+          if Pad[k] and Pad[k].RS5k_ID then
             local retval = r.TrackFX_GetEnabled(track, Pad[k].Pad_ID)
             if retval == true then
               r.TrackFX_SetEnabled(track, Pad[k].Pad_ID, false)
@@ -384,7 +388,7 @@ function DrawPads(loopmin, loopmax)
         SELECTED = nil
       else
         if Pad[a] then
-        local retval = r.TrackFX_GetEnabled(track, Pad[a].Pad_ID)
+          local retval = r.TrackFX_GetEnabled(track, Pad[a].Pad_ID)
           if retval == true then
             r.TrackFX_SetEnabled(track, Pad[a].Pad_ID, false)
           else
@@ -433,17 +437,17 @@ function Main()
 
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_ChildBg(), COLOR["bg"])
   r.ImGui_BeginGroup(ctx)
-  
-  draw_list = r.ImGui_GetWindowDrawList(ctx)                  -- 4 x 4 left vertical tab drawing
-  f_draw_list = r.ImGui_GetForegroundDrawList(ctx) 
+
+  draw_list = r.ImGui_GetWindowDrawList(ctx) -- 4 x 4 left vertical tab drawing
+  f_draw_list = r.ImGui_GetForegroundDrawList(ctx)
   local SPLITTER = r.ImGui_CreateDrawListSplitter(f_draw_list)
-  r.ImGui_DrawListSplitter_Split(SPLITTER, 2)                     -- NUMBER OF Z ORDER CHANNELS
+  r.ImGui_DrawListSplitter_Split(SPLITTER, 2) -- NUMBER OF Z ORDER CHANNELS
   --if Pad[a] then
   --  r.ImGui_DrawListSplitter_SetCurrentChannel(SPLITTER, 1)       -- SET HIGHER PRIORITY TO DRAW FIRST
   --  local x, y = r.ImGui_GetCursorPos(ctx)
   --  r.ImGui_DrawList_AddRectFilled(f_draw_list, 100, 100, 100, 100, 0x654321FF)
   --end
-  r.ImGui_DrawListSplitter_SetCurrentChannel(SPLITTER, 0)       -- SET LOWER PRIORITY TO DRAW AFTER
+  r.ImGui_DrawListSplitter_SetCurrentChannel(SPLITTER, 0) -- SET LOWER PRIORITY TO DRAW AFTER
   local x, y = r.ImGui_GetCursorPos(ctx)
   for ci = 0, hh - hy, hy - 4.5 do
     for bi = 0, 24, 8 do
@@ -453,12 +457,12 @@ function Main()
       end
     end
   end
-  r.ImGui_DrawListSplitter_Merge(SPLITTER)       -- MERGE EVERYTHING FOR RENDER
+  r.ImGui_DrawListSplitter_Merge(SPLITTER)                                         -- MERGE EVERYTHING FOR RENDER
 
-  if r.ImGui_BeginChild(ctx, 'BUTTON_SECTION', w_closed + 10, h + 100, false) then   -- vertical tab
+  if r.ImGui_BeginChild(ctx, 'BUTTON_SECTION', w_closed + 10, h + 100, false) then -- vertical tab
     for i = 1, 8 do
       r.ImGui_SetCursorPos(ctx, 0, y + (i - 1) * 35 - button_offset)
-      
+
       rv = r.ImGui_InvisibleButton(ctx, "B" .. i, 31, 31)
       local xs, ys = r.ImGui_GetItemRectMin(ctx)
       local xe, ye = r.ImGui_GetItemRectMax(ctx)
@@ -482,17 +486,17 @@ function Main()
         r.SetProjExtState(0, "ReaDrum Machine", track_guid .. "LAST_MENU", i)
       end
       HighlightHvredItem()
-      if LAST_MENU == i then 
+      if LAST_MENU == i then
         Highlight_Itm(f_draw_list, 0x12345655, 0x184673ff)
       end
     end
     r.ImGui_EndChild(ctx)
   end
-  local openpad 
-  if LAST_MENU then       -- Open pads manu
+  local openpad
+  if LAST_MENU then -- Open pads manu
     r.ImGui_SetCursorPos(ctx, x + w_closed, y)
     if r.ImGui_BeginChild(ctx, "child_menu", w_open + 135, h + 88) then
-      local high = 128 - 16 * (LAST_MENU - 1 )
+      local high = 128 - 16 * (LAST_MENU - 1)
       local low = 128 - 16 * (LAST_MENU) + 1
       openpad = DrawPads(low, high)
       r.ImGui_EndChild(ctx)
@@ -511,8 +515,8 @@ function Run()
   track = r.GetSelectedTrack2(0, 0, false)
   TRACK = track
   if track then
-  trackidx = r.CSurf_TrackToID(track, false)
-  track_guid = r.GetTrackGUID(track)
+    trackidx = r.CSurf_TrackToID(track, false)
+    track_guid = r.GetTrackGUID(track)
   end
   if set_dock_id then
     r.ImGui_SetNextWindowDockID(ctx, set_dock_id)
@@ -520,7 +524,7 @@ function Run()
   end
 
   if track_guid then
-  local _, n = r.GetProjExtState(0, "ReaDrum Machine", track_guid .. "LAST_MENU")
+    local _, n = r.GetProjExtState(0, "ReaDrum Machine", track_guid .. "LAST_MENU")
     if n ~= nil then
       LAST_MENU = tonumber(n)
     end
@@ -532,11 +536,12 @@ function Run()
   end
   r.ImGui_SetNextWindowSizeConstraints(ctx, 450, 360, FLT_MAX, FLT_MAX)
   r.ImGui_SetNextWindowSize(ctx, main_w, 300)
-  
+
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_WindowBg(), COLOR["bg"])
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_TitleBg(), COLOR["bg"])
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_TitleBgActive(), COLOR["bg"])
-  local imgui_visible, imgui_open = r.ImGui_Begin(ctx, 'ReaDrum Machine', true, r.ImGui_WindowFlags_NoScrollWithMouse() | r.ImGui_WindowFlags_NoScrollbar())
+  local imgui_visible, imgui_open = r.ImGui_Begin(ctx, 'ReaDrum Machine', true,
+    r.ImGui_WindowFlags_NoScrollWithMouse() | r.ImGui_WindowFlags_NoScrollbar())
   r.ImGui_PopStyleColor(ctx)
   r.ImGui_PopStyleColor(ctx)
   r.ImGui_PopStyleColor(ctx)
@@ -544,10 +549,11 @@ function Run()
   if imgui_visible then
     imgui_width, imgui_height = r.ImGui_GetWindowSize(ctx)
 
-    if not TRACK then r.ImGui_TextDisabled(ctx, 'No track selected')
+    if not TRACK then
+      r.ImGui_TextDisabled(ctx, 'No track selected')
     else
-    CheckKeys()
-    Main()
+      CheckKeys()
+      Main()
     end
     r.ImGui_End(ctx)
   end
@@ -564,7 +570,7 @@ end
 function Init()
   SetButtonState(1)
   r.atexit(Exit)
-  
+
   Run()
 end
 
