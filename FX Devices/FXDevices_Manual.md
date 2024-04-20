@@ -5,9 +5,9 @@ FX Device - Macro&Env Modulation, Parallel FX, Preset Morph, FX Wrapper
 ReaImGui, js_ReaScriptAPI, Ultraschall API, and Sexan's FX Browser
 
 ## Useful tools
-[Knobman](https://www.g200kg.com/knobman/)
-[Knob Studio](https://iplug2.discourse.group/t/knob-studio-graphic-design-tool/286)
-[Knob and Slider Creator and Complex Export for Figma](https://forum.cockos.com/showthread.php?t=285703)
+- [Knobman](https://www.g200kg.com/knobman/)
+- [Knob Studio](https://iplug2.discourse.group/t/knob-studio-graphic-design-tool/286)
+- [Knob and Slider Creator and Complex Export for Figma](https://forum.cockos.com/showthread.php?t=285703)
 
 ## Overview
 ![](https://i.imgur.com/aO9mIv5.png)
