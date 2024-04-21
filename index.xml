@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="b5b8b2067640d6b50afdedae5e3d970b5f1b728a">
+<index version="1" name="Suzuki Scripts" commit="3e8e76ce4a8f9e9926195bda3083f1d8ed437fe9">
   <category name="Development">
     <reapack name="Suzuki_Check stereo channels input bitmask for last touched track or take FX (inside Container).lua" type="script" desc="Check stereo channels input bitmask for last touched track or take FX (inside Container)">
       <metadata>
@@ -854,6 +854,36 @@ Added rpl file for container preset]]></changelog>
       <version name="1.0" author="Suzuki" time="2023-11-24T11:41:34Z">
         <changelog><![CDATA[Initial Release]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/e96035ac7869a7f3754db30d149dd05f025076ac/Modulation/Suzuki_Toggle%20link%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter%20as%20a%20follower%20to%20the%20lead%20parameter.lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Toggle set midi CC link (119) for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle set midi CC link (119) for last touched track or take FX (inside Container) parameter">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 Using v7.0+ API\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2024-04-21T19:35:24Z">
+        <changelog><![CDATA[Init]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/3e8e76ce4a8f9e9926195bda3083f1d8ed437fe9/Modulation/Suzuki_Toggle%20set%20midi%20CC%20link%20(119)%20for%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter.lua</source>
+      </version>
+    </reapack>
+    <reapack name="Suzuki_Toggle set midi CC link (31_63) for last touched track or take FX (inside Container) parameter.lua" type="script" desc="Toggle set midi CC link (31/63) for last touched track or take FX (inside Container) parameter">
+      <metadata>
+        <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 Using v7.0+ API\par}
+}
+]]></description>
+      </metadata>
+      <version name="1.0" author="Suzuki" time="2024-04-21T19:35:24Z">
+        <changelog><![CDATA[Init]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/3e8e76ce4a8f9e9926195bda3083f1d8ed437fe9/Modulation/Suzuki_Toggle%20set%20midi%20CC%20link%20(31_63)%20for%20last%20touched%20track%20or%20take%20FX%20(inside%20Container)%20parameter.lua</source>
       </version>
     </reapack>
     <reapack name="Suzuki_Toggle set midi CC link for last touched track or take FX (inside Container) parameter (user input).lua" type="script" desc="Toggle set midi CC link for last touched track or take FX (inside Container) parameter (user input)">
