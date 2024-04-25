@@ -1,6 +1,10 @@
 --@noindex
 
-r = reaper
+function msg(...)
+  for i, v in ipairs({ ... }) do
+      r.ShowConsoleMsg(tostring(v) .. "\n")
+  end
+end
 
 function SetButtonState(set) -- Set ToolBar Button State
   local is_new_value, filename, sec, cmd, mode, resolution, val = r.get_action_context()
@@ -10,6 +14,9 @@ end
 
 function Exit()
   SetButtonState()
+  if preview and r.EnumProjects(0) then
+    r.CF_Preview_Stop(preview)
+  end
 end
 
 function CheckKeys()
@@ -144,6 +151,7 @@ local function FindRDMRecursively(track, fxid, scale)
   if not found then
     parent_id = nil
   end
+  return parent_id
 end
 
 function GetDrumMachineIdx(track)
@@ -151,8 +159,9 @@ function GetDrumMachineIdx(track)
   found = false
   count = r.TrackFX_GetCount(track)
   for i = 1, count do
-    FindRDMRecursively(track, 0x2000000+i, count+1)
+    parent_id = FindRDMRecursively(track, 0x2000000+i, count+1)
   end
+  return parent_id
 end
 
 function InsertDrumMachine()

@@ -1,7 +1,5 @@
 --@noindex
 
-r = reaper
-
 local track_guid_cache = {};
 
 local function track_from_guid_str(proj, g) -- https://forum.cockos.com/showthread.php?t=220734
@@ -255,7 +253,7 @@ function OpenRS5kInsidePad(a, y)
   UpdatePadID()
   r.ImGui_SameLine(ctx, nil, 0)
   PositionOffset(10, y)
-  if r.ImGui_BeginChild(ctx, "open_pad", 250 + 110, 220 + 88, false) then
+  if r.ImGui_BeginChild(ctx, "open_pad", 250 + 110, 220 + 88, false, r.ImGui_WindowFlags_NoScrollWithMouse() | r.ImGui_WindowFlags_NoScrollbar()) then
     if not Pad[a] then -- to prevent crash when creating a new track (BeginChild -> do nothing -> Endchild)
     elseif not Pad[a].RS5k_Instances[1] then
       r.ImGui_TextDisabled(ctx, 'No RS5k inside pad')

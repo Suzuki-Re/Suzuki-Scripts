@@ -1,8 +1,5 @@
 --@noindex
 
-r = reaper
-
-
 local function ClickAddFX(FX_Name)
   if SELECTED then
     for k, v in pairs(SELECTED) do

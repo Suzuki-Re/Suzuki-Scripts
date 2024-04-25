@@ -1,14 +1,15 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.5.5
+-- @version 1.5.6
 -- @noindex
 -- @changelog
---   # Fixed a swap bug
+--   + Added play/stop preview buttons
+--   # Improved performance
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. This is a version which lets users scroll vertically.
 
-local r                      = reaper
+r                      = reaper
 os_separator                 = package.config:sub(1, 1)
 package.path                 = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]] ..
     "?.lua;" -- GET DIRECTORY FOR REQUIRE
@@ -166,8 +167,8 @@ end
 -- GUI --
 ----------------------------------------------------------------------
 
-function ButtonDrawlist(splitter, name, color, a)
-  r.ImGui_DrawListSplitter_SetCurrentChannel(splitter, 0)
+function ButtonDrawlist(name, color, a)
+  --r.ImGui_DrawListSplitter_SetCurrentChannel(splitter, 0)
   color = r.ImGui_IsItemHovered(ctx) and IncreaseDecreaseBrightness(color, 30) or color
   local xs, ys = r.ImGui_GetItemRectMin(ctx)
   local xe, ye = r.ImGui_GetItemRectMax(ctx)
@@ -214,8 +215,8 @@ function ButtonDrawlist(splitter, name, color, a)
   end
 end
 
-function DrawListButton(splitter, name, color, round_side, icon, hover, offset)
-  r.ImGui_DrawListSplitter_SetCurrentChannel(splitter, 1)
+function DrawListButton(name, color, round_side, icon, hover, offset)
+  --r.ImGui_DrawListSplitter_SetCurrentChannel(splitter, 1)
   local multi_color = IS_DRAGGING_RIGHT_CANVAS and color or ColorToHex(color, hover and 50 or 0)
   local xs, ys = r.ImGui_GetItemRectMin(ctx)
   local xe, ye = r.ImGui_GetItemRectMax(ctx)
@@ -243,8 +244,8 @@ function DrawListButton(splitter, name, color, round_side, icon, hover, offset)
 end
 
 function DrawPads(loopmin, loopmax)
-  local SPLITTER = r.ImGui_CreateDrawListSplitter(draw_list)
-  r.ImGui_DrawListSplitter_Split(SPLITTER, 2)
+  --local SPLITTER = r.ImGui_CreateDrawListSplitter(draw_list)
+  --r.ImGui_DrawListSplitter_Split(SPLITTER, 2)
   CheckDNDType()
   FXLIST()
   DoubleClickActions(false, false)
@@ -271,7 +272,7 @@ function DrawPads(loopmin, loopmax)
 
     r.ImGui_SetCursorPos(ctx, x, y)
     local ret = r.ImGui_InvisibleButton(ctx, pad_name .. "##" .. a, 90, 50)
-    ButtonDrawlist(SPLITTER, pad_name, Pad[a] and COLOR["Container"] or COLOR["n"], a)
+    ButtonDrawlist(pad_name, Pad[a] and COLOR["Container"] or COLOR["n"], a)
     --DrawNoteName(x, y)
     DndAddFX_TARGET(a)
     DndAddSample_TARGET(a)
@@ -294,7 +295,7 @@ function DrawPads(loopmin, loopmax)
     r.ImGui_SetCursorPos(ctx, x, y + 50)
     r.ImGui_InvisibleButton(ctx, "▶##play" .. a, 30, 25)
     SendMidiNote(notenum)
-    DrawListButton(SPLITTER, "-", COLOR["n"], nil, true)
+    DrawListButton("-", COLOR["n"], nil, true)
 
     r.ImGui_SetCursorPos(ctx, x + 30, y + 50)
     if r.ImGui_InvisibleButton(ctx, "S##solo" .. a, 30, 25) then
@@ -368,7 +369,7 @@ function DrawPads(loopmin, loopmax)
     --  local ok = r.TrackFX_GetEnabled(track, Pad[a].Pad_ID)
     --  DrawListButton("S", ok and 0xff or 0xf1c524ff, nil, nil)
     --else
-    DrawListButton(SPLITTER, "S", COLOR["n"], nil, nil)
+    DrawListButton("S", COLOR["n"], nil, nil)
     --end
 
     r.ImGui_SetCursorPos(ctx, x + 60, y + 50)
@@ -399,12 +400,12 @@ function DrawPads(loopmin, loopmax)
     end
     if Pad[a] then
       mute_color = r.TrackFX_GetEnabled(track, Pad[a].Pad_ID)
-      DrawListButton(SPLITTER, "M", mute_color == true and COLOR["n"] or 0xff2222ff, nil, nil)
+      DrawListButton("M", mute_color == true and COLOR["n"] or 0xff2222ff, nil, nil)
     else
-      DrawListButton(SPLITTER, "M", COLOR["n"], nil, nil)
+      DrawListButton("M", COLOR["n"], nil, nil)
     end
   end
-  r.ImGui_DrawListSplitter_Merge(SPLITTER)
+  --r.ImGui_DrawListSplitter_Merge(SPLITTER)
 end
 
 ----------------------------------------------------------------------
@@ -442,14 +443,14 @@ function Main()
 
   draw_list = r.ImGui_GetWindowDrawList(ctx) -- 4 x 4 left veertical bar drawing
   f_draw_list = r.ImGui_GetForegroundDrawList(ctx)
-  local SPLITTER = r.ImGui_CreateDrawListSplitter(f_draw_list)
-  r.ImGui_DrawListSplitter_Split(SPLITTER, 2) -- NUMBER OF Z ORDER CHANNELS
+  --local SPLITTER = r.ImGui_CreateDrawListSplitter(f_draw_list)
+  --r.ImGui_DrawListSplitter_Split(SPLITTER, 2) -- NUMBER OF Z ORDER CHANNELS
   --if Pad[a] then
   --  r.ImGui_DrawListSplitter_SetCurrentChannel(SPLITTER, 1)       -- SET HIGHER PRIORITY TO DRAW FIRST
   --  local x, y = r.ImGui_GetCursorPos(ctx)
   --  r.ImGui_DrawList_AddRectFilled(f_draw_list, 100, 100, 100, 100, 0x654321FF)
   --end
-  r.ImGui_DrawListSplitter_SetCurrentChannel(SPLITTER, 0) -- SET LOWER PRIORITY TO DRAW AFTER
+  --r.ImGui_DrawListSplitter_SetCurrentChannel(SPLITTER, 0) -- SET LOWER PRIORITY TO DRAW AFTER
   local x, y = r.ImGui_GetCursorPos(ctx)
   --  r.ImGui_DrawList_AddRect(draw_list, wx+x-2, wy+y-2+33 * (i-1), wx+x+33, wy+y+33 * i, 0xFFFFFFFF)  -- white box when selected
 

@@ -1,7 +1,5 @@
 --@noindex
 
-r = reaper
-
 local function GetPayload()
   local retval, dndtype, payload = r.ImGui_GetDragDropPayload(ctx)
   if retval then

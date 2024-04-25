@@ -1,7 +1,5 @@
 --@noindex
 
-r = reaper
-
 local min, max = math.min, math.max
 function IncreaseDecreaseBrightness(color, amt, no_alpha)
   function AdjustBrightness(channel, delta)
@@ -215,17 +213,32 @@ function ParameterTooltip(fxidx, parm)
   end
 end
 
+local function VAL2DB(x)
+  if x < 0.0000000298023223876953125 then
+    return -150
+  else
+    return math.max(-150, math.log(x) * 8.6858896380650365530225783783321)
+  end
+end
+
 function GetSetParamValues(fxidx, parm, drag_delta, step)
   local p_value = r.TrackFX_GetParamNormalized(track, fxidx, parm)
   local p_value = p_value + (drag_delta * step)
   if p_value < 0 then p_value = 0 end
   if p_value > 1 then p_value = 1 end
   r.TrackFX_SetParamNormalized(track, fxidx, parm, p_value)
+  local p_value = r.TrackFX_GetParamNormalized(track, fxidx, parm)
+  local _, f_value = r.TrackFX_GetFormattedParamValue(track, fxidx, parm)
+  if parm == 0 then r.CF_Preview_SetValue(preview, 'D_VOLUME', p_value * 2) end -- 0 to 2
+  if parm == 1 then r.CF_Preview_SetValue(preview, 'D_PAN', p_value * 2 - 1) end -- -1 to 1
+  if parm == 15 then r.CF_Preview_SetValue(preview, 'D_PITCH', f_value) end
 end
 
 local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
   local draw_list = r.ImGui_GetWindowDrawList(ctx)
-  local Image = r.ImGui_CreateImage(r.GetResourcePath() .. "/Scripts/Suzuki Scripts/ReaDrum Machine/Images/FancyBlueKnob.png")
+  if not r.ImGui_ValidatePtr(Image, 'ImGui_Image*') then
+    Image = r.ImGui_CreateImage(r.GetResourcePath() .. "/Scripts/Suzuki Scripts/ReaDrum Machine/Images/FancyBlueKnob.png")
+  end
   local pos          = {r.ImGui_GetCursorScreenPos(ctx)}
   local Radius       = Radius or 0
   local radius_outer = Radius
@@ -329,6 +342,7 @@ local function LoopSwitch(a)
   end
   --r.ImGui_PushFont(ctx, FONT)
   local rv, loop = r.ImGui_Checkbox(ctx, "Loop", loop)
+  r.CF_Preview_SetValue(preview, 'B_LOOP', loop and 1 or 0) 
   --r.ImGui_PopFont(ctx)
   if rv and SELECTED then
     for k, v in pairs(SELECTED) do
@@ -367,7 +381,31 @@ local function LoopSwitch(a)
   end
 end
 
-local function ChangeSample(track, fxidx)
+local function PreviewSamples(file, a)
+  if preview then
+    r.CF_Preview_Stop(preview)
+    preview = nil
+  end
+  local source = r.PCM_Source_CreateFromFile(file)
+  if not source then return end
+
+  preview = r.CF_CreatePreview(source)
+
+  r.CF_Preview_SetOutputTrack(preview, 0, track)
+
+  local volume = r.TrackFX_GetParamNormalized(track, Pad[a].RS5k_Instances[WhichRS5k], 0) -- from 0 to 2
+  r.CF_Preview_SetValue(preview, 'D_VOLUME', volume * 2) -- 0 to 2
+  local _, pan = r.TrackFX_GetFormattedParamValue(track, Pad[a].RS5k_Instances[WhichRS5k], 1) -- from 0 to 1  
+  r.CF_Preview_SetValue(preview, 'D_PAN', pan * 2 - 1) -- from -1 to 1 
+  local loop = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 12)
+  r.CF_Preview_SetValue(preview, 'B_LOOP', loop) -- from -1 to 1 
+  local _, pitch = r.TrackFX_GetFormattedParamValue(track, Pad[a].RS5k_Instances[WhichRS5k], 15)
+  r.CF_Preview_SetValue(preview, 'D_PITCH', pitch)
+  r.CF_Preview_Play(preview)
+  r.PCM_Source_Destroy(source)
+end
+
+local function ChangeSample(track, fxidx, a)
   local rv, sample = r.TrackFX_GetNamedConfigParm(track, fxidx, "FILE0")
 
   if not rv or sample == "" then return end
@@ -428,6 +466,7 @@ local function ChangeSample(track, fxidx)
 
   r.TrackFX_SetNamedConfigParm(track, fxidx, "FILE0", new_sample)
   r.TrackFX_SetNamedConfigParm(track, fxidx, "DONE", "")
+  PreviewSamples(new_sample, a)
 end
 
 local function ArrowButtons(a)
@@ -455,7 +494,23 @@ function RS5kUI(a)
   if not Pad[a].RS5k_Instances[WhichRS5k] and WhichRS5k > #Pad[a].RS5k_Instances then WhichRS5k = 1 end
   ArrowButtons(a)
   r.ImGui_SameLine(ctx)
-  
+  local rv = r.ImGui_Button(ctx, "##-", 19, 19)
+  DrawListButton("-", 0xff, nil, true, true)
+  if rv then
+    local rv, sample = r.TrackFX_GetNamedConfigParm(track, Pad[a].RS5k_Instances[WhichRS5k], "FILE0")
+    if rv then
+      PreviewSamples(sample, a)
+    end
+  end
+  r.ImGui_SameLine(ctx)
+  local rv = r.ImGui_Button(ctx, "##/", 19, 19)
+  DrawListButton("/", 0xff, nil, true, true)
+  if rv and preview then
+    r.CF_Preview_Stop(preview)
+    preview = nil
+  end
+  r.ImGui_SameLine(ctx)
+
   if Pad[a].Sample_Name[WhichRS5k] then
     sample_name = Pad[a].Sample_Name[WhichRS5k]
   else
@@ -468,10 +523,7 @@ function RS5kUI(a)
   --r.ImGui_PushFont(ctx, FONT)
   local rv = r.ImGui_Button(ctx, "RS5k[" .. ('%d'):format(WhichRS5k) .. "] " .. sample_name) -- RS5k instance number + Sample name
   if DownArrow or UpArrow or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_R()) then
-    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k])
-    r.StuffMIDIMessage(0, 0x90, Pad[a].Note_Num, 96)
-  elseif DownArrowReleased or UpArrowReleased or r.ImGui_IsKeyReleased(ctx, r.ImGui_Key_R()) then
-    r.StuffMIDIMessage(0, 0x80, Pad[a].Note_Num, 96) -- send note_r
+    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a)
   end
   --r.ImGui_PopFont(ctx)
   if rv then
