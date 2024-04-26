@@ -391,7 +391,8 @@ local function PreviewSamples(file, a)
 
   preview = r.CF_CreatePreview(source)
 
-  r.CF_Preview_SetOutputTrack(preview, 0, track)
+  --r.CF_Preview_SetOutputTrack(preview, 0, track)
+  r.CF_Preview_SetValue(preview, 'I_OUTCHAN', 0)
 
   local volume = r.TrackFX_GetParamNormalized(track, Pad[a].RS5k_Instances[WhichRS5k], 0) -- from 0 to 2
   r.CF_Preview_SetValue(preview, 'D_VOLUME', volume * 2) -- 0 to 2
@@ -495,20 +496,17 @@ function RS5kUI(a)
   if not Pad[a].RS5k_Instances[WhichRS5k] and WhichRS5k > #Pad[a].RS5k_Instances then WhichRS5k = 1 end
   ArrowButtons(a)
   r.ImGui_SameLine(ctx)
-  local rv = r.ImGui_Button(ctx, "##>", 19, 19)
+  local rv = r.ImGui_Button(ctx, "##>", 19, 19) -- play button
   DrawListButton(">", 0xff, nil, true, true)
-  if rv then
-    local rv, sample = r.TrackFX_GetNamedConfigParm(track, Pad[a].RS5k_Instances[WhichRS5k], "FILE0")
-    if rv then
-      PreviewSamples(sample, a)
-    end
-  end
+  SendMidiNote(Pad[a].Note_Num)
   r.ImGui_SameLine(ctx)
-  local rv = r.ImGui_Button(ctx, "##/", 19, 19)
+  local rv = r.ImGui_Button(ctx, "##/", 19, 19) -- stop button
   DrawListButton("/", 0xff, nil, true, true)
   if rv and preview then
     r.CF_Preview_Stop(preview)
     preview = nil
+  elseif rv then
+    r.StuffMIDIMessage(0, 0x80, Pad[a].Note_Num, 96) -- send note off
   end
   r.ImGui_SameLine(ctx)
   local rv = r.ImGui_Button(ctx, "##O", 19, 19)

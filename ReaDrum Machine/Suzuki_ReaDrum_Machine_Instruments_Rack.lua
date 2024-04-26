@@ -1,9 +1,10 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.5.7
+-- @version 1.5.8
 -- @changelog
---   # SWS extension version check
+--   # Change play/stop preview behavior to send note on/off in order to reflect all parameters and prevent volume summing in parallel FX which users might not expect 
+--   You can still cycle through samples with up/down arrow and R keys and hear previews (it's a preview sound of samples without FX)
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine

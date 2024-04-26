@@ -1,12 +1,17 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.5.7
+-- @version 1.5.8
 -- @noindex
 -- @changelog
---   # SWS extension version check
+--   # Change play/stop preview behavior to send note on/off in order to reflect all parameters and prevent volume summing in parallel FX which users might not expect 
+--   You can still cycle through samples with up/down arrow and R keys and hear previews (it's a preview sound of samples without FX)
 -- @link https://forum.cockos.com/showthread.php?t=284566
--- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. This is a version which lets users scroll vertically.
+-- @about
+--   # ReaDrum Machine
+--   ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
+--   ### Prerequisites
+--   REAPER v7.06+, ReaImGui, S&M extension, js extension and Sexan's FX Browser
 
 r                      = reaper
 os_separator                 = package.config:sub(1, 1)
