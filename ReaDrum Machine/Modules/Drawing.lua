@@ -466,6 +466,7 @@ local function ChangeSample(track, fxidx, a)
 
   r.TrackFX_SetNamedConfigParm(track, fxidx, "FILE0", new_sample)
   r.TrackFX_SetNamedConfigParm(track, fxidx, "DONE", "")
+  r.SetExtState("ReaDrum Machine", "preview_file", new_sample, true)
   PreviewSamples(new_sample, a)
 end
 
@@ -494,8 +495,8 @@ function RS5kUI(a)
   if not Pad[a].RS5k_Instances[WhichRS5k] and WhichRS5k > #Pad[a].RS5k_Instances then WhichRS5k = 1 end
   ArrowButtons(a)
   r.ImGui_SameLine(ctx)
-  local rv = r.ImGui_Button(ctx, "##-", 19, 19)
-  DrawListButton("-", 0xff, nil, true, true)
+  local rv = r.ImGui_Button(ctx, "##>", 19, 19)
+  DrawListButton(">", 0xff, nil, true, true)
   if rv then
     local rv, sample = r.TrackFX_GetNamedConfigParm(track, Pad[a].RS5k_Instances[WhichRS5k], "FILE0")
     if rv then
@@ -510,7 +511,20 @@ function RS5kUI(a)
     preview = nil
   end
   r.ImGui_SameLine(ctx)
-
+  local rv = r.ImGui_Button(ctx, "##O", 19, 19)
+  DrawListButton("O", 0xff, nil, true, true)
+  if rv then
+    if r.HasExtState("ReaDrum Machine", "preview_file") then
+      file = r.GetExtState("ReaDrum Machine", "preview_file")
+    end
+    local rv, new_sample = r.JS_Dialog_BrowseForOpenFiles('Select audio file', '', file, '', false)
+    if rv and new_sample:len() > 0 then
+      r.TrackFX_SetNamedConfigParm(track, Pad[a].RS5k_Instances[WhichRS5k], "FILE0", new_sample)
+      r.TrackFX_SetNamedConfigParm(track, Pad[a].RS5k_Instances[WhichRS5k], "DONE", "")
+      r.SetExtState("ReaDrum Machine", "preview_file", new_sample, true)
+    end
+  end
+  r.ImGui_SameLine(ctx)
   if Pad[a].Sample_Name[WhichRS5k] then
     sample_name = Pad[a].Sample_Name[WhichRS5k]
   else

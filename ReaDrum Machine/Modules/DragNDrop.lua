@@ -433,6 +433,7 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, 
     end
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', payload) -- add file
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'DONE', '')        -- always necessary
+    r.SetExtState("ReaDrum Machine", "preview_file", payload, true)
     --r.TrackFX_SetParam(track, rs5k_id, 13, start_offset) -- Sample start offset
     --r.TrackFX_SetParam(track, rs5k_id, 14, end_offset) -- Sample end offset
     if apply_pr == 1 or assign_p == 1 then -- Apply pitch in MX when settings is on
@@ -490,6 +491,7 @@ function DndAddSample_TARGET(a)
               if r.IsMediaExtension(ext, false) and #ext <= 4 and ext ~= "mid" then
                 r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'FILE0', payload) -- change file
                 r.TrackFX_SetNamedConfigParm(track, find_rs5k, 'DONE', '')
+                r.SetExtState("ReaDrum Machine", "preview_file", payload, true)
                 local filename = payload:match("([^\\/]+)%.%w%w*$")
                 Pad[a].Name = filename
                 local note_name = getNoteName(notenum + i + midi_oct_offs)

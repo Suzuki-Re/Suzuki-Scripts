@@ -1,11 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.5.6
+-- @version 1.5.7
 -- @noindex
 -- @changelog
---   + Added play/stop preview buttons
---   # Improved performance
+--   # SWS extension version check
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. This is a version which lets users scroll vertically.
 
@@ -43,7 +42,7 @@ if reaimgui_force_version then
   end
 end
 
-function ThirdPartyDeps() -- FX Browser
+local function ThirdPartyDeps() -- FX Browser
   local version = tonumber(string.sub(r.GetAppVersion(), 0, 4))
   --reaper.ShowConsoleMsg((version))
 
@@ -96,9 +95,7 @@ function ThirdPartyDeps() -- FX Browser
       return 'error Sexan FX BROWSER'
     end
     -- lewloiwc Sound Design Suite
-    if r.file_exists(midi_trigger_envelope) then
-      local found_midi_envelope = true
-    else
+    if not r.file_exists(midi_trigger_envelope) then
       r.ShowMessageBox("lewloiwc Sound Design Suite is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES",
         0)
       r.ReaPack_BrowsePackages('lewloiwc Sound Design Suite')
@@ -113,18 +110,24 @@ function ThirdPartyDeps() -- FX Browser
       return 'error tilr SKFilter'
     end
     -- js extension
-    if r.APIExists("JS_ReaScriptAPI_Version") then
-      local js_extension = true
-    else
+    if not r.APIExists("JS_ReaScriptAPI_Version") then
       r.ShowMessageBox("js Extension is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
       r.ReaPack_BrowsePackages('js_ReascriptAPI')
       return 'error js Extension'
     end
     -- SWS/S&M
     if r.APIExists("CF_GetSWSVersion") then
-      local SWS_SnM = true
+      local sws_version = r.CF_GetSWSVersion()
+      local major_minor = sws_version:match("^(%d+%.%d+)")
+      local version_number = major_minor:gsub("%.","")
+      local version_number = tonumber(version_number)
+      if version_number < 214 then
+        r.ShowMessageBox("SWS/S&M Extension v2.14.0 or higher is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+        r.ReaPack_BrowsePackages('SWS/S&M')
+        return 'error SWS/S&M'
+      end
     else
-      r.ShowMessageBox("SWS/S&M Extension is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ShowMessageBox("SWS/S&M Extension v2.14.0 or higher is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
       r.ReaPack_BrowsePackages('SWS/S&M')
       return 'error SWS/S&M'
     end
