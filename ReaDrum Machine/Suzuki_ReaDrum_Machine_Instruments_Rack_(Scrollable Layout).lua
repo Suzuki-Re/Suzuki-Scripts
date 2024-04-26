@@ -1,11 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.5.8
+-- @version 1.5.9
 -- @noindex
 -- @changelog
---   # Change play/stop preview behavior to send note on/off in order to reflect all parameters and prevent volume summing in parallel FX which users might not expect 
---   You can still cycle through samples with up/down arrow and R keys and hear previews (it's a preview sound of samples without FX)
+--   # Fixed opening pad bug when there's only filter
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine

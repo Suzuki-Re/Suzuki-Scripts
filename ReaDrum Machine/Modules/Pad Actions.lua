@@ -197,13 +197,15 @@ function ClickPadActions(a)
               r.TrackFX_Show(track, Pad[k].Pad_ID, 2)           -- hide floating window
             else
               r.TrackFX_Show(track, Pad[k].Pad_ID, 3)           -- show floating window
-              local _, fx_id = r.TrackFX_GetNamedConfigParm(track, Pad[k].Pad_ID, "container_item." .. 1)
-              local isfilter_visible = r.TrackFX_GetOpen(track,  Pad[k].Filter_ID)
-              if isfilter_visible then
-                r.PreventUIRefresh(1)
-                r.TrackFX_SetOpen(track, fx_id, 1)
-                r.UpdateArrange()
-                r.PreventUIRefresh(-1)
+              local rv, fx_id = r.TrackFX_GetNamedConfigParm(track, Pad[k].Pad_ID, "container_item." .. 1)
+              if rv then -- there's fx other than filter
+                local isfilter_visible = r.TrackFX_GetOpen(track, Pad[a].Filter_ID)
+                if isfilter_visible then
+                  r.PreventUIRefresh(1)
+                  r.TrackFX_SetOpen(track, fx_id, 1)
+                  r.UpdateArrange()
+                  r.PreventUIRefresh(-1)
+                end
               end
             end
           end
@@ -220,10 +222,12 @@ function ClickPadActions(a)
           r.Undo_BeginBlock()
           r.TrackFX_Show(track, Pad[a].Pad_ID, 3)           -- show floating window
           EndUndoBlock("OPEN FX WINDOW")
-          local _, fx_id = r.TrackFX_GetNamedConfigParm(track, Pad[a].Pad_ID, "container_item." .. 1)
-          local isfilter_visible = r.TrackFX_GetOpen(track,  Pad[a].Filter_ID)
-          if isfilter_visible then
-            r.TrackFX_SetOpen(track, fx_id, 1)
+          local rv, fx_id = r.TrackFX_GetNamedConfigParm(track, Pad[a].Pad_ID, "container_item." .. 1)
+          if rv then -- there's fx other than filter
+            local isfilter_visible = r.TrackFX_GetOpen(track, Pad[a].Filter_ID)
+            if isfilter_visible then
+              r.TrackFX_SetOpen(track, fx_id, 1)
+            end
           end
         end
       end
