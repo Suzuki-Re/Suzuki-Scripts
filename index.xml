@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="f2e6e4b1cd731e4c2d7cc2d6f17c2608adccc47a">
+<index version="1" name="Suzuki Scripts" commit="aeddbd137040ca3436c6f1ef118188bb27a52f2a">
   <category name="Development">
     <reapack name="Suzuki_Check stereo channels input bitmask for last touched track or take FX (inside Container).lua" type="script" desc="Check stereo channels input bitmask for last touched track or take FX (inside Container)">
       <metadata>
@@ -1886,7 +1886,7 @@ You can still cycle through samples with up/down arrow and R keys and hear previ
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Usage\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 Left clicking the button opens your track template resource folder. Simply drop your ".RTrackTemplate" files to the button from there. The generated script will be automatically saved to the folder "Suzuki Scripts/Track Template Shortcut Generator/Insert Track Template Scripts/", and will also be registered to the action list.\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Prerequisites\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 ReaImGui\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 ReaImGui, js extension\par}
 }
 ]]></description>
       </metadata>
@@ -1897,6 +1897,10 @@ You can still cycle through samples with up/down arrow and R keys and hear previ
       <version name="1.1" author="Suzuki" time="2024-04-16T11:30:35Z">
         <changelog><![CDATA[# imgui shims]]></changelog>
         <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/98189865e22087397be8cbba7356326ac6803e3a/Track/Track%20Template%20Shortcut%20Generator/Suzuki_Track%20template%20shortcut%20generator.lua</source>
+      </version>
+      <version name="1.2" author="Suzuki" time="2024-05-01T09:22:34Z">
+        <changelog><![CDATA[# Updated ReaImGui v0.9.0+]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/aeddbd137040ca3436c6f1ef118188bb27a52f2a/Track/Track%20Template%20Shortcut%20Generator/Suzuki_Track%20template%20shortcut%20generator.lua</source>
       </version>
     </reapack>
   </category>
