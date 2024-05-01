@@ -1,9 +1,10 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.5.9
+-- @version 1.6.0
 -- @changelog
---   # Fixed opening pad bug when there's only filter
+--   + Sample name in each RS5k UI can receive drag/drop a sample 
+--   # Tried to fix a midi octave offset settings bug
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
@@ -255,8 +256,6 @@ function DrawPads(loopmin, loopmax)
   DoubleClickActions(loopmin, loopmax)
 
   for a = loopmin, loopmax do
-    local midi_octave_offset = r.SNM_GetIntConfigVar("midioctoffs", 0)
-    midi_oct_offs = (midi_octave_offset - 1) * 12
     notenum = a - 1
     note_name = getNoteName(notenum + midi_oct_offs)
 
@@ -518,6 +517,7 @@ end
 function Run()
   track = r.GetSelectedTrack2(0, 0, false)
   TRACK = track
+  midi_oct_offs = GetMidiOctOffsSettings()
   if track then
     trackidx = r.CSurf_TrackToID(track, false)
     track_guid = r.GetTrackGUID(track)

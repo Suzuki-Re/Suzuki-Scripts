@@ -67,6 +67,13 @@ function CheckStaleData()
   --end
 end
 
+function GetMidiOctOffsSettings()
+  local midi_octave_offset = r.SNM_GetIntConfigVar("midioctoffs", 0)
+  if not midi_octave_offset then midi_octave_offset = 0 end
+  local midi_oct_offs = (midi_octave_offset - 1) * 12
+  return midi_oct_offs
+end
+
 function get_fx_id_from_container_path(tr, idx1, ...) -- 1based
   local sc, rv = r.TrackFX_GetCount(tr) + 1, 0x2000000 + idx1
   local vararg = {}

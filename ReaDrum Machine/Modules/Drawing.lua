@@ -490,6 +490,8 @@ local function ArrowButtons(a)
   r.ImGui_PopButtonRepeat(ctx)
 end
 
+
+
 function RS5kUI(a)
   -- integer reaper.PCM_Source_GetPeaks(PCM_source src, number peakrate, number starttime, integer numchannels, integer numsamplesperchannel, integer want_extra_type, reaper.array buf)
   if not Pad[a] then return end
@@ -509,7 +511,7 @@ function RS5kUI(a)
     r.StuffMIDIMessage(0, 0x80, Pad[a].Note_Num, 96) -- send note off
   end
   r.ImGui_SameLine(ctx)
-  local rv = r.ImGui_Button(ctx, "##O", 19, 19)
+  local rv = r.ImGui_Button(ctx, "##O", 19, 19) -- Browse samples
   DrawListButton("O", 0xff, nil, true, true)
   if rv then
     if r.HasExtState("ReaDrum Machine", "preview_file") then
@@ -534,6 +536,7 @@ function RS5kUI(a)
   r.ImGui_PushStyleColor(ctx, r.ImGui_Col_ButtonActive(),  0x9999996f)
   --r.ImGui_PushFont(ctx, FONT)
   local rv = r.ImGui_Button(ctx, "RS5k[" .. ('%d'):format(WhichRS5k) .. "] " .. sample_name) -- RS5k instance number + Sample name
+  DndAddSampleToEachRS5k_TARGET(a, Pad[a].RS5k_Instances[WhichRS5k], 0)
   if DownArrow or UpArrow or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_R()) then
     ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a)
   end
