@@ -1,11 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.6.0
+-- @version 1.6.1
 -- @noindex
 -- @changelog
---   + Sample name in each RS5k UI can receive drag/drop a sample 
---   # Tried to fix a midi octave offset settings bug
+--   # Fixed a loading RS5k bugs
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine

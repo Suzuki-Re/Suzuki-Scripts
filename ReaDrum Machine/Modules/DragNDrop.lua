@@ -397,9 +397,9 @@ end
 
 local function RS5k_File()
   local OS = r.GetOS()
-  if OS == 'Win32' or 'Win64' then
+  if OS == 'Win32' or OS == 'Win64' then
     file_name = 'reasamplomatic.dll'
-  elseif OS == 'OSX32' or 'OSX64' or 'macOS-arm64' then
+  elseif OS == 'OSX32' or OS == 'OSX64' or OS == 'macOS-arm64' then
     file_name = 'reasamplomatic.vst.dylib'
   else
     file_name = 'reasamplomatic.vst.so'
