@@ -20,21 +20,21 @@ function Exit()
 end
 
 function CheckKeys()
-  ALT = r.ImGui_GetKeyMods(ctx) == r.ImGui_Mod_Alt()
-  CTRL = r.ImGui_GetKeyMods(ctx) == r.ImGui_Mod_Shortcut()
-  SHIFT = r.ImGui_GetKeyMods(ctx) == r.ImGui_Mod_Shift()
+  ALT = im.GetKeyMods(ctx) == im.Mod_Alt
+  CTRL = im.GetKeyMods(ctx) == im.Mod_Shortcut
+  SHIFT = im.GetKeyMods(ctx) == im.Mod_Shift
 
-  HOME = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Home())
-  SPACE = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Space())
-  ESC = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Escape())
+  HOME = im.IsKeyPressed(ctx, im.Key_Home)
+  SPACE = im.IsKeyPressed(ctx, im.Key_Space)
+  ESC = im.IsKeyPressed(ctx, im.Key_Escape)
 
-  UpArrow = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_UpArrow())
-  DownArrow = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_DownArrow())
+  UpArrow = im.IsKeyPressed(ctx, im.Key_UpArrow)
+  DownArrow = im.IsKeyPressed(ctx, im.Key_DownArrow)
   
-  UpArrowReleased = r.ImGui_IsKeyReleased(ctx, r.ImGui_Key_UpArrow())
-  DownArrowReleased = r.ImGui_IsKeyReleased(ctx, r.ImGui_Key_DownArrow())
+  UpArrowReleased = im.IsKeyReleased(ctx, im.Key_UpArrow)
+  DownArrowReleased = im.IsKeyReleased(ctx, im.Key_DownArrow)
 
-  Z = r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Z())
+  Z = im.IsKeyPressed(ctx, im.Key_Z)
 
   if HOME then CANVAS.off_x, CANVAS.off_y = 0, def_vertical_y_center end
 
@@ -44,7 +44,7 @@ function CheckKeys()
     -- CHECK IF TRACK CHANGED
     TRACK = r.GetSelectedTrack2(0, 0, true)
   end                            -- UNDO
-  if r.ImGui_GetKeyMods(ctx) == r.ImGui_Mod_Shortcut() | r.ImGui_Mod_Shift() and Z then
+  if im.GetKeyMods(ctx) == im.Mod_Shortcut | im.Mod_Shift and Z then
     r.Main_OnCommand(40030, 0)   -- REDO
   end
 
@@ -52,13 +52,13 @@ function CheckKeys()
 
   -- ACTIVATE CTRL ONLY IF NOT PREVIOUSLY DRAGGING
   if not CTRL_DRAG then
-    CTRL_DRAG = (not MOUSE_DRAG and CTRL) and r.ImGui_IsMouseDragging(ctx, 0)
+    CTRL_DRAG = (not MOUSE_DRAG and CTRL) and im.IsMouseDragging(ctx, 0)
   end
-  MOUSE_DRAG = r.ImGui_IsMouseDragging(ctx, 0)
+  MOUSE_DRAG = im.IsMouseDragging(ctx, 0)
 end
 
 function CheckStaleData()
-  if r.ImGui_IsMouseReleased(ctx, 0) then
+  if im.IsMouseReleased(ctx, 0) then
       CTRL_DRAG = nil
   --    DRAG_PREVIEW = nil
   end

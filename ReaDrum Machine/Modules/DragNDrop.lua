@@ -1,7 +1,7 @@
 --@noindex
 
 local function GetPayload()
-  local retval, dndtype, payload = r.ImGui_GetDragDropPayload(ctx)
+  local retval, dndtype, payload = im.GetDragDropPayload(ctx)
   if retval then
     return dndtype, payload
   end
@@ -26,34 +26,34 @@ function AddNoteFilter(notenum, pad_num)
 end
 
 function DndAddFX_SRC(fx)
-  if r.ImGui_BeginDragDropSource(ctx, r.ImGui_DragDropFlags_AcceptBeforeDelivery()) then
-    r.ImGui_SetDragDropPayload(ctx, 'DND ADD FX', fx)
-    r.ImGui_Text(ctx, fx)
-    r.ImGui_EndDragDropSource(ctx)
+  if im.BeginDragDropSource(ctx, im.DragDropFlags_AcceptBeforeDelivery) then
+    im.SetDragDropPayload(ctx, 'DND ADD FX', fx)
+    im.Text(ctx, fx)
+    im.EndDragDropSource(ctx)
   end
 end
 
 function DndMoveFX_SRC(a)
   -- if CTRL then return end
   if Pad[a] then
-    if r.ImGui_BeginDragDropSource(ctx, r.ImGui_DragDropFlags_AcceptBeforeDelivery() | r.ImGui_DragDropFlags_SourceNoPreviewTooltip()) then
+    if im.BeginDragDropSource(ctx, im.DragDropFlags_AcceptBeforeDelivery | im.DragDropFlags_SourceNoPreviewTooltip) then
       local data = Pad[a].TblIdx
-      r.ImGui_SetDragDropPayload(ctx, 'DND MOVE FX', data)
+      im.SetDragDropPayload(ctx, 'DND MOVE FX', data)
       -- Display preview (could be anything, e.g. when dragging an image we could decide to display
       -- the filename and a small preview of the image, etc.)
       -- CreateCustomPreviewData(tbl,i)
-      -- r.ImGui_Text(ctx, Pad[a].Note_Num)
-      r.ImGui_EndDragDropSource(ctx)
+      -- im.Text(ctx, Pad[a].Note_Num)
+      im.EndDragDropSource(ctx)
     end
   end
 end
   
 function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
   if not DND_MOVE_FX then return end
-  r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), 0)
-  if r.ImGui_BeginDragDropTarget(ctx) then
-    local ret, payload = r.ImGui_AcceptDragDropPayload(ctx, 'DND MOVE FX')
-    r.ImGui_EndDragDropTarget(ctx)
+  im.PushStyleColor(ctx, im.Col_DragDropTarget, 0)
+  if im.BeginDragDropTarget(ctx) then
+    local ret, payload = im.AcceptDragDropPayload(ctx, 'DND MOVE FX')
+    im.EndDragDropTarget(ctx)
     r.Undo_BeginBlock()
     r.PreventUIRefresh(1)
     GetDrumMachineIdx(track)
@@ -249,16 +249,16 @@ function DndMoveFX_TARGET_SWAP(a) -- Swap whole pads  -> modulation is kept
       end
     end
   end
-  r.ImGui_PopStyleColor(ctx)
+  im.PopStyleColor(ctx)
 end
 
 function DndAddFX_TARGET(a)
   if not DND_ADD_FX then return end
   InsertDrumMachine()
-  r.ImGui_PushStyleColor(ctx, r.ImGui_Col_DragDropTarget(), 0)
-  if r.ImGui_BeginDragDropTarget(ctx) then
-    local ret, payload = r.ImGui_AcceptDragDropPayload(ctx, 'DND ADD FX')
-    r.ImGui_EndDragDropTarget(ctx)
+  im.PushStyleColor(ctx, im.Col_DragDropTarget, 0)
+  if im.BeginDragDropTarget(ctx) then
+    local ret, payload = im.AcceptDragDropPayload(ctx, 'DND ADD FX')
+    im.EndDragDropTarget(ctx)
     if ret and SELECTED then
       r.Undo_BeginBlock()
       for k, v in pairs(SELECTED) do
@@ -307,7 +307,7 @@ function DndAddFX_TARGET(a)
       end
     end
   end
-  r.ImGui_PopStyleColor(ctx)
+  im.PopStyleColor(ctx)
 end
 
 local function MX_GetVolume(mx)
@@ -410,7 +410,7 @@ end
 local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, pitch, rate, volume, apply_pr, assign_p)
   local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   local rs5k_id = ConvertPathToNestedPath(pad_id, add_pos)
-  local _, payload = r.ImGui_GetDragDropPayloadFile(ctx, i) -- 0 based
+  local _, payload = im.GetDragDropPayloadFile(ctx, i) -- 0 based
   --local src = r.PCM_Source_CreateFromFile(payload)
   --local src_length = r.GetMediaSourceLength(src)
   --r.PCM_Source_Destroy(src)
@@ -448,7 +448,7 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, 
 end
 
 function AddSampleToExistingRS5k(a, RS5k_ID, i, apply_pr, rate, assign_p, pitch)
-  local _, payload = r.ImGui_GetDragDropPayloadFile(ctx, i)
+  local _, payload = im.GetDragDropPayloadFile(ctx, i)
   if rate ~= 1 and apply_pr == 1 then 
     payload = payload_name[i + 1] -- i = 0 based
   end
@@ -474,8 +474,8 @@ function AddSampleToExistingRS5k(a, RS5k_ID, i, apply_pr, rate, assign_p, pitch)
 end
 
 function DndAddSampleToEachRS5k_TARGET(a, RS5k_ID, i)
-  if r.ImGui_BeginDragDropTarget(ctx) then
-    local rv, count = r.ImGui_AcceptDragDropPayloadFiles(ctx)
+  if im.BeginDragDropTarget(ctx) then
+    local rv, count = im.AcceptDragDropPayloadFiles(ctx)
     if rv then
       local mx = r.OpenMediaExplorer('', false)
       local pitch = MX_GetPitch(mx)
@@ -488,13 +488,13 @@ function DndAddSampleToEachRS5k_TARGET(a, RS5k_ID, i)
       end
       AddSampleToExistingRS5k(a, RS5k_ID, i, apply_pr, rate, assign_p, pitch)
     end
-    r.ImGui_EndDragDropTarget(ctx)
+    im.EndDragDropTarget(ctx)
   end
 end
 
 function DndAddSample_TARGET(a)
-  if r.ImGui_BeginDragDropTarget(ctx) then
-    local rv, count = r.ImGui_AcceptDragDropPayloadFiles(ctx)
+  if im.BeginDragDropTarget(ctx) then
+    local rv, count = im.AcceptDragDropPayloadFiles(ctx)
     if rv then
       local mx = r.OpenMediaExplorer('', false)
       local pitch = MX_GetPitch(mx)
@@ -537,14 +537,14 @@ function DndAddSample_TARGET(a)
       r.PreventUIRefresh(-1)
       EndUndoBlock("ADD SAMPLES")
     end
-    r.ImGui_EndDragDropTarget(ctx)
+    im.EndDragDropTarget(ctx)
   end
 end
 
 
 function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
-  if r.ImGui_BeginDragDropTarget(ctx) then
-    local rv, count = r.ImGui_AcceptDragDropPayloadFiles(ctx)
+  if im.BeginDragDropTarget(ctx) then
+    local rv, count = im.AcceptDragDropPayloadFiles(ctx)
     if rv and not Pad[a] then
       InsertDrumMachine()
       GetDrumMachineIdx(track)  -- parent_id = num
@@ -572,6 +572,6 @@ function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
         AddSamplesToRS5k(Pad[a].Pad_Num, padfx_idx + 1 + i, i, a, note_name, mx, pitch, rate, volume, apply_pr, assign_p)
       end
     end
-    r.ImGui_EndDragDropTarget(ctx)
+    im.EndDragDropTarget(ctx)
   end
 end

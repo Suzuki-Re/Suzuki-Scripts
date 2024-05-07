@@ -110,18 +110,18 @@ end
 
 -- Left Click --
 function SendMidiNote(notenum) -- Thanks Sexan!
-  if not r.ImGui_IsItemHovered(ctx) then return end
-  if r.ImGui_IsMouseClicked(ctx, 0) then
+  if not im.IsItemHovered(ctx) then return end
+  if im.IsMouseClicked(ctx, 0) then
     r.StuffMIDIMessage(0, 0x90, notenum, 96) -- send note_p -- mode, note on, note, velocity
-  elseif r.ImGui_IsMouseReleased(ctx, 0) then
+  elseif im.IsMouseReleased(ctx, 0) then
     r.StuffMIDIMessage(0, 0x80, notenum, 96) -- send note_r
   end
 end
 
 function AdjustPadVolume(a)
-  if r.ImGui_IsMouseDragging(ctx, 0) then
+  if im.IsMouseDragging(ctx, 0) then
     if Pad[a] then
-      local mouse_delta = { r.ImGui_GetMouseDelta(ctx) }
+      local mouse_delta = { im.GetMouseDelta(ctx) }
       local stepscale = 1
       local step = (1 - 0) / (200.0 * stepscale)
       if SELECTED then
@@ -174,7 +174,7 @@ function ClickPadActions(a)
       UpdatePadID()
       r.PreventUIRefresh(-1)
       EndUndoBlock("CLEAR PAD")
-    elseif SHIFT and not r.ImGui_IsMouseDoubleClicked(ctx, 0) and not r.ImGui_IsMouseDragging(ctx, 0) then
+    elseif SHIFT and not im.IsMouseDoubleClicked(ctx, 0) and not im.IsMouseDragging(ctx, 0) then
       if SELECTED and SELECTED[tostring(a)] then -- unselect
         SELECTED[tostring(a)] = nil
         if #SELECTED == 0 then -- reset table if it's empty
@@ -255,16 +255,16 @@ function OpenRS5kInsidePad(a, y)
     WhichRS5k = 1
   end
   UpdatePadID()
-  r.ImGui_SameLine(ctx, nil, 0)
+  im.SameLine(ctx, nil, 0)
   PositionOffset(10, y)
-  if r.ImGui_BeginChild(ctx, "open_pad", 250 + 110, 220 + 88, false, r.ImGui_WindowFlags_NoScrollWithMouse() | r.ImGui_WindowFlags_NoScrollbar()) then
+  if im.BeginChild(ctx, "open_pad", 250 + 110, 220 + 88, 0, im.WindowFlags_NoScrollWithMouse | im.WindowFlags_NoScrollbar) then
     if not Pad[a] then -- to prevent crash when creating a new track (BeginChild -> do nothing -> Endchild)
     elseif not Pad[a].RS5k_Instances[1] then
-      r.ImGui_TextDisabled(ctx, 'No RS5k inside pad')
+      im.TextDisabled(ctx, 'No RS5k inside pad')
     else
       RS5kUI(a)
     end
-    r.ImGui_EndChild(ctx)
+    im.EndChild(ctx)
   end
 end
 
@@ -542,17 +542,17 @@ local function ExplodePadsToTracks()
 end
   
 local function RenameWindow(a, note_name)
-  local center = { r.ImGui_Viewport_GetCenter(r.ImGui_GetWindowViewport(ctx)) }
-  r.ImGui_SetNextWindowPos(ctx, center[1], center[2], r.ImGui_Cond_Appearing(), 0.5, 0.5)
-  if r.ImGui_BeginPopupModal(ctx, 'Rename a pad?##' .. a, nil, r.ImGui_WindowFlags_AlwaysAutoResize()) then
-    if r.ImGui_IsWindowAppearing(ctx) then
-      r.ImGui_SetKeyboardFocusHere(ctx)
+  local center = { im.Viewport_GetCenter(im.GetWindowViewport(ctx)) }
+  im.SetNextWindowPos(ctx, center[1], center[2], im.Cond_Appearing, 0.5, 0.5)
+  if im.BeginPopupModal(ctx, 'Rename a pad?##' .. a, nil, im.WindowFlags_AlwaysAutoResize) then
+    if im.IsWindowAppearing(ctx) then
+      im.SetKeyboardFocusHere(ctx)
     end
-    rv, new_name = r.ImGui_InputTextWithHint(ctx, '##Pad Name', 'PAD NAME', new_name,
-      r.ImGui_InputTextFlags_AutoSelectAll())
-    IsInputEdited = r.ImGui_IsItemActive(ctx)
-    if r.ImGui_Button(ctx, 'OK', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Enter()) or
-        r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_KeypadEnter()) then
+    rv, new_name = im.InputTextWithHint(ctx, '##Pad Name', 'PAD NAME', new_name,
+      im.InputTextFlags_AutoSelectAll)
+    IsInputEdited = im.IsItemActive(ctx)
+    if im.Button(ctx, 'OK', 120, 0) or im.IsKeyPressed(ctx, im.Key_Enter) or
+        im.IsKeyPressed(ctx, im.Key_KeypadEnter) then
       if not Pad[a] and not SELECTED then
         r.ShowConsoleMsg("There's no pad. Insert FX or sample first.")
       else
@@ -585,29 +585,29 @@ local function RenameWindow(a, note_name)
         r.PreventUIRefresh(-1)
         EndUndoBlock("RENAME PAD") 
       end
-      r.ImGui_CloseCurrentPopup(ctx)
+      im.CloseCurrentPopup(ctx)
     end
-    r.ImGui_SetItemDefaultFocus(ctx)
-    r.ImGui_SameLine(ctx)
-    if r.ImGui_Button(ctx, 'Cancel', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Escape()) then
-      r.ImGui_CloseCurrentPopup(ctx)
+    im.SetItemDefaultFocus(ctx)
+    im.SameLine(ctx)
+    if im.Button(ctx, 'Cancel', 120, 0) or im.IsKeyPressed(ctx, im.Key_Escape) then
+      im.CloseCurrentPopup(ctx)
     end
-    r.ImGui_EndPopup(ctx)
+    im.EndPopup(ctx)
   end
 end
 
 local function ChokeWindow(a)
-  local center = { r.ImGui_Viewport_GetCenter(r.ImGui_GetWindowViewport(ctx)) }
-  r.ImGui_SetNextWindowPos(ctx, center[1], center[2], r.ImGui_Cond_Appearing(), 0.5, 0.5)
-  if r.ImGui_BeginPopupModal(ctx, 'Set Choke Group?##' .. a, nil, r.ImGui_WindowFlags_AlwaysAutoResize()) then
-    if r.ImGui_IsWindowAppearing(ctx) then
-      r.ImGui_SetKeyboardFocusHere(ctx)
+  local center = { im.Viewport_GetCenter(im.GetWindowViewport(ctx)) }
+  im.SetNextWindowPos(ctx, center[1], center[2], im.Cond_Appearing, 0.5, 0.5)
+  if im.BeginPopupModal(ctx, 'Set Choke Group?##' .. a, nil, im.WindowFlags_AlwaysAutoResize) then
+    if im.IsWindowAppearing(ctx) then
+      im.SetKeyboardFocusHere(ctx)
     end
-    rv, group_num = r.ImGui_InputTextWithHint(ctx, '##Choke Group', 'CHOKE GROUP (1-16, 0 = OFF)', group_num,
-      r.ImGui_InputTextFlags_AutoSelectAll() | r.ImGui_InputTextFlags_CharsDecimal() | r.ImGui_InputTextFlags_CharsNoBlank())
-    IsInputEdited = r.ImGui_IsItemActive(ctx)
-    if r.ImGui_Button(ctx, 'OK', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Enter()) or
-        r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_KeypadEnter()) then
+    rv, group_num = im.InputTextWithHint(ctx, '##Choke Group', 'CHOKE GROUP (1-16, 0 = OFF)', group_num,
+      im.InputTextFlags_AutoSelectAll | im.InputTextFlags_CharsDecimal | im.InputTextFlags_CharsNoBlank)
+    IsInputEdited = im.IsItemActive(ctx)
+    if im.Button(ctx, 'OK', 120, 0) or im.IsKeyPressed(ctx, im.Key_Enter) or
+        im.IsKeyPressed(ctx, im.Key_KeypadEnter) then
       if not Pad[a] and not SELECTED then
         r.ShowConsoleMsg("There's no pad. Insert FX or sample first.")
       else
@@ -650,14 +650,14 @@ local function ChokeWindow(a)
         r.PreventUIRefresh(-1)
         EndUndoBlock("SET CHOKE GROUP") 
       end
-      r.ImGui_CloseCurrentPopup(ctx)
+      im.CloseCurrentPopup(ctx)
     end
-    r.ImGui_SetItemDefaultFocus(ctx)
-    r.ImGui_SameLine(ctx)
-    if r.ImGui_Button(ctx, 'Cancel', 120, 0) or r.ImGui_IsKeyPressed(ctx, r.ImGui_Key_Escape()) then
-      r.ImGui_CloseCurrentPopup(ctx)
+    im.SetItemDefaultFocus(ctx)
+    im.SameLine(ctx)
+    if im.Button(ctx, 'Cancel', 120, 0) or im.IsKeyPressed(ctx, im.Key_Escape) then
+      im.CloseCurrentPopup(ctx)
     end
-    r.ImGui_EndPopup(ctx)
+    im.EndPopup(ctx)
   end
 end
 
@@ -796,22 +796,22 @@ local function LoadItemsFromArrange(a)
 end
 
 function PadMenu(a, note_name)
-  if r.ImGui_IsItemClicked(ctx, 1) and CTRL then
-    r.ImGui_OpenPopup(ctx, "RIGHT_CLICK_MENU##" .. a)
+  if im.IsItemClicked(ctx, 1) and CTRL then
+    im.OpenPopup(ctx, "RIGHT_CLICK_MENU##" .. a)
   end
   local open_settings = false
   local choke_settings = false
-  if r.ImGui_BeginPopup(ctx, "RIGHT_CLICK_MENU##" .. a, r.ImGui_WindowFlags_NoMove()) then
-    if r.ImGui_MenuItem(ctx, 'Load Selected Items from Arrange##' .. a) then
+  if im.BeginPopup(ctx, "RIGHT_CLICK_MENU##" .. a, im.WindowFlags_NoMove) then
+    if im.MenuItem(ctx, 'Load Selected Items from Arrange##' .. a) then
       LoadItemsFromArrange(a)
     end
-    if r.ImGui_MenuItem(ctx, 'Rename Pad##' .. a) then
+    if im.MenuItem(ctx, 'Rename Pad##' .. a) then
       open_settings = true
     end
-    if r.ImGui_MenuItem(ctx, 'Set Choke Group##' .. a) then
+    if im.MenuItem(ctx, 'Set Choke Group##' .. a) then
       choke_settings = true
     end
-    if r.ImGui_MenuItem(ctx, "Set Pad's Output Pin Mappings##" .. a) then
+    if im.MenuItem(ctx, "Set Pad's Output Pin Mappings##" .. a) then
       r.Undo_BeginBlock()
       local retval, chan_num = r.GetUserInputs('Set Stereo Output Channel', 1, 'Left or Right Output Channel Number', 2)
       if not retval then chan_num = nil end
@@ -836,7 +836,7 @@ function PadMenu(a, note_name)
       end
       EndUndoBlock("SET PAD'S OUTPUT PINS")
     end
-    if r.ImGui_MenuItem(ctx, 'Explode Pad to Track##' .. a) then
+    if im.MenuItem(ctx, 'Explode Pad to Track##' .. a) then
       r.Undo_BeginBlock()
       local retval, chan_num = r.GetUserInputs('Set Stereo Output Channel', 1, 'Left or Right Output Channel Number', 4)
       if not retval then chan_num = nil end
@@ -867,15 +867,15 @@ function PadMenu(a, note_name)
       end
       EndUndoBlock("SET PAD'S OUTPUT PINS")
     end
-    r.ImGui_Separator(ctx)
-    if r.ImGui_MenuItem(ctx, 'Explode All Pads to Tracks##' .. a) then
+    im.Separator(ctx)
+    if im.MenuItem(ctx, 'Explode All Pads to Tracks##' .. a) then
       r.Undo_BeginBlock()
       r.PreventUIRefresh(1)
       ExplodePadsToTracks()
       r.PreventUIRefresh(-1)
       EndUndoBlock("EXPLODE ALL PADS") 
     end
-    if r.ImGui_MenuItem(ctx, 'Clear All Pads##' .. a) then
+    if im.MenuItem(ctx, 'Clear All Pads##' .. a) then
       GetDrumMachineIdx(track)
       CountPads()                                                          -- pads_idx = num
       r.Undo_BeginBlock()
@@ -910,7 +910,7 @@ function PadMenu(a, note_name)
       r.PreventUIRefresh(-1)
       EndUndoBlock("CLEAR ALL PADS")
     end
-    if r.ImGui_MenuItem(ctx, 'Toggle Open FX Chain Window') then
+    if im.MenuItem(ctx, 'Toggle Open FX Chain Window') then
       if not parent_id then 
         local command_id = r.NamedCommandLookup("_S&M_TOGLFXCHAIN")
         r.Main_OnCommand(command_id, 0)
@@ -935,39 +935,39 @@ function PadMenu(a, note_name)
         end
       end
     end 
-      -- if r.ImGui_BeginMenu(ctx, 'Context menu') then
-      --  r.ImGui_EndMenu(ctx)
+      -- if im.BeginMenu(ctx, 'Context menu') then
+      --  im.EndMenu(ctx)
       -- end
-    r.ImGui_EndPopup(ctx)
+    im.EndPopup(ctx)
   end
   if open_settings then
-    r.ImGui_OpenPopup(ctx, 'Rename a pad?##' .. a)
+    im.OpenPopup(ctx, 'Rename a pad?##' .. a)
   end
   RenameWindow(a, note_name)
   if choke_settings then
-    r.ImGui_OpenPopup(ctx, 'Set Choke Group?##' .. a)
+    im.OpenPopup(ctx, 'Set Choke Group?##' .. a)
   end
   ChokeWindow(a)
 end
 
 --- outside of pads click action
 function FXLIST()
-  if r.ImGui_IsMouseClicked(ctx, 1) and not OnPad then
-    if not r.ImGui_IsPopupOpen(ctx, "FX LIST") then
-      r.ImGui_OpenPopup(ctx, "FX LIST")
+  if im.IsMouseClicked(ctx, 1) and not OnPad then
+    if not im.IsPopupOpen(ctx, "FX LIST") then
+      im.OpenPopup(ctx, "FX LIST")
     end
   end
 
-  if r.ImGui_BeginPopup(ctx, "FX LIST") then
+  if im.BeginPopup(ctx, "FX LIST") then
     Frame()
-    r.ImGui_EndPopup(ctx)
+    im.EndPopup(ctx)
   end
   OnPad = false
 end
 
 -- Double Click
 function DoubleClickActions(loopmin, loopmax)
-  if r.ImGui_IsMouseDoubleClicked(ctx, 0) and not OnPad and ALT then
+  if im.IsMouseDoubleClicked(ctx, 0) and not OnPad and ALT then
     if SELECTED then
       SELECTED = nil
     else
@@ -976,7 +976,7 @@ function DoubleClickActions(loopmin, loopmax)
         SELECTED[tostring(a)] = true
       end
     end
-  elseif SHIFT and r.ImGui_IsMouseDoubleClicked(ctx, 0) and loopmin then
+  elseif SHIFT and im.IsMouseDoubleClicked(ctx, 0) and loopmin then
     local found = false
     for f = loopmin, loopmax do
       if SELECTED and SELECTED[tostring(f)] then
