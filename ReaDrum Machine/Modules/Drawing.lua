@@ -506,9 +506,9 @@ local function ArrowButtons(a)
   im.PopButtonRepeat(ctx)
 end
 
-local function OpenSamplesDir(open, a)
-  local _, sample_path = r.TrackFX_GetNamedConfigParm(track, Pad[a].RS5k_Instances[WhichRS5k], "FILE0")
-  if sample_path ~= "" then
+local function OpenSamplesDir(open)
+  if r.HasExtState("ReaDrum Machine", "preview_file") then
+    sample_path = r.GetExtState("ReaDrum Machine", "preview_file")
     if OS == "Win32" or OS == "Win64" then
       last_separator_index = string.find(sample_path, "\\[^\\]*$")
     else
@@ -566,7 +566,7 @@ local function WaveformButton(ctx, sample_path, a)
     if ALT then
       r.TrackFX_SetNamedConfigParm(track, Pad[a].RS5k_Instances[WhichRS5k], '-FILE*', '')
     else
-      OpenSamplesDir(open, a)
+      OpenSamplesDir(open)
     end
   end
   
@@ -687,7 +687,7 @@ local function EmptySampleButton(a)
   local open = im.InvisibleButton(ctx, "Click to browse or drag/drop samples here.", 360, 100)
   DrawListButton("Click to browse or drag/drop samples here.", 0x00)
   if open then
-    OpenSamplesDir(open, a)
+    OpenSamplesDir(open)
   end
   DndAddSampleToEachRS5k_TARGET(a, Pad[a].RS5k_Instances[WhichRS5k], 0)
 end

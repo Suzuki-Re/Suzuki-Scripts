@@ -1,10 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.6.3
+-- @version 1.6.4
 -- @noindex
 -- @changelog
---   # Overhaul of RS5k UI
+--   # Better handling of browsing samples
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
