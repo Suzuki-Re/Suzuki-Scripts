@@ -35,6 +35,7 @@ function CheckKeys()
   DownArrowReleased = im.IsKeyReleased(ctx, im.Key_DownArrow)
 
   Z = im.IsKeyPressed(ctx, im.Key_Z)
+  --R = im.IsKeyPressed(ctx, im.Key_R)
 
   if HOME then CANVAS.off_x, CANVAS.off_y = 0, def_vertical_y_center end
 

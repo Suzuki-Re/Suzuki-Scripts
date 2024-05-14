@@ -1,21 +1,24 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.6.2
+-- @version 1.6.3
 -- @noindex
 -- @changelog
---   # Updated to ReaImGui v0.9.0+
+--   # Overhaul of RS5k UI
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
 --   ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 --   ### Prerequisites
 --   REAPER v7.06+, ReaImGui, S&M extension, js extension and Sexan's FX Browser
+--   ### CAUTIONS
+--   ReaDrum Machine utilizes a prallel FX feature in REAPER. If you use the script as it is, there's no problem, but if you want to place the audio (like VSTi or audio file in arrange) before RDM for some reason, beware of the volume because it adds up by design.
+--   Use dry/wet knob in each container or shift+drag each pad to adjust each container's volume.
 
 r                      = reaper
 
 package.path = r.ImGui_GetBuiltinPath() .. '/?.lua'
-im = require 'imgui' '0.9.0.2'
+im = require 'imgui' '0.9.1'
 
 os_separator                 = package.config:sub(1, 1)
 package.path                 = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]] ..
@@ -141,9 +144,13 @@ ctx = im.CreateContext('ReaDrum Machine')
 draw_list = im.GetWindowDrawList(ctx)
 
 ICONS_FONT = im.CreateFont(script_path .. 'Fonts/Icons.ttf', 11)
-FONT = im.CreateFont(script_path .. 'Fonts/Antonio-SemiBold.ttf', 16)
+antonio_semibold = im.CreateFont(script_path .. 'Fonts/Antonio-SemiBold.ttf', 16)
+antonio_semibold_mini = im.CreateFont(script_path .. 'Fonts/Antonio-SemiBold.ttf', 13)
+system_font = im.CreateFont("sans-serif", 13)
 im.Attach(ctx, ICONS_FONT)
-im.Attach(ctx, FONT)
+im.Attach(ctx, antonio_semibold)
+im.Attach(ctx, antonio_semibold_mini)
+im.Attach(ctx, system_font)
 
 FLT_MIN, FLT_MAX = im.NumericLimits_Float()
 

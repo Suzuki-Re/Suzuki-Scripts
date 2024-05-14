@@ -89,7 +89,7 @@ local function ParameterSwitch(a, label, parm)
   else -- off
     switch = false
   end
-  --im.PushFont(ctx, FONT)
+  --im.PushFont(ctx, antonio_semibold)
   local rv, switch = im.Checkbox(ctx, label, switch)
   --im.PopFont(ctx)
   if rv and SELECTED then
@@ -204,10 +204,10 @@ end
 function ParameterTooltip(fxidx, parm)
   if im.BeginTooltip(ctx) then -- show parameter value
     local _, parm_v = r.TrackFX_GetFormattedParamValue(track, fxidx, parm)
+    im.PushFont(ctx, antonio_semibold)
     im.PushTextWrapPos(ctx, im.GetFontSize(ctx) * 35.0)
-    im.PushFont(ctx, FONT)
-    im.Text(ctx, parm_v)
     im.PopFont(ctx)
+    im.Text(ctx, parm_v)
     im.PopTextWrapPos(ctx)
     im.EndTooltip(ctx)
   end
@@ -256,7 +256,7 @@ local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
   local BtnL, BtnT = im.GetItemRectMin(ctx)
   local BtnR, BtnB = im.GetItemRectMax(ctx)
 
-  im.DrawList_AddTextEx(draw_list, FONT, 16, pos[1] + offset, BtnB, 0xffffffff, label) -- parameter name
+  im.DrawList_AddTextEx(draw_list, antonio_semibold, 16, pos[1] + offset, BtnB, 0xffffffff, label) -- parameter name
   if im.IsItemHovered(ctx) and im.IsMouseDoubleClicked(ctx, 0) then -- reset value
     Readini(fxidx, parm)
   end
@@ -333,17 +333,30 @@ function PositionOffset(x_offset, y_offset)
 end
 
 local function LoopSwitch(a)
-  local rv = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 12) -- Loop Switch
-  local loop
-  if rv == 1 then
-    loop = true
-  else
-    loop = false
+  local loop = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 12) -- Loop Switch
+  if loop == 1 then
+    loop_color = 0xfffffffff
+  elseif loop == 0 then
+    loop_color = 0x999999e0
   end
-  --im.PushFont(ctx, FONT)
-  local rv, loop = im.Checkbox(ctx, "Loop", loop)
-  r.CF_Preview_SetValue(preview, 'B_LOOP', loop and 1 or 0) 
+  --im.PushFont(ctx, antonio_semibold)
+  --local rv, loop = im.Checkbox(ctx, "Loop", loop)
   --im.PopFont(ctx)
+  im.PushStyleColor(ctx, im.Col_Button,        0x00)
+  im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
+  im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
+  im.PushStyleColor(ctx, im.Col_Text,        loop_color)
+  local rv = im.Button(ctx, "Loop", 34, 20)
+  im.PopStyleColor(ctx, 4)
+  local xs, ys = im.GetItemRectMin(ctx)
+  local xe, ye = im.GetItemRectMax(ctx)
+  --im.DrawList_AddText(draw_list, xs, ys, loop_color, "Loop")
+  if rv and loop == 1 then
+    loop = 0
+  elseif rv and loop == 0 then
+    loop = 1
+  end
+  r.CF_Preview_SetValue(preview, 'B_LOOP', loop) 
   if rv and SELECTED then
     for k, v in pairs(SELECTED) do
       UpdatePadID()
@@ -363,9 +376,9 @@ local function LoopSwitch(a)
     end
   SELECTED = nil
   else
-    if rv and not loop then -- rv == true at the moment when clicking it and toggle note_offs boolean
+    if rv and loop == 0 then -- rv == true at the moment when clicking it and toggle note_offs boolean
       r.TrackFX_SetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 12, 0)
-    elseif rv and loop then
+    elseif rv and loop == 1 then
       local rv = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 11)
       if rv == 0 then
         r.TrackFX_SetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 11, 1)
@@ -373,7 +386,7 @@ local function LoopSwitch(a)
       r.TrackFX_SetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 12, 1)
     end
   end
-  if loop then
+  if loop == 1 then
     im.SameLine(ctx, nil, 8)
     DrawImageKnob("XFade", a, Pad[a].RS5k_Instances[WhichRS5k], 22, 15, 0)
     im.SameLine(ctx, nil, 8)
@@ -406,7 +419,7 @@ local function PreviewSamples(file, a)
   r.PCM_Source_Destroy(source)
 end
 
-local function ChangeSample(track, fxidx, a)
+local function ChangeSample(track, fxidx, a, up, down, random)
   local rv, sample = r.TrackFX_GetNamedConfigParm(track, fxidx, "FILE0")
 
   if not rv or sample == "" then return end
@@ -439,21 +452,24 @@ local function ChangeSample(track, fxidx, a)
   end
   
   local new_idx
-  if UpArrow then
+  if up then
     new_idx = idx - 1
     if new_idx < 1 then
       new_idx = #files
     end
-  elseif DownArrow then
+    up = false
+  elseif down then
     new_idx = idx + 1
     if new_idx > #files then
       new_idx = 1
     end
-  elseif R then
+    down = false
+  elseif random then
     new_idx = math.random(#files)
     while new_idx == idx do
       new_idx = math.random(#files)
     end
+    random = false
   else
     return
   end
@@ -474,14 +490,14 @@ end
 local function ArrowButtons(a)
   local spacing = im.GetStyleVar(ctx, im.StyleVar_ItemInnerSpacing)
   im.PushButtonRepeat(ctx, true)
-  if im.ArrowButton(ctx, '##left', im.Dir_Left) then
+  if im.ArrowButton(ctx, '##changeinstance_left', im.Dir_Left) then
     WhichRS5k = WhichRS5k - 1
     if WhichRS5k < 1 then
       WhichRS5k = #Pad[a].RS5k_Instances
     end 
   end
   im.SameLine(ctx, 0.0, spacing)
-  if im.ArrowButton(ctx, '##right', im.Dir_Right) then
+  if im.ArrowButton(ctx, '##changeinstance_right', im.Dir_Right) then
     WhichRS5k = WhichRS5k + 1
     if WhichRS5k > #Pad[a].RS5k_Instances then
       WhichRS5k = 1
@@ -490,29 +506,144 @@ local function ArrowButtons(a)
   im.PopButtonRepeat(ctx)
 end
 
-
-
-function RS5kUI(a)
-  -- integer reaper.PCM_Source_GetPeaks(PCM_source src, number peakrate, number starttime, integer numchannels, integer numsamplesperchannel, integer want_extra_type, reaper.array buf)
-  if not Pad[a] then return end
-  if not Pad[a].RS5k_Instances[WhichRS5k] and WhichRS5k > #Pad[a].RS5k_Instances then WhichRS5k = 1 end
-  ArrowButtons(a)
-  im.SameLine(ctx)
-  local rv = im.Button(ctx, "##>", 19, 19) -- play button
-  DrawListButton(">", 0xff, nil, true, true)
-  SendMidiNote(Pad[a].Note_Num)
-  im.SameLine(ctx)
-  local rv = im.Button(ctx, "##/", 19, 19) -- stop button
-  DrawListButton("/", 0xff, nil, true, true)
-  if rv and preview then
-    r.CF_Preview_Stop(preview)
-    preview = nil
-  elseif rv then
-    r.StuffMIDIMessage(0, 0x80, Pad[a].Note_Num, 96) -- send note off
+local function OpenSamplesDir(open, a)
+  local _, sample_path = r.TrackFX_GetNamedConfigParm(track, Pad[a].RS5k_Instances[WhichRS5k], "FILE0")
+  if sample_path ~= "" then
+    if OS == "Win32" or OS == "Win64" then
+      last_separator_index = string.find(sample_path, "\\[^\\]*$")
+    else
+      last_separator_index = string.find(sample_path, "/[^/]*$")
+    end
+    samples_path = string.sub(sample_path, 1, last_separator_index - 1)
+  else
+    samples_path = r.GetResourcePath()
   end
-  im.SameLine(ctx)
-  local rv = im.Button(ctx, "##O", 19, 19) -- Browse samples
-  DrawListButton("O", 0xff, nil, true, true)
+  if open then
+    if OS == "Win64" or OS == "Win32" then
+      r.ExecProcess('explorer.exe /e, ' .. samples_path, -1)
+    else
+      r.ExecProcess('/usr/bin/open ' .. samples_path, -1)
+    end
+  end
+end
+
+local function GetSamplePeaks(src, disp_w)
+  if not src then return nil, 0 end
+  local source_length = r.GetMediaSourceLength(src)
+  local numchannels = 2
+  local starttime = 0
+  local peakrate = disp_w / source_length
+  local n_spls = math.floor(source_length * peakrate + 0.5)
+  local buf = r.new_array(n_spls * numchannels * 3)
+  local retval = r.PCM_Source_GetPeaks(src, peakrate, starttime, numchannels, n_spls, 0, buf)
+  local spl_cnt = (retval & 0xfffff)
+  return buf, spl_cnt
+end
+
+local function BuildPeaks(src)
+  r.PCM_Source_BuildPeaks(src, 0)
+  local ret
+  while ret ~= 0 do
+    ret = r.PCM_Source_BuildPeaks(src, 1)
+  end
+  r.PCM_Source_BuildPeaks(src, 2)
+end
+
+local function WaveformButton(ctx, sample_path, a)
+  cursor_x, cursor_y = im.GetCursorScreenPos(ctx)
+  im.SetNextItemAllowOverlap(ctx)
+  local button_width, button_height = 360, 100
+  im.PushStyleColor(ctx, im.Col_Button,        0x00)
+  im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
+  im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
+  local open = im.Button(ctx, "##Waveform_Button", button_width, button_height)
+  im.PopStyleColor(ctx, 3)
+  --local xs, ys = im.GetItemRectMin(ctx)
+  --local xe, ye = im.GetItemRectMax(ctx)
+  --im.DrawList_AddRectFilled(draw_list, xs, ys, xe, ye, 0x414141af)
+  DndAddSampleToEachRS5k_TARGET(a, Pad[a].RS5k_Instances[WhichRS5k], 0)
+  if open then
+    if ALT then
+      r.TrackFX_SetNamedConfigParm(track, Pad[a].RS5k_Instances[WhichRS5k], '-FILE*', '')
+    else
+      OpenSamplesDir(open, a)
+    end
+  end
+  
+  if pcm_path ~= sample_path or not pcm_path and not r.ValidatePtr(pcm, "PCM_source*") then
+    pcm_path = sample_path
+    pcm = r.PCM_Source_CreateFromFile(pcm_path)
+  end
+  
+  if pcm then
+    local peaks, spl_cnt = GetSamplePeaks(pcm, button_width)
+    if sample_path and peaks and spl_cnt == 0 then
+      BuildPeaks(pcm)
+    end
+    if peaks then
+      local draw_list = im.GetWindowDrawList(ctx)
+      local scale_x = button_width / (spl_cnt - 1)     -- Scale factor for x-axis
+      local center_y = cursor_y + (button_height + samplename_height) / 2
+      tbl_peak_top = {}
+      tbl_peak_bottom = {}
+      for i = 1, spl_cnt - 1 do
+        local max_peak = peaks[i * 2 - 1]
+        local min_peak = peaks[i * 2]
+        local peak_x = cursor_x + (i - 1) * scale_x
+        local top_peak = center_y - max_peak * (button_height - samplename_height) / 2
+        local bottom_peak = center_y + min_peak * (button_height - samplename_height) / 2
+        table.insert(tbl_peak_top, peak_x)
+        table.insert(tbl_peak_top, top_peak)
+        table.insert(tbl_peak_bottom, peak_x)
+        table.insert(tbl_peak_bottom, bottom_peak)
+        im.DrawList_AddLine(draw_list, peak_x, center_y, peak_x, top_peak, 0x123456ff, 1)
+        im.DrawList_AddLine(draw_list, peak_x, center_y, peak_x, bottom_peak, 0x123456ff, 1)
+      end
+      local arr = r.new_array(tbl_peak_top)
+      local arr2 = r.new_array(tbl_peak_bottom)
+      im.DrawList_AddPolyline(draw_list, arr, 0xffffffff, im.DrawFlags_None, 1)
+      im.DrawList_AddPolyline(draw_list, arr2, 0xffffffff, im.DrawFlags_None, 1)
+    end
+  end
+end
+
+local function ChangeSampleButtons(a)
+  im.PushStyleColor(ctx, im.Col_Button,        0x00)
+  im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
+  im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
+  im.PushButtonRepeat(ctx, true)
+  local rv = im.ArrowButton(ctx, '##changesample_left', im.Dir_Left)
+  if rv then
+    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, true, false, false)
+  end
+  im.PopButtonRepeat(ctx)
+  im.SameLine(ctx, 0, 0)
+  im.PushStyleColor(ctx, im.Col_Button,        0x00)
+  im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
+  im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
+  local rv = im.Button(ctx, "##randomizesample_button", 20, 20)
+  im.PopStyleColor(ctx, 3)
+  if rv then
+    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, false, false, true)
+  end
+  DrawListButton("Q", 0x00, false, true)
+  im.SameLine(ctx, 0, 0)
+  im.PushButtonRepeat(ctx, true)
+  local rv = im.ArrowButton(ctx, '##changesample_right', im.Dir_Right)
+  if rv then
+    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, false, true, false)
+  end
+  im.PopButtonRepeat(ctx)
+  im.PopStyleColor(ctx, 3)
+end
+
+local function BrowseSamplesButton(a)
+  im.PushStyleColor(ctx, im.Col_Button,        0x00)
+  im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
+  im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
+  local rv = im.Button(ctx, "##Browse Samples", 19, 19)
+  im.PopStyleColor(ctx, 3)
+  DrawListButton("O", 0x00, nil, true)
   if rv then
     if r.HasExtState("ReaDrum Machine", "preview_file") then
       file = r.GetExtState("ReaDrum Machine", "preview_file")
@@ -524,7 +655,69 @@ function RS5kUI(a)
       r.SetExtState("ReaDrum Machine", "preview_file", new_sample, true)
     end
   end
+end
+
+local function SampleNameButton(a)
+  im.PushStyleColor(ctx, im.Col_Button,        0x00)
+  im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
+  im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
+  local rv = im.Button(ctx, sample_name) -- Sample name
+  im.PopStyleColor(ctx, 3)
+  DndAddSampleToEachRS5k_TARGET(a, Pad[a].RS5k_Instances[WhichRS5k], 0)
+  if DownArrow then
+    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, false, true, false)
+  elseif UpArrow then
+    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, true, false, false)
+  elseif im.IsKeyPressed(ctx, im.Key_R) then
+    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, false, false, true)
+  end
+  if rv then
+    local open = r.TrackFX_GetOpen(track, Pad[a].RS5k_Instances[WhichRS5k]) -- 0 based
+    if open then
+      r.TrackFX_Show(track, Pad[a].RS5k_Instances[WhichRS5k], 2)           -- hide floating window
+    else
+      r.TrackFX_Show(track, Pad[a].RS5k_Instances[WhichRS5k], 3)           -- show floating window
+    end
+  end
+end
+
+local function EmptySampleButton(a)
+  cursor_x, cursor_y = im.GetCursorScreenPos(ctx)
+  im.SetNextItemAllowOverlap(ctx)
+  local open = im.InvisibleButton(ctx, "Click to browse or drag/drop samples here.", 360, 100)
+  DrawListButton("Click to browse or drag/drop samples here.", 0x00)
+  if open then
+    OpenSamplesDir(open, a)
+  end
+  DndAddSampleToEachRS5k_TARGET(a, Pad[a].RS5k_Instances[WhichRS5k], 0)
+end
+
+function RS5kUI(a)
+  if not Pad[a] then return end
+  if not Pad[a].RS5k_Instances[WhichRS5k] and WhichRS5k > #Pad[a].RS5k_Instances then WhichRS5k = 1 end
+  im.PushStyleColor(ctx, im.Col_Button,        0x99999900)
+  im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
+  im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
+  local rv = im.Button(ctx, "##play_button", 19, 19) -- play button
+  im.PopStyleColor(ctx, 3)
+  DrawListButton(">", 0x00, nil, true, true)
+  SendMidiNote(Pad[a].Note_Num)
+  im.SameLine(ctx, 0, 5)
+  im.PushStyleColor(ctx, im.Col_Button,        0x99999900)
+  im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
+  im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
+  local rv = im.Button(ctx, "##stop_button", 19, 19) -- stop button
+  im.PopStyleColor(ctx, 3)
+  DrawListButton("/", 0x00, nil, true, true)
+  if rv and preview then
+    r.CF_Preview_Stop(preview)
+    preview = nil
+  elseif rv then
+    r.StuffMIDIMessage(0, 0x80, Pad[a].Note_Num, 96) -- send note off
+  end
   im.SameLine(ctx)
+  ArrowButtons(a)
+  im.SameLine(ctx, 0, 5)
   if Pad[a].Sample_Name[WhichRS5k] then
     sample_name = Pad[a].Sample_Name[WhichRS5k]
   else
@@ -534,13 +727,13 @@ function RS5kUI(a)
   im.PushStyleColor(ctx, im.Col_Button,        0x99999900)
   im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
   im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
-  --im.PushFont(ctx, FONT)
-  local rv = im.Button(ctx, "RS5k[" .. ('%d'):format(WhichRS5k) .. "] " .. sample_name) -- RS5k instance number + Sample name
-  DndAddSampleToEachRS5k_TARGET(a, Pad[a].RS5k_Instances[WhichRS5k], 0)
-  if DownArrow or UpArrow or im.IsKeyPressed(ctx, im.Key_R) then
-    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a)
-  end
+  --im.PushFont(ctx, system_font)
+  local rv = im.Button(ctx, "RS5k[" .. ('%d'):format(WhichRS5k) .. "]") -- RS5k instance number
   --im.PopFont(ctx)
+  local _, ys = im.GetItemRectMin(ctx)
+  local _, ye = im.GetItemRectMax(ctx)
+  samplename_height = ye - ys
+  DndAddSampleToEachRS5k_TARGET(a, Pad[a].RS5k_Instances[WhichRS5k], 0)
   if rv then
     local open = r.TrackFX_GetOpen(track, Pad[a].RS5k_Instances[WhichRS5k]) -- 0 based
     if open then
@@ -551,54 +744,57 @@ function RS5kUI(a)
   end
   im.PopStyleColor(ctx, 3)
 
-  ParameterSwitch(a, "Obey note-offs", 11)
-  im.SameLine(ctx, nil, 10)
-  LoopSwitch(a)
-  PositionOffset(0, 10)
-  im.Separator(ctx)
-  PositionOffset(20, 10)
-  DrawImageKnob("Volume", "Volume", Pad[a].RS5k_Instances[WhichRS5k], 0, 19, 3)
-  im.SameLine(ctx, nil, 15)
-  DrawImageKnob("Min Vol.", "Min Vol.", Pad[a].RS5k_Instances[WhichRS5k], 2, 19, 2)
-  im.SameLine(ctx, nil, 15)
-  DrawImageKnob("Pan", "Pan", Pad[a].RS5k_Instances[WhichRS5k], 1, 19, 10)
-  im.SameLine(ctx, nil, 15)
-  DrawImageKnob("Min Velocity", "Min Velocity", Pad[a].RS5k_Instances[WhichRS5k], 17, 19, -13)
-  im.SameLine(ctx, nil, 20)
-  DrawImageKnob("Max Velocity", "Max Velocity", Pad[a].RS5k_Instances[WhichRS5k], 18, 19, -10)
-  PositionOffset(0, 30)
-  im.Separator(ctx)
-  PositionOffset(10, 10)
-  DrawImageKnob("A", a, Pad[a].RS5k_Instances[WhichRS5k], 9, 19, 17)
-  im.SameLine(ctx, nil, 8)
-  DrawImageKnob("D", a, Pad[a].RS5k_Instances[WhichRS5k], 24, 19, 17)
-  im.SameLine(ctx, nil, 8)
-  DrawImageKnob("S", a, Pad[a].RS5k_Instances[WhichRS5k], 25, 19, 17)
-  im.SameLine(ctx, nil, 8)
-  DrawImageKnob("R", a, Pad[a].RS5k_Instances[WhichRS5k], 10, 19, 17)
-  im.SameLine(ctx, nil, 14)
+  local _, sample_path = r.TrackFX_GetNamedConfigParm(track, Pad[a].RS5k_Instances[WhichRS5k], "FILE0")
+  if sample_path ~= "" then
+    WaveformButton(ctx, sample_path, a)
+  else
+    EmptySampleButton(a)
+  end
+
+  im.SetCursorScreenPos(ctx, cursor_x, cursor_y)
+  BrowseSamplesButton(a)
+  im.SameLine(ctx, 0, 0)
+  ChangeSampleButtons(a)
+  im.SameLine(ctx, 0, 0)
+  SampleNameButton(a)
+  im.SetCursorScreenPos(ctx, cursor_x, cursor_y + 105)
+  --im.Separator(ctx)
   DrawImageKnob("Pitch", a, Pad[a].RS5k_Instances[WhichRS5k], 15, 19, 10)
-  im.SameLine(ctx, nil, 8)
-  DrawImageKnob("Bend", a, Pad[a].RS5k_Instances[WhichRS5k], 16, 19, 10)
-  PositionOffset(0, 30)
-  im.Separator(ctx)
-  PositionOffset(10, 10)
-  DrawImageKnob("Start Pos", "Sample", Pad[a].RS5k_Instances[WhichRS5k], 13, 19, -3)
-  im.SameLine(ctx, nil, 14)
-  DrawImageKnob("End Pos", a, Pad[a].RS5k_Instances[WhichRS5k], 14, 19, 0)
-  im.SameLine(ctx, nil, 14)
-  DrawImageKnob("Probability", a, Pad[a].RS5k_Instances[WhichRS5k], 19, 19, -10)
-  im.SameLine(ctx, nil, 20)
+  im.SameLine(ctx, 0, 10)
   PositionOffset(0, 10)
-  ParameterSwitch(a, "Round-Robin", 20)
-  --im.PushStyleColor(ctx, im.Col_Button,        0x99999900)
-  --im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
-  --im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
-  --im.Button(ctx, "Volume", 50, 50)
-  --if im.IsItemActive(ctx) then
-    --r.TrackFX_SetParam(track, RS5k, 0, v)
-  --end
-  --im.PopStyleColor(ctx, 3)
-  --DrawKnobs(p_value, 0, 1, 20)
-  
+  LoopSwitch(a)
+  im.SameLine(ctx, 0, 10)
+  DrawImageKnob("A", a, Pad[a].RS5k_Instances[WhichRS5k], 9, 19, 17)
+  im.SameLine(ctx, 0, 8)
+  DrawImageKnob("D", a, Pad[a].RS5k_Instances[WhichRS5k], 24, 19, 17)
+  im.SameLine(ctx, 0, 8)
+  DrawImageKnob("S", a, Pad[a].RS5k_Instances[WhichRS5k], 25, 19, 17)
+  im.SameLine(ctx, 0, 8)
+  DrawImageKnob("R", a, Pad[a].RS5k_Instances[WhichRS5k], 10, 19, 17)
+  PositionOffset(0, 16)
+  --im.Separator(ctx)
+  DrawImageKnob("Bend", a, Pad[a].RS5k_Instances[WhichRS5k], 16, 19, 10)
+  im.SameLine(ctx, 0, 8)
+  PositionOffset(0, 8)
+  ParameterSwitch(a, "Obey \nnote-offs", 11)
+  im.SameLine(ctx, 0, 8)
+  DrawImageKnob("Start Pos", "Sample", Pad[a].RS5k_Instances[WhichRS5k], 13, 19, -3)
+  im.SameLine(ctx, 0, 8)
+  DrawImageKnob("End Pos", a, Pad[a].RS5k_Instances[WhichRS5k], 14, 19, 0)
+  im.SameLine(ctx, 0, 15)
+  DrawImageKnob("Probability", a, Pad[a].RS5k_Instances[WhichRS5k], 19, 19, -10)
+  PositionOffset(0, 16)
+  --im.Separator(ctx)
+  DrawImageKnob("Min Vol.", "Min Vol.", Pad[a].RS5k_Instances[WhichRS5k], 2, 19, 2)
+  im.SameLine(ctx, 0, 8)
+  DrawImageKnob("Volume", "Volume", Pad[a].RS5k_Instances[WhichRS5k], 0, 19, 3)
+  im.SameLine(ctx, 0, 8)
+  DrawImageKnob("Pan", "Pan", Pad[a].RS5k_Instances[WhichRS5k], 1, 19, 10)
+  im.SameLine(ctx, 0, 8)
+  DrawImageKnob("Min Velocity", "Min Velocity", Pad[a].RS5k_Instances[WhichRS5k], 17, 19, -13)
+  im.SameLine(ctx, 0, 20)
+  DrawImageKnob("Max Velocity", "Max Velocity", Pad[a].RS5k_Instances[WhichRS5k], 18, 19, -10)
+  im.SameLine(ctx, 0, 10)
+  PositionOffset(0, 10)
+  ParameterSwitch(a, "Round-Robin", 20)  
 end
