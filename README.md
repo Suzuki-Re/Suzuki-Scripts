@@ -12,7 +12,7 @@ https://github.com/Suzuki-Re/Suzuki-Scripts/raw/master/index.xml
 ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine. 
 
 ![](https://i.imgur.com/A3vDxxT.gif)
-![](https://imgur.com/j3v99Rr.png)
+![](https://i.imgur.com/WHT5b6k.png)
 ![](https://imgur.com/6z9BPOS.gif)
 
 Check out [FX Devices](https://github.com/BryanChi/BryanChi-FX-Devices) if you want to use it like Bitwig's Drum Machine.
