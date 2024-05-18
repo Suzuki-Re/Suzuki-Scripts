@@ -1,9 +1,10 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.6.4
+-- @version 1.6.5
 -- @changelog
---   # Better handling of browsing samples
+--   + Added a indicator to the vertical tab when a pad has sample/FX and plays note
+--   # Overhaul of the vertical tab
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
@@ -273,7 +274,7 @@ function DrawPads(loopmin, loopmax)
     else
       pad_name = ""
     end
-    local y = 230 + math.floor((a - loopmin) / 4) * -75 -- start position + math.floor * - row offset
+    local y = 230 + math.floor((a - loopmin) / 4) * - 75 -- start position + math.floor * - row offset
     local x = 5 + (a - 1) % 4 * 95
 
     im.SetCursorPos(ctx, x, y)
@@ -446,32 +447,32 @@ function Main()
 
   draw_list = im.GetWindowDrawList(ctx) -- 4 x 4 left vertical tab drawing
   f_draw_list = im.GetForegroundDrawList(ctx)
-  --local SPLITTER = im.CreateDrawListSplitter(f_draw_list)
-  --.ImGui_DrawListSplitter_Split(SPLITTER, 2) -- NUMBER OF Z ORDER CHANNELS
-  --if Pad[a] then
-  --  im.DrawListSplitter_SetCurrentChannel(SPLITTER, 1)       -- SET HIGHER PRIORITY TO DRAW FIRST
-  --  local x, y = im.GetCursorPos(ctx)
-  --  im.DrawList_AddRectFilled(f_draw_list, 100, 100, 100, 100, 0x654321FF)
-  --end
-  --im.DrawListSplitter_SetCurrentChannel(SPLITTER, 0) -- SET LOWER PRIORITY TO DRAW AFTER
+
   local x, y = im.GetCursorPos(ctx)
-  for ci = 0, hh - hy, hy - 4.5 do
-    for bi = 0, 24, 8 do
-      for i = 0, 24, 8 do
-        im.DrawList_AddRectFilled(f_draw_list, wx + x + i, wy + y + bi + ci, wx + x + 7 + i, wy + y + 7 + bi + ci,
-          0x252525FF)
-      end
-    end
-  end
-  --im.DrawListSplitter_Merge(SPLITTER)                                         -- MERGE EVERYTHING FOR RENDER
 
   if im.BeginChild(ctx, 'BUTTON_SECTION', w_closed + 10, h + 100) then -- vertical tab
     for i = 1, 8 do
-      im.SetCursorPos(ctx, 0, y + (i - 1) * 35 - button_offset)
-
+      im.SetCursorPos(ctx, 0, y + 250 - (i - 1) * 35 - button_offset)
+      
       rv = im.InvisibleButton(ctx, "B" .. i, 31, 31)
       local xs, ys = im.GetItemRectMin(ctx)
       local xe, ye = im.GetItemRectMax(ctx)
+      for hi = 1, 4 do
+        for vi = 1, 4 do
+          local num = (i - 1) * 16 + (hi - 1) * 4 + vi
+          if Pad[num] and Pad[num].Filter_ID then -- flash pad
+            local rv = r.TrackFX_GetParam(track, Pad[num].Filter_ID, 1)
+            if rv == 1 then
+              rect_color = 0xffd700ff
+            else
+              rect_color = 0xffffffff
+            end
+          else
+            rect_color = 0x252525ff
+          end
+          im.DrawList_AddRectFilled(draw_list, xs + 8 * (vi - 1), ye - 8 * (hi - 1), xs + 7 + 8 * (vi - 1), ye - 7 - 8 * (hi - 1), rect_color)
+        end
+      end
       if rv then
         LAST_MENU = RememberTab(LAST_MENU, i)
       end
@@ -493,7 +494,7 @@ function Main()
       end
       HighlightHvredItem()
       if LAST_MENU == i then
-        Highlight_Itm(f_draw_list, 0x12345655, 0x184673ff)
+        Highlight_Itm(draw_list, 0x12345655, 0x184673ff)
       end
     end
     im.EndChild(ctx)
@@ -502,8 +503,8 @@ function Main()
   if LAST_MENU then -- Open pads manu
     im.SetCursorPos(ctx, x + w_closed, y)
     if im.BeginChild(ctx, "child_menu", w_open + 135, h + 88) then
-      local high = 128 - 16 * (LAST_MENU - 1)
-      local low = 128 - 16 * (LAST_MENU) + 1
+      local high = 0 + 16 * (LAST_MENU)
+      local low = 0 + 16 * (LAST_MENU - 1) + 1
       openpad = DrawPads(low, high)
       im.EndChild(ctx)
     end
@@ -549,9 +550,7 @@ function Run()
   im.PushStyleColor(ctx, im.Col_TitleBgActive, COLOR["bg"])
   local imgui_visible, imgui_open = im.Begin(ctx, 'ReaDrum Machine', true,
     im.WindowFlags_NoScrollWithMouse | im.WindowFlags_NoScrollbar)
-  im.PopStyleColor(ctx)
-  im.PopStyleColor(ctx)
-  im.PopStyleColor(ctx)
+  im.PopStyleColor(ctx, 3)
 
   if imgui_visible then
     imgui_width, imgui_height = im.GetWindowSize(ctx)

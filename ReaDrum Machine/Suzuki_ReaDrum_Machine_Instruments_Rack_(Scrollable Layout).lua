@@ -1,10 +1,11 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.6.4
+-- @version 1.6.5
 -- @noindex
 -- @changelog
---   # Better handling of browsing samples
+--   + Added a indicator to the vertical tab when a pad has sample/FX and plays note
+--   # Overhaul of the vertical tab
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
@@ -450,16 +451,6 @@ function Main()
 
   draw_list = im.GetWindowDrawList(ctx) -- 4 x 4 left veertical bar drawing
   f_draw_list = im.GetForegroundDrawList(ctx)
-  --local SPLITTER = im.CreateDrawListSplitter(f_draw_list)
-  --im.DrawListSplitter_Split(SPLITTER, 2) -- NUMBER OF Z ORDER CHANNELS
-  --if Pad[a] then
-  --  im.DrawListSplitter_SetCurrentChannel(SPLITTER, 1)       -- SET HIGHER PRIORITY TO DRAW FIRST
-  --  local x, y = im.GetCursorPos(ctx)
-  --  im.DrawList_AddRectFilled(f_draw_list, 100, 100, 100, 100, 0x654321FF)
-  --end
-  --im.DrawListSplitter_SetCurrentChannel(SPLITTER, 0) -- SET LOWER PRIORITY TO DRAW AFTER
-  local x, y = im.GetCursorPos(ctx)
-  --  im.DrawList_AddRect(draw_list, wx+x-2, wy+y-2+33 * (i-1), wx+x+33, wy+y+33 * i, 0xFFFFFFFF)  -- white box when selected
 
   DrawPads(1, 128)
   if OPEN_PAD ~= nil then
@@ -495,9 +486,7 @@ function Run()
   im.PushStyleColor(ctx, im.Col_TitleBg, COLOR["bg"])
   im.PushStyleColor(ctx, im.Col_TitleBgActive, COLOR["bg"])
   local imgui_visible, imgui_open = im.Begin(ctx, 'ReaDrum Machine', true)
-  im.PopStyleColor(ctx)
-  im.PopStyleColor(ctx)
-  im.PopStyleColor(ctx)
+  im.PopStyleColor(ctx, 3)
 
   if imgui_visible then
     imgui_width, imgui_height = im.GetWindowSize(ctx)
