@@ -1,11 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.6.5
+-- @version 1.6.6
 -- @noindex
 -- @changelog
---   + Added a indicator to the vertical tab when a pad has sample/FX and plays note
---   # Overhaul of the vertical tab
+--   + Added a sample start/end line to the waveform view
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine

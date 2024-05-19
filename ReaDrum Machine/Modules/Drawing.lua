@@ -81,6 +81,56 @@ function Highlight_Itm(drawlist, FillClr, OutlineClr)
   if OutlineClr then im.DrawList_AddRect(drawlist, L, T, R, B, OutlineClr, rounding) end
 end
 
+local function ColorIcon(name, color)
+  local xs, ys = im.GetItemRectMin(ctx)
+  local xe, ye = im.GetItemRectMax(ctx)
+  im.PushFont(ctx, ICONS_FONT) 
+  local w = xe - xs
+  local h = ye - ys
+  local label_size = im.CalcTextSize(ctx, name)
+  local FONT_SIZE = im.GetFontSize(ctx)
+
+  im.DrawList_AddTextEx(draw_list, nil, FONT_SIZE, xs + (w / 2) - (label_size / 2),
+    ys + ((h / 2)) - FONT_SIZE / 2, color, name)
+   im.PopFont(ctx) 
+end
+
+local function ParameterSwitchIcon(a, label, parm)
+  local switch = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], parm)
+  if switch == 1 then
+    icon_color = 0xfffffffff
+  elseif switch == 0 then
+    icon_color = 0x999999e0
+  end
+  im.PushStyleColor(ctx, im.Col_Button,        0x00)
+  im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
+  im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
+  local rv = im.Button(ctx, "##" .. label, 30, 30)
+  im.PopStyleColor(ctx, 3)
+  ColorIcon("\\", icon_color)
+  if rv and SELECTED then
+    for k, v in pairs(SELECTED) do
+      UpdatePadID()
+      local k = tonumber(k)
+      if Pad[k] and Pad[k].RS5k_ID then 
+        local rv = r.TrackFX_GetParam(track, Pad[k].RS5k_ID, parm)
+        if rv == 0 then
+          r.TrackFX_SetParam(track, Pad[k].RS5k_ID, parm, 1) -- obey note offs on
+        else
+          r.TrackFX_SetParam(track, Pad[k].RS5k_ID, parm, 0)
+        end
+      end
+    end
+    SELECTED = nil
+  else
+    if rv and switch == 1 then -- rv == true at the moment when clicking it and toggle note_offs boolean
+      r.TrackFX_SetParam(track, Pad[a].RS5k_Instances[WhichRS5k], parm, 0) -- off
+    elseif rv and switch == 0 then
+      r.TrackFX_SetParam(track, Pad[a].RS5k_Instances[WhichRS5k], parm, 1) -- on
+    end
+  end
+end
+
 local function ParameterSwitch(a, label, parm)
   local rv = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], parm)
   local switch
@@ -345,12 +395,10 @@ local function LoopSwitch(a)
   im.PushStyleColor(ctx, im.Col_Button,        0x00)
   im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
   im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
-  im.PushStyleColor(ctx, im.Col_Text,        loop_color)
-  local rv = im.Button(ctx, "Loop", 34, 20)
-  im.PopStyleColor(ctx, 4)
-  local xs, ys = im.GetItemRectMin(ctx)
-  local xe, ye = im.GetItemRectMax(ctx)
-  --im.DrawList_AddText(draw_list, xs, ys, loop_color, "Loop")
+  local rv = im.Button(ctx, "##Loop", 34, 20)
+  im.PopStyleColor(ctx, 3)
+  ColorIcon("R", loop_color)
+
   if rv and loop == 1 then
     loop = 0
   elseif rv and loop == 0 then
@@ -558,15 +606,51 @@ local function WaveformButton(ctx, sample_path, a)
   im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
   local open = im.Button(ctx, "##Waveform_Button", button_width, button_height)
   im.PopStyleColor(ctx, 3)
-  --local xs, ys = im.GetItemRectMin(ctx)
-  --local xe, ye = im.GetItemRectMax(ctx)
-  --im.DrawList_AddRectFilled(draw_list, xs, ys, xe, ye, 0x414141af)
+  local start_pos = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 13)
+  local start_line = cursor_x + 360 * start_pos
+  local end_pos = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 14)
+  local end_line = cursor_x + 360 * end_pos
+  im.DrawList_AddLine(f_draw_list, start_line, cursor_y + samplename_height, start_line, cursor_y + button_height, 0xffeb00ff, 3)
+  im.DrawList_AddRectFilled(f_draw_list, cursor_x, cursor_y + samplename_height, start_line, cursor_y + button_height, 0x1a1a1a99)
+  im.DrawList_AddLine(f_draw_list, end_line, cursor_y + samplename_height, end_line, cursor_y + button_height, 0xffeb00ff, 3)
+  im.DrawList_AddRectFilled(f_draw_list, end_line + 1, cursor_y + samplename_height, cursor_x + button_width, cursor_y + button_height, 0x1a1a1a99)
   DndAddSampleToEachRS5k_TARGET(a, Pad[a].RS5k_Instances[WhichRS5k], 0)
   if open then
     if ALT then
       r.TrackFX_SetNamedConfigParm(track, Pad[a].RS5k_Instances[WhichRS5k], '-FILE*', '')
     else
-      OpenSamplesDir(open)
+      --OpenSamplesDir(open)
+    end
+  end
+  if im.IsItemActive(ctx) then
+    local mouse_x, _ = im.GetMouseClickedPos(ctx, 0)
+    if im.IsMouseClicked(ctx, 0) then
+      start_x = start_line
+      end_x = end_line
+    end
+    mouse_delta, _ = im.GetMouseDelta(ctx)
+    if mouse_delta ~= 0.0 then
+      if end_x - mouse_x > mouse_x - start_x then
+        local start_pos = start_pos + mouse_delta / 350
+        if start_pos < 0 then
+          start_pos = 0
+        elseif start_pos > 1 then
+          start_pos = 1
+        elseif start_pos > end_pos then
+          start_pos = end_pos
+        end
+        r.TrackFX_SetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 13, start_pos)
+      elseif mouse_x - start_x > end_x - mouse_x then
+        local end_pos = end_pos + mouse_delta / 350
+        if end_pos < 0 then
+          end_pos = 0
+        elseif end_pos > 1 then
+          end_pos = 1
+        elseif start_pos > end_pos then
+          end_pos = start_pos
+        end
+        r.TrackFX_SetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 14, end_pos)
+      end
     end
   end
   
@@ -795,6 +879,6 @@ function RS5kUI(a)
   im.SameLine(ctx, 0, 20)
   DrawImageKnob("Max Velocity", "Max Velocity", Pad[a].RS5k_Instances[WhichRS5k], 18, 19, -10)
   im.SameLine(ctx, 0, 10)
-  PositionOffset(0, 10)
-  ParameterSwitch(a, "Round-Robin", 20)  
+  PositionOffset(10, 5)
+  ParameterSwitchIcon(a, "Round-Robin", 20)  
 end

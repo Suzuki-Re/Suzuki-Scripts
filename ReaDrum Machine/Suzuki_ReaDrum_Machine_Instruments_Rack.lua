@@ -1,10 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.6.5
+-- @version 1.6.6
 -- @changelog
---   + Added a indicator to the vertical tab when a pad has sample/FX and plays note
---   # Overhaul of the vertical tab
+--   + Added a sample start/end line to the waveform view
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
@@ -225,7 +224,6 @@ function ButtonDrawlist(name, color, a)
 end
 
 function DrawListButton(name, color, round_side, icon, hover, offset)
-  --im.DrawListSplitter_SetCurrentChannel(splitter, 1)
   local multi_color = IS_DRAGGING_RIGHT_CANVAS and color or ColorToHex(color, hover and 50 or 0)
   local xs, ys = im.GetItemRectMin(ctx)
   local xe, ye = im.GetItemRectMax(ctx)
@@ -253,8 +251,6 @@ function DrawListButton(name, color, round_side, icon, hover, offset)
 end
 
 function DrawPads(loopmin, loopmax)
-  --local SPLITTER = im.CreateDrawListSplitter(draw_list)
-  --im.DrawListSplitter_Split(SPLITTER, 2)
   CheckDNDType()
   FXLIST()
   DoubleClickActions(loopmin, loopmax)
@@ -411,7 +407,6 @@ function DrawPads(loopmin, loopmax)
       DrawListButton("M", COLOR["n"], nil, nil)
     end
   end
-  --im.DrawListSplitter_Merge(SPLITTER)
 end
 
 ----------------------------------------------------------------------
