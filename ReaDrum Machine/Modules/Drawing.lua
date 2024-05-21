@@ -318,12 +318,31 @@ local function DrawImageKnob(label, label_id, fxidx, parm, Radius, offset)
     local mouse_delta = { im.GetMouseDelta(ctx) }
     if -mouse_delta[2] ~= 0.0 then
       if label == "Pitch" then
-        stepscale = 0.8
+        if SHIFT then 
+          stepscale = 3 
+        else
+          stepscale = 0.8
+        end
+      elseif parm == 23 then -- loop start_pos
+        if SHIFT then 
+          stepscale = 50
+        else
+          stepscale = 30
+        end
+      elseif parm == 22 then -- xfade
+        if SHIFT then 
+          stepscale = 7
+        else
+          stepscale = 3
+        end
       else
-        stepscale = 1
+        if SHIFT then 
+          stepscale = 3 
+        else
+          stepscale = 1
+        end
       end
-      if SHIFT then stepscale = 3 end
-      local step = (1 - 0) / (200.0 * stepscale)
+      local step = 1 / (200.0 * stepscale)
       if SELECTED then
         for k, v in pairs(SELECTED) do
           local k = tonumber(k)
@@ -398,7 +417,6 @@ local function LoopSwitch(a)
   local rv = im.Button(ctx, "##Loop", 34, 20)
   im.PopStyleColor(ctx, 3)
   ColorIcon("R", loop_color)
-
   if rv and loop == 1 then
     loop = 0
   elseif rv and loop == 0 then
@@ -606,51 +624,12 @@ local function WaveformButton(ctx, sample_path, a)
   im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
   local open = im.Button(ctx, "##Waveform_Button", button_width, button_height)
   im.PopStyleColor(ctx, 3)
-  local start_pos = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 13)
-  local start_line = cursor_x + 360 * start_pos
-  local end_pos = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 14)
-  local end_line = cursor_x + 360 * end_pos
-  im.DrawList_AddLine(f_draw_list, start_line, cursor_y + samplename_height, start_line, cursor_y + button_height, 0xffeb00ff, 3)
-  im.DrawList_AddRectFilled(f_draw_list, cursor_x, cursor_y + samplename_height, start_line, cursor_y + button_height, 0x1a1a1a99)
-  im.DrawList_AddLine(f_draw_list, end_line, cursor_y + samplename_height, end_line, cursor_y + button_height, 0xffeb00ff, 3)
-  im.DrawList_AddRectFilled(f_draw_list, end_line + 1, cursor_y + samplename_height, cursor_x + button_width, cursor_y + button_height, 0x1a1a1a99)
   DndAddSampleToEachRS5k_TARGET(a, Pad[a].RS5k_Instances[WhichRS5k], 0)
   if open then
     if ALT then
       r.TrackFX_SetNamedConfigParm(track, Pad[a].RS5k_Instances[WhichRS5k], '-FILE*', '')
     else
       --OpenSamplesDir(open)
-    end
-  end
-  if im.IsItemActive(ctx) then
-    local mouse_x, _ = im.GetMouseClickedPos(ctx, 0)
-    if im.IsMouseClicked(ctx, 0) then
-      start_x = start_line
-      end_x = end_line
-    end
-    mouse_delta, _ = im.GetMouseDelta(ctx)
-    if mouse_delta ~= 0.0 then
-      if end_x - mouse_x > mouse_x - start_x then
-        local start_pos = start_pos + mouse_delta / 350
-        if start_pos < 0 then
-          start_pos = 0
-        elseif start_pos > 1 then
-          start_pos = 1
-        elseif start_pos > end_pos then
-          start_pos = end_pos
-        end
-        r.TrackFX_SetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 13, start_pos)
-      elseif mouse_x - start_x > end_x - mouse_x then
-        local end_pos = end_pos + mouse_delta / 350
-        if end_pos < 0 then
-          end_pos = 0
-        elseif end_pos > 1 then
-          end_pos = 1
-        elseif start_pos > end_pos then
-          end_pos = start_pos
-        end
-        r.TrackFX_SetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 14, end_pos)
-      end
     end
   end
   
@@ -687,6 +666,84 @@ local function WaveformButton(ctx, sample_path, a)
       local arr2 = r.new_array(tbl_peak_bottom)
       im.DrawList_AddPolyline(draw_list, arr, 0xffffffff, im.DrawFlags_None, 1)
       im.DrawList_AddPolyline(draw_list, arr2, 0xffffffff, im.DrawFlags_None, 1)
+    end
+  end
+
+  local start_pos = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 13)
+  local start_line = cursor_x + 360 * start_pos
+  local end_pos = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 14)
+  local end_line = cursor_x + 360 * end_pos
+  im.DrawList_AddLine(f_draw_list, start_line, cursor_y + samplename_height, start_line, cursor_y + button_height, 0xffeb00ff, 3)
+  im.DrawList_AddRectFilled(f_draw_list, cursor_x, cursor_y + samplename_height, start_line, cursor_y + button_height, 0x1a1a1a99)
+  im.DrawList_AddLine(f_draw_list, end_line, cursor_y + samplename_height, end_line, cursor_y + button_height, 0xffeb00ff, 3)
+  im.DrawList_AddRectFilled(f_draw_list, end_line + 1, cursor_y + samplename_height, cursor_x + button_width, cursor_y + button_height, 0x1a1a1a99)
+
+  --[[local attack = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 9)
+  local decay = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 24)
+  local sustain = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 25)
+  local release = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 10)
+  im.DrawList_AddLine(f_draw_list, start_line, cursor_y + button_height, start_line + 100, cursor_y + samplename_height, 0xff4500ff, 3)]]
+
+  local loop = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 12)
+  if loop == 1 then
+    local media_length, _ = r.GetMediaSourceLength(pcm)
+    local active_width = (end_line - start_line) / button_width
+    local active_length = media_length * active_width
+    local loop_start = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 23)
+    --msg(loop_start * 30000, xfade * 1000) -- ms conversion
+    local loop_startline = start_line + (30 * loop_start * button_width) / media_length
+    if loop_startline > end_line then
+      loop_startline = end_line
+    end
+    im.DrawList_AddLine(f_draw_list, loop_startline, cursor_y + samplename_height * 2, loop_startline, cursor_y + button_height, 0xea5506ff, 3)
+    local xfade = r.TrackFX_GetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 22)
+    local xfade_startline = loop_startline + (xfade * button_width) / media_length
+    local xfade_endline = end_line - (xfade * button_width) / media_length
+    if xfade_startline > (end_line - loop_startline) / 2 + loop_startline then
+      xfade_startline = (end_line - loop_startline) / 2 + loop_startline
+    end
+    if xfade_endline < (end_line - loop_startline) / 2 + loop_startline then
+      xfade_endline = (end_line - loop_startline) / 2 + loop_startline
+    end
+    if xfade_endline < xfade_startline then
+      xfade_startline = xfade_endline
+      xfade_endline = xfade_startline
+    end
+    im.DrawList_AddLine(draw_list, xfade_startline, cursor_y + samplename_height * 2, xfade_startline, cursor_y + button_height, 0xffffffaa, 1)
+    im.DrawList_AddLine(draw_list, xfade_endline, cursor_y + samplename_height * 2, xfade_endline, cursor_y + button_height, 0xffffffaa, 1)
+    im.DrawList_AddLine(draw_list, xfade_startline, cursor_y + samplename_height * 2, loop_startline, cursor_y + button_height, 0xffffffaa, 1)
+    im.DrawList_AddLine(draw_list, xfade_endline, cursor_y + samplename_height * 2, end_line, cursor_y + button_height, 0xffffffaa, 1)
+  end
+
+  if im.IsItemActive(ctx) then
+    local mouse_x, _ = im.GetMouseClickedPos(ctx, 0)
+    if im.IsMouseClicked(ctx, 0) then
+      start_x = start_line
+      end_x = end_line
+    end
+    mouse_delta, _ = im.GetMouseDelta(ctx)
+    if mouse_delta ~= 0.0 then
+      if end_x - mouse_x > mouse_x - start_x then
+        local start_pos = start_pos + mouse_delta / 350
+        if start_pos < 0 then
+          start_pos = 0
+        elseif start_pos > 1 then
+          start_pos = 1
+        elseif start_pos > end_pos then
+          start_pos = end_pos
+        end
+        r.TrackFX_SetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 13, start_pos)
+      elseif mouse_x - start_x > end_x - mouse_x then
+        local end_pos = end_pos + mouse_delta / 350
+        if end_pos < 0 then
+          end_pos = 0
+        elseif end_pos > 1 then
+          end_pos = 1
+        elseif start_pos > end_pos then
+          end_pos = start_pos
+        end
+        r.TrackFX_SetParam(track, Pad[a].RS5k_Instances[WhichRS5k], 14, end_pos)
+      end
     end
   end
 end

@@ -1,15 +1,16 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.6.6
+-- @version 1.6.7
 -- @changelog
---   + Added a sample start/end line to the waveform view
+--   + Added a loop start line and XFade line
+--   # ReaImGui version check
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
 --   ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 --   ### Prerequisites
---   REAPER v7.06+, ReaImGui, S&M extension, js extension and Sexan's FX Browser
+--   REAPER v7.06+, ReaImGui v0.9.1, S&M extension, js extension and Sexan's FX Browser. Scan for new plugins to make sure RDM utility JSFX shows up in the native FX browser.
 --   ### CAUTIONS
 --   ReaDrum Machine utilizes a prallel FX feature in REAPER. If you use the script as it is, there's no problem, but if you want to place the audio (like VSTi or audio file in arrange) before RDM for some reason, beware of the volume because it adds up by design.
 --   Use dry/wet knob in each container or shift+drag each pad to adjust each container's volume.
@@ -25,6 +26,19 @@
 r                      = reaper
 
 OS = r.GetOS()
+
+local imgui_ver = "0.9.1"
+
+if not r.APIExists("ImGui_GetVersion") then
+  r.ShowMessageBox("ReaImGui is required.\nPlease install it in next window", "MISSING DEPENDENCIES", 0)
+  return r.ReaPack_BrowsePackages('dear imgui')
+else
+  local _, _, reaimgui_version = r.ImGui_GetVersion()
+  if reaimgui_version ~= imgui_ver then
+    r.ShowMessageBox("ReaImGui " .. imgui_ver .. " is required.\nPlease update it in next window", "MISSING DEPENDENCIES", 0)
+    return r.ReaPack_BrowsePackages('dear imgui')
+  end
+end
 
 package.path = r.ImGui_GetBuiltinPath() .. '/?.lua'
 im = require 'imgui' '0.9.1'
@@ -49,11 +63,6 @@ COLOR                        = {
 }
 
 --- PRE-REQUISITES ---
-if not im.GetVersion then
-  r.ShowMessageBox("ReaImGui is required.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
-  return r.ReaPack_BrowsePackages('dear imgui')
-end
-
 local function ThirdPartyDeps() -- FX Browser
   local version = tonumber(string.sub(r.GetAppVersion(), 0, 4))
   --reaper.ShowConsoleMsg((version))
