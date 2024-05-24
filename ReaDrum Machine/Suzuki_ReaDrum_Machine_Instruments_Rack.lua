@@ -1,9 +1,8 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.6.7
+-- @version 1.6.8
 -- @changelog
---   + Added a loop start line and XFade line
 --   # ReaImGui version check
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
@@ -27,17 +26,9 @@ r                      = reaper
 
 OS = r.GetOS()
 
-local imgui_ver = "0.9.1"
-
-if not r.APIExists("ImGui_GetVersion") then
-  r.ShowMessageBox("ReaImGui is required.\nPlease install it in next window", "MISSING DEPENDENCIES", 0)
+if not r.ImGui_GetBuiltinPath then
+  r.ShowMessageBox("ReaImGui is required.\nPlease install or update it in the next window", "MISSING DEPENDENCIES", 0)
   return r.ReaPack_BrowsePackages('dear imgui')
-else
-  local _, _, reaimgui_version = r.ImGui_GetVersion()
-  if reaimgui_version ~= imgui_ver then
-    r.ShowMessageBox("ReaImGui " .. imgui_ver .. " is required.\nPlease update it in next window", "MISSING DEPENDENCIES", 0)
-    return r.ReaPack_BrowsePackages('dear imgui')
-  end
 end
 
 package.path = r.ImGui_GetBuiltinPath() .. '/?.lua'
@@ -110,13 +101,13 @@ local function ThirdPartyDeps() -- FX Browser
     if r.file_exists(fx_browser) then
       dofile(fx_browser)
     else
-      r.ShowMessageBox("Sexan FX BROWSER is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ShowMessageBox("Sexan FX BROWSER is needed.\nPlease Install it in the next window", "MISSING DEPENDENCIES", 0)
       r.ReaPack_BrowsePackages(fx_browser_reapack)
       return 'error Sexan FX BROWSER'
     end
     -- lewloiwc Sound Design Suite
     if not r.file_exists(midi_trigger_envelope) then
-      r.ShowMessageBox("lewloiwc Sound Design Suite is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES",
+      r.ShowMessageBox("lewloiwc Sound Design Suite is needed.\nPlease Install it in the next window", "MISSING DEPENDENCIES",
         0)
       r.ReaPack_BrowsePackages('lewloiwc Sound Design Suite')
       return 'error lewloiwc Sound Design Suite'
@@ -125,29 +116,19 @@ local function ThirdPartyDeps() -- FX Browser
     if r.file_exists(sk_filter) or r.file_exists(sk_filter2) then
       local found_filter = true
     else
-      r.ShowMessageBox("tilr SKFilter is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ShowMessageBox("tilr SKFilter is needed.\nPlease Install it in the next window", "MISSING DEPENDENCIES", 0)
       r.ReaPack_BrowsePackages('tilr SKFilter')
       return 'error tilr SKFilter'
     end
     -- js extension
     if not r.APIExists("JS_ReaScriptAPI_Version") then
-      r.ShowMessageBox("js Extension is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ShowMessageBox("js Extension is needed.\nPlease Install it in the next window", "MISSING DEPENDENCIES", 0)
       r.ReaPack_BrowsePackages('js_ReascriptAPI')
       return 'error js Extension'
     end
     -- SWS/S&M
-    if r.APIExists("CF_GetSWSVersion") then
-      local sws_version = r.CF_GetSWSVersion()
-      local major_minor = sws_version:match("^(%d+%.%d+)")
-      local version_number = major_minor:gsub("%.","")
-      local version_number = tonumber(version_number)
-      if version_number < 214 then
-        r.ShowMessageBox("SWS/S&M Extension v2.14.0 or higher is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
-        r.ReaPack_BrowsePackages('SWS/S&M')
-        return 'error SWS/S&M'
-      end
-    else
-      r.ShowMessageBox("SWS/S&M Extension v2.14.0 or higher is needed.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+    if not r.CF_CreatePreview then
+      r.ShowMessageBox("SWS/S&M Extension v2.14.0 or higher is needed.\nPlease install or update it in the next window", "MISSING DEPENDENCIES", 0)
       r.ReaPack_BrowsePackages('SWS/S&M')
       return 'error SWS/S&M'
     end
