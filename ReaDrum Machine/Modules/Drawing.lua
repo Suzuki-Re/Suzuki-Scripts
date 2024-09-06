@@ -842,7 +842,7 @@ function RS5kUI(a)
   local rv = im.Button(ctx, "##play_button", 19, 19) -- play button
   im.PopStyleColor(ctx, 3)
   DrawListButton(">", 0x00, nil, true, true)
-  SendMidiNote(Pad[a].Note_Num)
+  SendMidiNote(a)
   im.SameLine(ctx, 0, 5)
   im.PushStyleColor(ctx, im.Col_Button,        0x99999900)
   im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)

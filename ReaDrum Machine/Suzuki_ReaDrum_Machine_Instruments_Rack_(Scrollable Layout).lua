@@ -1,11 +1,11 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.6.9
+-- @version 1.7.0
 -- @noindex
 -- @changelog
---   + Add settings button, you can choose rendering samples instead of applying pitch as a RS5k parameter now.
---   + Add support for tempo match, thanks Demian D! It only works for samples which are longer than a certain length (loop).
+--   + You can play samples even if the track is not rec-armed now. The side effect is it generates undo points and there's nothing I can do to prevent that.
+--   + Update ReaImGui version to 0.9.2.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
@@ -302,7 +302,7 @@ function DrawPads(loopmin, loopmax)
 
     im.SetCursorPos(ctx, x, y + 50)
     im.InvisibleButton(ctx, "▶##play" .. a, 30, 25)
-    SendMidiNote(notenum)
+    SendMidiNote(a)
     DrawListButton("-", COLOR["n"], nil, true)
 
     im.SetCursorPos(ctx, x + 30, y + 50)

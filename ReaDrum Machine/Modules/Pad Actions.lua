@@ -109,12 +109,12 @@ end
 ----------------------------------------------------------------------------
 
 -- Left Click --
-function SendMidiNote(notenum) -- Thanks Sexan!
+function SendMidiNote(a)
   if not im.IsItemHovered(ctx) then return end
   if im.IsMouseClicked(ctx, 0) then
-    r.StuffMIDIMessage(0, 0x90, notenum, 96) -- send note_p -- mode, note on, note, velocity
+    r.TrackFX_SetParam(track, Pad[a].Filter_ID, 1, 1)
   elseif im.IsMouseReleased(ctx, 0) then
-    r.StuffMIDIMessage(0, 0x80, notenum, 96) -- send note_r
+    r.TrackFX_SetParam(track, Pad[a].Filter_ID, 1, 0)
   end
 end
 
@@ -760,6 +760,7 @@ local function LoadItemsFromArrange(a)
         filenamebuf = r.GetMediaSourceFileName(take_src) -- new path
         start_offset = 0 -- overwriting them since the file is rendered as a new file
         end_offset = 1
+        take_pitch = 0
       end
       if not Pad[a + c - 1 - d] then
         local pads_idx = CountPads()                                             -- pads_idx = num

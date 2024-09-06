@@ -21,7 +21,7 @@ end
 
 function CheckKeys()
   ALT = im.GetKeyMods(ctx) == im.Mod_Alt
-  CTRL = im.GetKeyMods(ctx) == im.Mod_Shortcut
+  CTRL = im.GetKeyMods(ctx) == im.Mod_Ctrl
   SHIFT = im.GetKeyMods(ctx) == im.Mod_Shift
 
   HOME = im.IsKeyPressed(ctx, im.Key_Home)
@@ -45,7 +45,7 @@ function CheckKeys()
     -- CHECK IF TRACK CHANGED
     TRACK = r.GetSelectedTrack2(0, 0, true)
   end                            -- UNDO
-  if im.GetKeyMods(ctx) == im.Mod_Shortcut | im.Mod_Shift and Z then
+  if im.GetKeyMods(ctx) == im.Mod_Ctrl | im.Mod_Shift and Z then
     r.Main_OnCommand(40030, 0)   -- REDO
   end
 
