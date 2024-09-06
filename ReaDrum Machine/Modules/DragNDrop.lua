@@ -411,13 +411,15 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, 
   local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. pad_num - 1) -- 0 based
   local rs5k_id = ConvertPathToNestedPath(pad_id, add_pos)
   local _, payload = im.GetDragDropPayloadFile(ctx, i) -- 0 based
-  --local src = r.PCM_Source_CreateFromFile(payload)
-  --local src_length = r.GetMediaSourceLength(src)
+  local src = r.PCM_Source_CreateFromFile(payload)
+  local src_length = r.GetMediaSourceLength(src)
   --r.PCM_Source_Destroy(src)
   --local start_offset = start_offs / src_length
   --local end_offset = end_offs / src_length
-  if i == 0 and rate ~= 1 and apply_pr == 1 then -- Apply rate in MX and glue it when settings is on and ignore if the rate is 1.
+  local tempomatch = (r.GetToggleCommandStateEx(32063, 40021) == 1) or (r.GetToggleCommandStateEx(32063, 40022) == 1) or (r.GetToggleCommandStateEx(32063, 40023) == 1)
+  if i == 0 and (rate ~= 1 and apply_pr == 1) or (src_length > 3 and tempomatch) or (not pitch_as_parameter and pitch ~= 0) then -- Apply rate in MX and glue it when settings is on and ignore if the rate is 1.
     MX_ApplyRate(mx)
+    pitch = 0
   end
   local rs5k_id = tonumber(rs5k_id)
   local rs5k_name = RS5k_File()
@@ -428,7 +430,7 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, 
   if r.IsMediaExtension(ext, false) and #ext <= 4 and ext ~= "mid" then
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'MODE', 1)         -- Sample mode
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, '-FILE*', '') -- remove file list
-    if rate ~= 1 and apply_pr == 1 then 
+    if (rate ~= 1 and apply_pr == 1) or (src_length > 3 and tempomatch) or (not pitch_as_parameter and pitch ~= 0) then 
       payload = payload_name[i + 1] -- i = 0 based
     end
     r.TrackFX_SetNamedConfigParm(track, rs5k_id, 'FILE', payload) -- add file
@@ -436,7 +438,7 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, 
     r.SetExtState("ReaDrum Machine", "preview_file", payload, true)
     --r.TrackFX_SetParam(track, rs5k_id, 13, start_offset) -- Sample start offset
     --r.TrackFX_SetParam(track, rs5k_id, 14, end_offset) -- Sample end offset
-    if apply_pr == 1 or assign_p == 1 then -- Apply pitch in MX when settings is on
+    if pitch_as_parameter and (apply_pr == 1 or assign_p == 1) then -- Apply pitch in MX when settings is on
       r.TrackFX_SetParam(track, rs5k_id, 15, (pitch + 80) / 160) -- apply mx pitch
     end
     local filename = payload:match("([^\\/]+)%.%w%w*$")
@@ -447,13 +449,18 @@ local function AddSamplesToRS5k(pad_num, add_pos, i, a, notenum, note_name, mx, 
   end
 end
 
-function AddSampleToExistingRS5k(a, RS5k_ID, i, apply_pr, rate, assign_p, pitch)
+function AddSampleToExistingRS5k(a, RS5k_ID, i, mx, apply_pr, rate, assign_p, pitch)
   local _, payload = im.GetDragDropPayloadFile(ctx, i)
-  if rate ~= 1 and apply_pr == 1 then 
+  local src = r.PCM_Source_CreateFromFile(payload)
+  local src_length = r.GetMediaSourceLength(src)
+  local tempomatch = (r.GetToggleCommandStateEx(32063, 40021) == 1) or (r.GetToggleCommandStateEx(32063, 40022) == 1) or (r.GetToggleCommandStateEx(32063, 40023) == 1) -- Assign detected pitch when inserting into sampler
+  if i == 0 and (rate ~= 1 and apply_pr == 1) or (src_length > 3 and tempomatch) or (not pitch_as_parameter and pitch ~= 0) then -- Apply rate in MX and glue it when settings is on and ignore if the rate is 1.
+    MX_ApplyRate(mx)
+    pitch = 0
+  end
+  if (rate ~= 1 and apply_pr == 1) or (src_length > 3 and tempomatch) or (not pitch_as_parameter and pitch ~= 0) then 
     payload = payload_name[i + 1] -- i = 0 based
   end
-    --local src = r.PCM_Source_CreateFromFile(payload)
-    --local src_length = r.GetMediaSourceLength(src)
   local ext = payload:match("([^%.]+)$")
   if r.IsMediaExtension(ext, false) and #ext <= 4 and ext ~= "mid" then
     r.TrackFX_SetNamedConfigParm(track, RS5k_ID, 'FILE0', payload) -- change file
@@ -467,7 +474,7 @@ function AddSampleToExistingRS5k(a, RS5k_ID, i, apply_pr, rate, assign_p, pitch)
     r.SetTrackMIDINoteNameEx(0, track, notenum, -1, filename)
     r.TrackFX_SetParam(track, RS5k_ID, 13, 0) -- Sample start offset, reset
     r.TrackFX_SetParam(track, RS5k_ID, 14, 1) -- Sample end offset, reset
-    if apply_pr == 1 or assign_p == 1 then -- Apply pitch in MX when settings is on
+    if pitch_as_parameter and (apply_pr == 1 or assign_p == 1) then -- Apply pitch in MX when settings is on
       r.TrackFX_SetParam(track, RS5k_ID, 15, (pitch + 80) / 160) -- apply mx pitch
     end
   end
@@ -483,10 +490,7 @@ function DndAddSampleToEachRS5k_TARGET(a, RS5k_ID, i)
       local volume = MX_GetVolume(mx)
       local apply_pr = r.GetToggleCommandStateEx(32063, 42164) -- Apply preview pitch/rate to inserted media item
       local assign_p = r.GetToggleCommandStateEx(32063, 42318) -- Assign detected pitch when inserting into sampler
-      if i == 0 and rate ~= 1 and apply_pr == 1 then -- Apply rate in MX and glue it when settings is on and ignore if the rate is 1.
-        MX_ApplyRate(mx)
-      end
-      AddSampleToExistingRS5k(a, RS5k_ID, i, apply_pr, rate, assign_p, pitch)
+      AddSampleToExistingRS5k(a, RS5k_ID, i, mx, apply_pr, rate, assign_p, pitch)
     end
     im.EndDragDropTarget(ctx)
   end
@@ -517,16 +521,13 @@ function DndAddSample_TARGET(a)
         elseif Pad[a + i].Pad_Num then
           CountPadFX(Pad[a + i].Pad_Num) -- padfx_idx = num
           found = false
-          if i == 0 and rate ~= 1 and apply_pr == 1 then -- Apply rate in MX and glue it when settings is on and ignore if the rate is 1.
-            MX_ApplyRate(mx)
-          end
           for rs5k_pos = 1, padfx_idx do
             local _, pad_id = r.TrackFX_GetNamedConfigParm(track, parent_id, "container_item." .. Pad[a + i].Pad_Num - 1) -- 0 based
             local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, pad_id, "container_item." .. rs5k_pos - 1)
             local _, buf = r.TrackFX_GetNamedConfigParm(track, find_rs5k, 'fx_ident') -- by default \\Plugins\\FX\\reasamplomatic.dll<1920167789 or /Applications/REAPER.app/Contents/Plugins/FX/reasamplomatic.vst.dylib<1920167789
             if buf:find("1920167789") then    
               found = true
-              AddSampleToExistingRS5k(a, find_rs5k, i, apply_pr, rate, assign_p, pitch)
+              AddSampleToExistingRS5k(a, find_rs5k, i, mx, apply_pr, rate, assign_p, pitch)
             end
           end
         end
@@ -540,7 +541,6 @@ function DndAddSample_TARGET(a)
     im.EndDragDropTarget(ctx)
   end
 end
-
 
 function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
   if im.BeginDragDropTarget(ctx) then

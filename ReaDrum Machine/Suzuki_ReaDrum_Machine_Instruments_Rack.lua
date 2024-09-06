@@ -1,9 +1,10 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.6.8
+-- @version 1.6.9
 -- @changelog
---   # ReaImGui version check
+--   + Add settings button, you can choose rendering samples instead of applying pitch as a RS5k parameter now.
+--   + Add support for tempo match, thanks Demian D! It only works for samples which are longer than a certain length (loop).
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
@@ -39,6 +40,10 @@ package.path                 = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[
     "?.lua;" -- GET DIRECTORY FOR REQUIRE
 
 script_path = r.GetResourcePath() .. "/Scripts/Suzuki Scripts/ReaDrum Machine/"
+
+--[[local profiler = dofile(r.GetResourcePath() ..
+  '/Scripts/ReaTeam Scripts/Development/cfillion_Lua profiler.lua')
+reaper.defer = profiler.defer]]
 
 Pad                          = {}
 OnPad                        = {}
@@ -97,40 +102,34 @@ local function ThirdPartyDeps() -- FX Browser
   end
 
   if not reapack_process then
+    local deps = {}
     -- FX BROWSER
     if r.file_exists(fx_browser) then
       dofile(fx_browser)
     else
-      r.ShowMessageBox("Sexan FX BROWSER is needed.\nPlease Install it in the next window", "MISSING DEPENDENCIES", 0)
-      r.ReaPack_BrowsePackages(fx_browser_reapack)
-      return 'error Sexan FX BROWSER'
+      deps[#deps + 1] = '"FX Browser Parser V7"'
     end
     -- lewloiwc Sound Design Suite
     if not r.file_exists(midi_trigger_envelope) then
-      r.ShowMessageBox("lewloiwc Sound Design Suite is needed.\nPlease Install it in the next window", "MISSING DEPENDENCIES",
-        0)
-      r.ReaPack_BrowsePackages('lewloiwc Sound Design Suite')
-      return 'error lewloiwc Sound Design Suite'
+      deps[#deps + 1] = [['"lewloiwc's Sound Design Suite"']]
     end
     -- tilr SKFilter
-    if r.file_exists(sk_filter) or r.file_exists(sk_filter2) then
-      local found_filter = true
-    else
-      r.ShowMessageBox("tilr SKFilter is needed.\nPlease Install it in the next window", "MISSING DEPENDENCIES", 0)
-      r.ReaPack_BrowsePackages('tilr SKFilter')
-      return 'error tilr SKFilter'
+    if not r.file_exists(sk_filter) and not r.file_exists(sk_filter2) then
+      deps[#deps + 1] = '"SKFilter"'
     end
     -- js extension
     if not r.APIExists("JS_ReaScriptAPI_Version") then
-      r.ShowMessageBox("js Extension is needed.\nPlease Install it in the next window", "MISSING DEPENDENCIES", 0)
-      r.ReaPack_BrowsePackages('js_ReascriptAPI')
-      return 'error js Extension'
+      deps[#deps + 1] = '"js_ReascriptAPI"'
     end
     -- SWS/S&M
     if not r.CF_CreatePreview then
-      r.ShowMessageBox("SWS/S&M Extension v2.14.0 or higher is needed.\nPlease install or update it in the next window", "MISSING DEPENDENCIES", 0)
-      r.ReaPack_BrowsePackages('SWS/S&M')
-      return 'error SWS/S&M'
+      deps[#deps + 1] = '"SWS/S&M"'
+    end
+
+    if #deps ~= 0 then
+      r.ShowMessageBox("Need Additional Packages.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ReaPack_BrowsePackages(table.concat(deps, " OR "))
+      return true
     end
   end
 end
@@ -143,12 +142,16 @@ ctx = im.CreateContext('ReaDrum Machine')
 draw_list = im.GetWindowDrawList(ctx)
 
 ICONS_FONT = im.CreateFont(script_path .. 'Fonts/Icons.ttf', 14)
+antonio_light = im.CreateFont(script_path .. 'Fonts/Antonio-Light.ttf', 22)
 antonio_semibold = im.CreateFont(script_path .. 'Fonts/Antonio-SemiBold.ttf', 16)
 antonio_semibold_mini = im.CreateFont(script_path .. 'Fonts/Antonio-SemiBold.ttf', 13)
+antonio_semibold_large = im.CreateFont(script_path .. 'Fonts/Antonio-SemiBold.ttf', 22)
 system_font = im.CreateFont("sans-serif", 13)
 im.Attach(ctx, ICONS_FONT)
+im.Attach(ctx, antonio_light)
 im.Attach(ctx, antonio_semibold)
 im.Attach(ctx, antonio_semibold_mini)
+im.Attach(ctx, antonio_semibold_large)
 im.Attach(ctx, system_font)
 
 FLT_MIN, FLT_MAX = im.NumericLimits_Float()
@@ -160,6 +163,17 @@ require("Modules/General Functions")
 require("Modules/Pad Actions")
 
 local posx, posy = im.GetCursorScreenPos(ctx)
+
+if r.HasExtState("ReaDrum Machine", "pitch_settings") then
+  pitch_as_parameter = r.GetExtState("ReaDrum Machine", "pitch_settings")
+  if pitch_as_parameter == "true" then
+    pitch_as_parameter = true
+  elseif pitch_as_parameter == "false" then
+    pitch_as_parameter = false
+  end
+else
+  pitch_as_parameter = true
+end
 
 ----------------------------------------------------------------------
 -- GUI --
@@ -510,6 +524,7 @@ function Run()
   if track then
     trackidx = r.CSurf_TrackToID(track, false)
     track_guid = r.GetTrackGUID(track)
+    _, track_name = r.GetTrackName(track)
   end
   if set_dock_id then
     im.SetNextWindowDockID(ctx, set_dock_id)
@@ -529,17 +544,14 @@ function Run()
   end
   im.SetNextWindowSizeConstraints(ctx, 450, 360, FLT_MAX, FLT_MAX)
   im.SetNextWindowSize(ctx, main_w, 300)
-
   im.PushStyleColor(ctx, im.Col_WindowBg, COLOR["bg"])
-  im.PushStyleColor(ctx, im.Col_TitleBg, COLOR["bg"])
-  im.PushStyleColor(ctx, im.Col_TitleBgActive, COLOR["bg"])
-  local imgui_visible, imgui_open = im.Begin(ctx, 'ReaDrum Machine', true,
-    im.WindowFlags_NoScrollWithMouse | im.WindowFlags_NoScrollbar)
-  im.PopStyleColor(ctx, 3)
+  imgui_visible, imgui_open = im.Begin(ctx, 'ReaDrum Machine', true,
+    im.WindowFlags_NoScrollWithMouse | im.WindowFlags_NoScrollbar | im.WindowFlags_NoTitleBar)
+  im.PopStyleColor(ctx, 1)
 
   if imgui_visible then
     imgui_width, imgui_height = im.GetWindowSize(ctx)
-
+    CustomTitleBar(390)
     if not TRACK then
       --im.PushFont(ctx, antonio_semibold)
       im.TextDisabled(ctx, 'No track selected')
@@ -570,3 +582,6 @@ function Init()
 end
 
 Init()
+
+-- profiler.attachToWorld() -- after all functions have been defined
+-- profiler.run()

@@ -939,3 +939,45 @@ function RS5kUI(a)
   PositionOffset(10, 5)
   ParameterSwitchIcon(a, "Round-Robin", 20)  
 end
+
+function CustomTitleBar(button_pos)
+  im.BeginGroup(ctx)
+  im.PushFont(ctx, antonio_semibold_large)
+  im.Text(ctx, "ReaDrum Machine")
+  im.PopFont(ctx)
+  if track then
+    im.SameLine(ctx)
+    --im.AlignTextToFramePadding(ctx)
+    im.PushFont(ctx, antonio_light)
+    im.Text(ctx, track_name)
+    im.PopFont(ctx)
+  end
+  im.SameLine(ctx, button_pos)
+  im.PushStyleColor(ctx, im.Col_Button,        0x99999900)
+  im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
+  im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
+  local rv = im.Button(ctx, "##settings", 22, 22)
+  DrawListButton("$", 0x00, nil, true)
+  im.PopStyleColor(ctx, 3)
+  if rv then
+    im.OpenPopup(ctx, "Settings")
+  end
+  if im.BeginPopup(ctx, "Settings", im.WindowFlags_NoMove) then
+    _, pitch_as_parameter = im.Checkbox(ctx, "Apply Pitch as RS5k Parameter", pitch_as_parameter)
+    r.SetExtState("ReaDrum Machine", "pitch_settings", tostring(pitch_as_parameter), true)
+    im.EndPopup(ctx)
+  end
+  im.SameLine(ctx)
+  PositionOffset(-5, 0)
+  im.PushStyleColor(ctx, im.Col_Button,        0x99999900)
+  im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
+  im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
+  local rv = im.Button(ctx, "##close", 22, 22)
+  DrawListButton("#", 0x00, nil, true)
+  im.PopStyleColor(ctx, 3)
+  if rv then
+    imgui_open = nil
+  end
+  im.EndGroup(ctx)
+  im.Separator(ctx)
+end

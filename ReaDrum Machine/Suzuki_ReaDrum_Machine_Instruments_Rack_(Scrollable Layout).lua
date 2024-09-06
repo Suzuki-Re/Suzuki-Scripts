@@ -1,10 +1,11 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.6.8
+-- @version 1.6.9
 -- @noindex
 -- @changelog
---   # ReaImGui version check
+--   + Add settings button, you can choose rendering samples instead of applying pitch as a RS5k parameter now.
+--   + Add support for tempo match, thanks Demian D! It only works for samples which are longer than a certain length (loop).
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
@@ -90,40 +91,34 @@ local function ThirdPartyDeps() -- FX Browser
   end
 
   if not reapack_process then
+    local deps = {}
     -- FX BROWSER
     if r.file_exists(fx_browser) then
       dofile(fx_browser)
     else
-      r.ShowMessageBox("Sexan FX BROWSER is needed.\nPlease Install it in the next window", "MISSING DEPENDENCIES", 0)
-      r.ReaPack_BrowsePackages(fx_browser_reapack)
-      return 'error Sexan FX BROWSER'
+      deps[#deps + 1] = '"FX Browser Parser V7"'
     end
     -- lewloiwc Sound Design Suite
     if not r.file_exists(midi_trigger_envelope) then
-      r.ShowMessageBox("lewloiwc Sound Design Suite is needed.\nPlease Install it in the next window", "MISSING DEPENDENCIES",
-        0)
-      r.ReaPack_BrowsePackages('lewloiwc Sound Design Suite')
-      return 'error lewloiwc Sound Design Suite'
+      deps[#deps + 1] = [['"lewloiwc's Sound Design Suite"']]
     end
     -- tilr SKFilter
-    if r.file_exists(sk_filter) or r.file_exists(sk_filter2) then
-      local found_filter = true
-    else
-      r.ShowMessageBox("tilr SKFilter is needed.\nPlease Install it in the next window", "MISSING DEPENDENCIES", 0)
-      r.ReaPack_BrowsePackages('tilr SKFilter')
-      return 'error tilr SKFilter'
+    if not r.file_exists(sk_filter) and not r.file_exists(sk_filter2) then
+      deps[#deps + 1] = '"SKFilter"'
     end
     -- js extension
     if not r.APIExists("JS_ReaScriptAPI_Version") then
-      r.ShowMessageBox("js Extension is needed.\nPlease Install it in the next window", "MISSING DEPENDENCIES", 0)
-      r.ReaPack_BrowsePackages('js_ReascriptAPI')
-      return 'error js Extension'
+      deps[#deps + 1] = '"js_ReascriptAPI"'
     end
     -- SWS/S&M
     if not r.CF_CreatePreview then
-      r.ShowMessageBox("SWS/S&M Extension v2.14.0 or higher is needed.\nPlease install or update it in the next window", "MISSING DEPENDENCIES", 0)
-      r.ReaPack_BrowsePackages('SWS/S&M')
-      return 'error SWS/S&M'
+      deps[#deps + 1] = '"SWS/S&M"'
+    end
+
+    if #deps ~= 0 then
+      r.ShowMessageBox("Need Additional Packages.\nPlease Install it in next window", "MISSING DEPENDENCIES", 0)
+      r.ReaPack_BrowsePackages(table.concat(deps, " OR "))
+      return true
     end
   end
 end
@@ -135,13 +130,17 @@ ctx = im.CreateContext('ReaDrum Machine')
 
 draw_list = im.GetWindowDrawList(ctx)
 
-ICONS_FONT = im.CreateFont(script_path .. 'Fonts/Icons.ttf', 11)
+ICONS_FONT = im.CreateFont(script_path .. 'Fonts/Icons.ttf', 14)
+antonio_light = im.CreateFont(script_path .. 'Fonts/Antonio-Light.ttf', 22)
 antonio_semibold = im.CreateFont(script_path .. 'Fonts/Antonio-SemiBold.ttf', 16)
 antonio_semibold_mini = im.CreateFont(script_path .. 'Fonts/Antonio-SemiBold.ttf', 13)
+antonio_semibold_large = im.CreateFont(script_path .. 'Fonts/Antonio-SemiBold.ttf', 22)
 system_font = im.CreateFont("sans-serif", 13)
 im.Attach(ctx, ICONS_FONT)
+im.Attach(ctx, antonio_light)
 im.Attach(ctx, antonio_semibold)
 im.Attach(ctx, antonio_semibold_mini)
+im.Attach(ctx, antonio_semibold_large)
 im.Attach(ctx, system_font)
 
 FLT_MIN, FLT_MAX = im.NumericLimits_Float()
@@ -153,6 +152,17 @@ require("Modules/General Functions")
 require("Modules/Pad Actions")
 
 local posx, posy = im.GetCursorScreenPos(ctx)
+
+if r.HasExtState("ReaDrum Machine", "pitch_settings") then
+  pitch_as_parameter = r.GetExtState("ReaDrum Machine", "pitch_settings")
+  if pitch_as_parameter == "true" then
+    pitch_as_parameter = true
+  elseif pitch_as_parameter == "false" then
+    pitch_as_parameter = false
+  end
+else
+  pitch_as_parameter = true
+end
 
 function SetButtonState(set) -- Set ToolBar Button State
   local is_new_value, filename, sec, cmd, mode, resolution, val = r.get_action_context()
@@ -217,7 +227,6 @@ function ButtonDrawlist(name, color, a)
 end
 
 function DrawListButton(name, color, round_side, icon, hover, offset)
-  --im.DrawListSplitter_SetCurrentChannel(splitter, 1)
   local multi_color = IS_DRAGGING_RIGHT_CANVAS and color or ColorToHex(color, hover and 50 or 0)
   local xs, ys = im.GetItemRectMin(ctx)
   local xe, ye = im.GetItemRectMax(ctx)
@@ -266,7 +275,7 @@ function DrawPads(loopmin, loopmax)
     else
       pad_name = ""
     end
-    local y = 2350 + math.floor((a - loopmin) / 4) * -75 -- start position + math.floor * - row offset
+    local y = 2330 + math.floor((a - loopmin) / 4) * -75 -- start position + math.floor * - row offset
     local x = 5 + (a - 1) % 4 * 95
 
     im.SetCursorPos(ctx, x, y)
@@ -439,16 +448,17 @@ function Main()
 
   im.PushStyleColor(ctx, im.Col_ChildBg, COLOR["bg"])
 
-
   draw_list = im.GetWindowDrawList(ctx) -- 4 x 4 left veertical bar drawing
   f_draw_list = im.GetForegroundDrawList(ctx)
-
-  DrawPads(1, 128)
+  if im.BeginChild(ctx, "pad_menu", w_open + 147, h + 88) then
+    DrawPads(1, 128)
+    im.EndChild(ctx)
+  end
   if OPEN_PAD ~= nil then
     im.SetCursorPos(ctx, 40, 0)
     local y = im.GetScrollY(ctx)
     y = y + 100
-    OpenRS5kInsidePad(OPEN_PAD, y - 155)
+    OpenRS5kInsidePad(OPEN_PAD, y - 99)
   end
   im.PopStyleColor(ctx)
 end
@@ -460,6 +470,7 @@ function Run()
   if track then
     trackidx = r.CSurf_TrackToID(track, false)
     track_guid = r.GetTrackGUID(track)
+    _, track_name = r.GetTrackName(track)
   end
   if set_dock_id then
     im.SetNextWindowDockID(ctx, set_dock_id)
@@ -468,20 +479,18 @@ function Run()
   if OPEN_PAD ~= nil then
     main_w = 800
   else
-    main_w = 400
+    main_w = 410
   end
-  im.SetNextWindowSizeConstraints(ctx, 400, 320, FLT_MAX, FLT_MAX)
+  im.SetNextWindowSizeConstraints(ctx, 410, 360, FLT_MAX, FLT_MAX)
   im.SetNextWindowSize(ctx, main_w, 300)
 
   im.PushStyleColor(ctx, im.Col_WindowBg, COLOR["bg"])
-  im.PushStyleColor(ctx, im.Col_TitleBg, COLOR["bg"])
-  im.PushStyleColor(ctx, im.Col_TitleBgActive, COLOR["bg"])
-  local imgui_visible, imgui_open = im.Begin(ctx, 'ReaDrum Machine', true)
-  im.PopStyleColor(ctx, 3)
+  imgui_visible, imgui_open = im.Begin(ctx, 'ReaDrum Machine', true, im.WindowFlags_NoScrollWithMouse | im.WindowFlags_NoScrollbar | im.WindowFlags_NoTitleBar)
+  im.PopStyleColor(ctx, 1)
 
   if imgui_visible then
     imgui_width, imgui_height = im.GetWindowSize(ctx)
-
+    CustomTitleBar(345)
     if setscroll then
       local stored_y = r.GetExtState("ReaDrum Machine", "Scroll_Pos")
       if tonumber(stored_y) ~= nil then

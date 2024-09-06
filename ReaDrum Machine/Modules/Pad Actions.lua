@@ -257,7 +257,7 @@ function OpenRS5kInsidePad(a, y)
   UpdatePadID()
   im.SameLine(ctx, nil, 0)
   PositionOffset(10, y)
-  if im.BeginChild(ctx, "open_pad", 250 + 110, 220 + 88, 0, im.WindowFlags_NoScrollWithMouse | im.WindowFlags_NoScrollbar) then
+  if im.BeginChild(ctx, "open_pad", 250 + 110, 220 + 100, nil, im.WindowFlags_NoScrollWithMouse | im.WindowFlags_NoScrollbar) then
     if not Pad[a] then -- to prevent crash when creating a new track (BeginChild -> do nothing -> Endchild)
     elseif not Pad[a].RS5k_Instances[1] then
       im.TextDisabled(ctx, 'No RS5k inside pad')
@@ -739,7 +739,7 @@ local function LoadItemsFromArrange(a)
       local ret, offs, len, rvrs = r.PCM_Source_GetSectionInfo(take_src)
       local start_offset = start_offs / src_length
       local end_offset = (start_offs + item_length) / src_length
-      if rvrs or take_playrate ~= 1.0 then
+      if rvrs or take_playrate ~= 1.0 or (not pitch_as_parameter and take_pitch ~= 0) then
         r.SelectAllMediaItems(0, false)    -- unselect all
         r.SetMediaItemSelected(item, true)
         r.Main_OnCommand(41588, 0)
