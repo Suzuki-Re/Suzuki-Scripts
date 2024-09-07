@@ -550,7 +550,7 @@ local function ChangeSample(track, fxidx, a, up, down, random)
   r.TrackFX_SetNamedConfigParm(track, fxidx, "FILE0", new_sample)
   r.TrackFX_SetNamedConfigParm(track, fxidx, "DONE", "")
   r.SetExtState("ReaDrum Machine", "preview_file", new_sample, true)
-  PreviewSamples(new_sample, a)
+  return new_sample
 end
 
 local function ArrowButtons(a)
@@ -748,32 +748,42 @@ local function WaveformButton(ctx, sample_path, a)
   end
 end
 
+local function TriggerSamples(rv, a, WhichRS5k, up, down, random)
+  if not im.IsItemHovered(ctx) then return end
+  if rv then
+    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, up, down, random)
+    r.TrackFX_SetParam(track, Pad[a].Filter_ID, 1, 1)
+  else
+    r.TrackFX_SetParam(track, Pad[a].Filter_ID, 1, 0)
+  end
+end
+
 local function ChangeSampleButtons(a)
   im.PushStyleColor(ctx, im.Col_Button,        0x00)
   im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
   im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
   im.PushButtonRepeat(ctx, true)
   local rv = im.ArrowButton(ctx, '##changesample_left', im.Dir_Left)
-  if rv then
-    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, true, false, false)
-  end
+  TriggerSamples(rv, a, WhichRS5k, true, false, false)
   im.PopButtonRepeat(ctx)
+  im.PopStyleColor(ctx, 3)
   im.SameLine(ctx, 0, 0)
   im.PushStyleColor(ctx, im.Col_Button,        0x00)
   im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
   im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
+  im.PushButtonRepeat(ctx, true)
   local rv = im.Button(ctx, "##randomizesample_button", 20, 20)
-  im.PopStyleColor(ctx, 3)
-  if rv then
-    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, false, false, true)
-  end
   DrawListButton("Q", 0x00, false, true)
+  TriggerSamples(rv, a, WhichRS5k, false, false, true)
+  im.PopButtonRepeat(ctx)
+  im.PopStyleColor(ctx, 3)
   im.SameLine(ctx, 0, 0)
+  im.PushStyleColor(ctx, im.Col_Button,        0x00)
+  im.PushStyleColor(ctx, im.Col_ButtonHovered, 0x9999993c)
+  im.PushStyleColor(ctx, im.Col_ButtonActive,  0x9999996f)
   im.PushButtonRepeat(ctx, true)
   local rv = im.ArrowButton(ctx, '##changesample_right', im.Dir_Right)
-  if rv then
-    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, false, true, false)
-  end
+  TriggerSamples(rv, a, WhichRS5k, false, true, false)
   im.PopButtonRepeat(ctx)
   im.PopStyleColor(ctx, 3)
 end
@@ -806,11 +816,14 @@ local function SampleNameButton(a)
   im.PopStyleColor(ctx, 3)
   DndAddSampleToEachRS5k_TARGET(a, Pad[a].RS5k_Instances[WhichRS5k], 0)
   if DownArrow then
-    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, false, true, false)
+    local new_sample = ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, false, true, false)
+    PreviewSamples(new_sample, a)
   elseif UpArrow then
-    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, true, false, false)
+    local new_sample = ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, true, false, false)
+    PreviewSamples(new_sample, a)
   elseif im.IsKeyPressed(ctx, im.Key_R) then
-    ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, false, false, true)
+    local new_sample = ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, false, false, true)
+    PreviewSamples(new_sample, a)
   end
   if rv then
     local open = r.TrackFX_GetOpen(track, Pad[a].RS5k_Instances[WhichRS5k]) -- 0 based

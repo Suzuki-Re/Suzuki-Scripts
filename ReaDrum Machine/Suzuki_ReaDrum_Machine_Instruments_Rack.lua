@@ -1,19 +1,41 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.7.0
+-- @version 1.7.1
 -- @changelog
---   + You can play samples even if the track is not rec-armed now. The side effect is it generates undo points and there's nothing I can do to prevent that.
---   + Update ReaImGui version to 0.9.2.
+--   + Add a basic manual to about page in ReaPack
+--   # Change Left/Random/Right button behaviour from changing samples + previw an original sample sound to changing samples + sending midi note. It now reflects the whole FX chain (Beware that obey note-offs is off). 
+--   If you want to preview only the original sound, then use UpArrow/R/DownArrow shortcut hovering the waveform display. 
+--   # Change select pad action from Shift + click to Ctrl (cmd for mac) + click
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
 --   ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 --   ### Prerequisites
---   REAPER v7.06+, ReaImGui v0.9.1, S&M extension, js extension and Sexan's FX Browser. Scan for new plugins to make sure RDM utility JSFX shows up in the native FX browser.
+--   REAPER v7.06+, ReaImGui v0.9.2, S&M extension, js extension, tilr's SK filter, lewloiwc's Sound Design Suite and Sexan's FX Browser. Scan for new plugins to make sure RDM utility JSFX shows up in the native FX browser.
 --   ### CAUTIONS
 --   ReaDrum Machine utilizes a prallel FX feature in REAPER. If you use the script as it is, there's no problem, but if you want to place the audio (like VSTi or audio file in arrange) before RDM for some reason, beware of the volume because it adds up by design.
 --   Use dry/wet knob in each container or shift+drag each pad to adjust each container's volume.
+--   ### Usage
+--   #### FX Browser
+--   Right click - Open FX Browser
+--   You can drag/drop FX from the browser to the pad. Rescan FX list if you want to reflect your latest plugins.
+--   Ctrl + double click - Select all pads in the page
+--   Shift + double click - Select all pads in the script
+--   #### Settings
+--   "Apply pitch as a RS5k parameter" option is to apply pitch in the Media Explorer/Arrange as a RS5k parameter. 
+--   If it's unticked, the script renders samples to reflect the pitch. The default is on.
+--   #### Pad
+--   Click - Open/close each pad's floating window
+--   Alt + click - Remove pad
+--   Ctrl + click - Select pad
+--   Right click - Open RS5k UI
+--   Ctrl + right click - Open menu
+--   Left drag - Move/swap pads
+--   Ctrl + left drag - Copy pad/copy pad fx
+--   Shift + left drag - Turn up/down volume of each pad
+--   #### Menu
+--   Set choke group - Sending notes in the same channel (group) mutes the note. Obey note-offs needs to be on for it to work.                                                                                                                                                                                                               
 -- @provides
 --   Fonts/*.ttf
 --   FXChains/*.RfxChain

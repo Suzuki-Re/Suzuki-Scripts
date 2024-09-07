@@ -109,13 +109,15 @@ end
 ----------------------------------------------------------------------------
 
 -- Left Click --
-function SendMidiNote(a)
+function SendMidiNote(a, preview)
   if not im.IsItemHovered(ctx) then return end
+  --if preview then r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 0) end
   if im.IsMouseClicked(ctx, 0) then
     r.TrackFX_SetParam(track, Pad[a].Filter_ID, 1, 1)
   elseif im.IsMouseReleased(ctx, 0) then
     r.TrackFX_SetParam(track, Pad[a].Filter_ID, 1, 0)
   end
+  --if preview then r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 1) end
 end
 
 function AdjustPadVolume(a)
@@ -174,7 +176,7 @@ function ClickPadActions(a)
       UpdatePadID()
       r.PreventUIRefresh(-1)
       EndUndoBlock("CLEAR PAD")
-    elseif SHIFT and not im.IsMouseDoubleClicked(ctx, 0) and not im.IsMouseDragging(ctx, 0) then
+    elseif CTRL and not im.IsMouseDoubleClicked(ctx, 0) and not im.IsMouseDragging(ctx, 0) then
       if SELECTED and SELECTED[tostring(a)] then -- unselect
         SELECTED[tostring(a)] = nil
         if #SELECTED == 0 then -- reset table if it's empty
@@ -233,7 +235,7 @@ function ClickPadActions(a)
       end
     end
   else
-    if SHIFT then
+    if CTRL then
       if SELECTED and SELECTED[tostring(a)] then
         SELECTED[tostring(a)] = nil
       else
@@ -968,7 +970,7 @@ end
 
 -- Double Click
 function DoubleClickActions(loopmin, loopmax)
-  if im.IsMouseDoubleClicked(ctx, 0) and not OnPad and ALT then
+  if im.IsMouseDoubleClicked(ctx, 0) and not OnPad and SHIFT then
     if SELECTED then
       SELECTED = nil
     else
@@ -977,7 +979,7 @@ function DoubleClickActions(loopmin, loopmax)
         SELECTED[tostring(a)] = true
       end
     end
-  elseif SHIFT and im.IsMouseDoubleClicked(ctx, 0) and loopmin then
+  elseif CTRL and im.IsMouseDoubleClicked(ctx, 0) and loopmin then
     local found = false
     for f = loopmin, loopmax do
       if SELECTED and SELECTED[tostring(f)] then
