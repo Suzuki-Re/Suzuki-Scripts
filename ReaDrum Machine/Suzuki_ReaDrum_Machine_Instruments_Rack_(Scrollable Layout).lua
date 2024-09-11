@@ -1,13 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.7.1
+-- @version 1.7.2
 -- @noindex
 -- @changelog
---   + Add a basic manual to about page in ReaPack
---   # Change Left/Random/Right button behaviour from changing samples + previw an original sample sound to changing samples + sending midi note. It now reflects the whole FX chain (Beware that obey note-offs is off). 
---   If you want to preview only the original sound, then use UpArrow/R/DownArrow shortcut hovering the waveform display. 
---   # Change select pad action from Shift + click to Ctrl (cmd for mac) + click
+--   # Fix crash when users click a play button which has no sample.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine

@@ -112,9 +112,9 @@ end
 function SendMidiNote(a, preview)
   if not im.IsItemHovered(ctx) then return end
   --if preview then r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 0) end
-  if im.IsMouseClicked(ctx, 0) then
+  if Pad[a] and im.IsMouseClicked(ctx, 0) then
     r.TrackFX_SetParam(track, Pad[a].Filter_ID, 1, 1)
-  elseif im.IsMouseReleased(ctx, 0) then
+  elseif Pad[a] and im.IsMouseReleased(ctx, 0) then
     r.TrackFX_SetParam(track, Pad[a].Filter_ID, 1, 0)
   end
   --if preview then r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 1) end
