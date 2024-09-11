@@ -11,7 +11,7 @@
 --   ### Prerequisites
 --   REAPER v7.06+, ReaImGui v0.9.2, S&M extension, js extension, tilr's SK filter, lewloiwc's Sound Design Suite and Sexan's FX Browser. Scan for new plugins to make sure RDM utility JSFX shows up in the native FX browser.
 --   ### CAUTIONS
---   ReaDrum Machine utilizes a prallel FX feature in REAPER. If you use the script as it is, there's no problem, but if you want to place the audio (like VSTi or audio file in arrange) before RDM for some reason, beware of the volume because it adds up by design.
+--   ReaDrum Machine utilizes a parallel FX feature in REAPER. If you use the script as it is, there's no problem, but if you want to place the audio (like VSTi or audio file in arrange) before RDM for some reason, beware of the volume because it adds up by design.
 --   Use dry/wet knob in each container or shift+drag each pad to adjust each container's volume.
 --   ### Usage
 --   #### FX Browser
