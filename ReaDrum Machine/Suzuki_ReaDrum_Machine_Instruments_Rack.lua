@@ -1,9 +1,9 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.7.2
+-- @version 1.7.3
 -- @changelog
---   # Fix crash when users click a play button which has no sample.
+--   # Internal change for an easier debug
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
@@ -11,12 +11,12 @@
 --   ### Prerequisites
 --   REAPER v7.06+, ReaImGui v0.9.2, S&M extension, js extension, tilr's SK filter, lewloiwc's Sound Design Suite and Sexan's FX Browser. Scan for new plugins to make sure RDM utility JSFX shows up in the native FX browser.
 --   ### CAUTIONS
---   ReaDrum Machine utilizes a prallel FX feature in REAPER. If you use the script as it is, there's no problem, but if you want to place the audio (like VSTi or audio file in arrange) before RDM for some reason, beware of the volume because it adds up by design.
+--   ReaDrum Machine utilizes a parallel FX feature in REAPER. If you use the script as it is, there's no problem, but if you want to place the audio (like VSTi or audio file in arrange) before RDM for some reason, beware of the volume because it adds up by design.
 --   Use dry/wet knob in each container or shift+drag each pad to adjust each container's volume.
 --   ### Usage
 --   #### FX Browser
 --   - Right click - Open FX Browser
---   - You can drag/drop FX from the browser to the pad. Rescan FX list if you want to reflect your latest plugins.
+--   You can drag/drop FX from the browser to the pad. Rescan FX list if you want to reflect your latest plugins.
 --   - Ctrl + double click - Select all pads in the page
 --   - Shift + double click - Select all pads in the script
 --   #### Settings
@@ -192,6 +192,31 @@ if r.HasExtState("ReaDrum Machine", "pitch_settings") then
   end
 else
   pitch_as_parameter = true
+end
+
+local function PrintTraceback(err)
+  local byLine = "([^\r\n]*)\r?\n?"
+  local trimPath = "[\\/]([^\\/]-:%d+:.+)$"
+  local stack = {}
+  for line in string.gmatch(err, byLine) do
+      local str = string.match(line, trimPath) or line
+      stack[#stack + 1] = str
+  end
+  r.ShowConsoleMsg(
+      "Error: " .. stack[1] .. "\n\n" ..
+      "Stack traceback:\n\t" .. table.concat(stack, "\n\t", 3) .. "\n\n" ..
+      "Reaper:       \t" .. r.GetAppVersion() .. "\n" ..
+      "Platform:     \t" .. r.GetOS()
+  )
+end
+
+local function PDefer(func)
+  r.defer(function()
+      local status, err = xpcall(func, debug.traceback)
+      if not status then
+          PrintTraceback(err)
+      end
+  end)
 end
 
 ----------------------------------------------------------------------
@@ -587,7 +612,7 @@ function Run()
   if process or not imgui_open then
     imgui_open = nil
   else
-    r.defer(Run)
+    PDefer(Run)
   end
   CheckStaleData()
   if TRACK then UpdateFxData() end
