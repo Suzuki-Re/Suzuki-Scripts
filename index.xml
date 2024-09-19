@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<index version="1" name="Suzuki Scripts" commit="2e797170cd7eb8d142c277c72d78854f3b380537">
+<index version="1" name="Suzuki Scripts" commit="821d96059ca6f535f8b6edd7ef181da224213e2a">
   <category name="Development">
     <reapack name="Suzuki_Check stereo channels input bitmask for last touched track or take FX (inside Container).lua" type="script" desc="Check stereo channels input bitmask for last touched track or take FX (inside Container)">
       <metadata>
@@ -929,8 +929,7 @@ Added rpl file for container preset]]></changelog>
 {\pard \ql \f0 \sa180 \li0 \fi0 ReaDrum Machine utilizes a parallel FX feature in REAPER. If you use the script as it is, there's no problem, but if you want to place the audio (like VSTi or audio file in arrange) before RDM for some reason, beware of the volume because it adds up by design. Use dry/wet knob in each container or shift+drag each pad to adjust each container's volume.\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs28 Usage\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs24 FX Browser\par}
-{\pard \ql \f0 \sa0 \li360 \fi-360 \bullet \tx360\tab Right click - Open FX Browser\par}
-{\pard \ql \f0 \sa0 \li360 \fi-360 \bullet \tx360\tab You can drag/drop FX from the browser to the pad. Rescan FX list if you want to reflect your latest plugins.\par}
+{\pard \ql \f0 \sa0 \li360 \fi-360 \bullet \tx360\tab Right click - Open FX Browser You can drag/drop FX from the browser to the pad. Rescan FX list if you want to reflect your latest plugins.\par}
 {\pard \ql \f0 \sa0 \li360 \fi-360 \bullet \tx360\tab Ctrl + double click - Select all pads in the page\par}
 {\pard \ql \f0 \sa0 \li360 \fi-360 \bullet \tx360\tab Shift + double click - Select all pads in the script\sa180\par}
 {\pard \ql \f0 \sa180 \li0 \fi0 \b \fs24 Settings\par}
@@ -2139,6 +2138,25 @@ If you want to preview only the original sound, then use UpArrow/R/DownArrow sho
         <source type="effect" file="JSFX/Reverse - Double Buffer.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/5583bf5f235e95d2b274ba3a789f624c2f35c264/ReaDrum%20Machine/JSFX/Reverse%20-%20Double%20Buffer.jsfx</source>
         <source main="main" file="Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable Layout).lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/5583bf5f235e95d2b274ba3a789f624c2f35c264/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable%20Layout).lua</source>
         <source main="main" file="Scripts/Suzuki_Replace old RDM midi note filter with new RDM midi utility.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/5583bf5f235e95d2b274ba3a789f624c2f35c264/ReaDrum%20Machine/Scripts/Suzuki_Replace%20old%20RDM%20midi%20note%20filter%20with%20new%20RDM%20midi%20utility.lua</source>
+      </version>
+      <version name="1.7.3" author="Suzuki" time="2024-09-18T15:05:19Z">
+        <changelog><![CDATA[# Internal change for an easier debug]]></changelog>
+        <source main="main">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack.lua</source>
+        <source file="Fonts/Antonio-Light.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/Fonts/Antonio-Light.ttf</source>
+        <source file="Fonts/Antonio-SemiBold.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/Fonts/Antonio-SemiBold.ttf</source>
+        <source file="Fonts/Icons.ttf">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/Fonts/Icons.ttf</source>
+        <source file="FXChains/MIDI Triggered Low Pass Filter.RfxChain">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/FXChains/MIDI%20Triggered%20Low%20Pass%20Filter.RfxChain</source>
+        <source file="Images/FancyBlueKnob.png">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/Images/FancyBlueKnob.png</source>
+        <source file="Modules/DragNDrop.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/Modules/DragNDrop.lua</source>
+        <source file="Modules/Drawing.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/Modules/Drawing.lua</source>
+        <source file="Modules/FX List.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/Modules/FX%20List.lua</source>
+        <source file="Modules/General Functions.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/Modules/General%20Functions.lua</source>
+        <source file="Modules/Pad Actions.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/Modules/Pad%20Actions.lua</source>
+        <source type="effect" file="JSFX/RDM_midi_utility.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/JSFX/RDM_midi_utility.jsfx</source>
+        <source type="effect" file="JSFX/RDM_mxb_midi_latch.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/JSFX/RDM_mxb_midi_latch.jsfx</source>
+        <source type="effect" file="JSFX/Reverse - Double Buffer.jsfx">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/JSFX/Reverse%20-%20Double%20Buffer.jsfx</source>
+        <source main="main" file="Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable Layout).lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/Suzuki_ReaDrum_Machine_Instruments_Rack_(Scrollable%20Layout).lua</source>
+        <source main="main" file="Scripts/Suzuki_Replace old RDM midi note filter with new RDM midi utility.lua">https://github.com/Suzuki-Re/Suzuki-Scripts/raw/821d96059ca6f535f8b6edd7ef181da224213e2a/ReaDrum%20Machine/Scripts/Suzuki_Replace%20old%20RDM%20midi%20note%20filter%20with%20new%20RDM%20midi%20utility.lua</source>
       </version>
     </reapack>
   </category>
