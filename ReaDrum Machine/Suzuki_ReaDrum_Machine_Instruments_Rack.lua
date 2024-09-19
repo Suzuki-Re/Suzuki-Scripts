@@ -1,15 +1,15 @@
 -- @description Suzuki ReaDrum Machine
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.7.3
+-- @version 1.7.4
 -- @changelog
---   # Internal change for an easier debug
+--   # Update ReaImGui version
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
 --   ReaDrum Machine is a script which loads samples and FX from browser/arrange into subcontainers inside a container named ReaDrum Machine.
 --   ### Prerequisites
---   REAPER v7.06+, ReaImGui v0.9.2, S&M extension, js extension, tilr's SK filter, lewloiwc's Sound Design Suite and Sexan's FX Browser. Scan for new plugins to make sure RDM utility JSFX shows up in the native FX browser.
+--   REAPER v7.06+, ReaImGui v0.9.3, S&M extension, js extension, tilr's SK filter, lewloiwc's Sound Design Suite and Sexan's FX Browser. Scan for new plugins to make sure RDM utility JSFX shows up in the native FX browser.
 --   ### CAUTIONS
 --   ReaDrum Machine utilizes a parallel FX feature in REAPER. If you use the script as it is, there's no problem, but if you want to place the audio (like VSTi or audio file in arrange) before RDM for some reason, beware of the volume because it adds up by design.
 --   Use dry/wet knob in each container or shift+drag each pad to adjust each container's volume.
@@ -52,7 +52,7 @@ if not r.ImGui_GetBuiltinPath then
 end
 
 package.path = r.ImGui_GetBuiltinPath() .. '/?.lua'
-im = require 'imgui' '0.9.2'
+im = require 'imgui' '0.9.3'
 
 os_separator                 = package.config:sub(1, 1)
 package.path                 = debug.getinfo(1, "S").source:match [[^@?(.*[\/])[^\/]-$]] ..
