@@ -752,9 +752,9 @@ local function TriggerSamples(rv, a, WhichRS5k, up, down, random)
   if not im.IsItemHovered(ctx) then return end
   if rv then
     ChangeSample(track, Pad[a].RS5k_Instances[WhichRS5k], a, up, down, random)
-    r.TrackFX_SetParam(track, Pad[a].Filter_ID, 1, 1)
+    r.TrackFX_SetParam(track, Pad[a].Filter_ID, 2, 1)
   else
-    r.TrackFX_SetParam(track, Pad[a].Filter_ID, 1, 0)
+    r.TrackFX_SetParam(track, Pad[a].Filter_ID, 2, 0)
   end
 end
 

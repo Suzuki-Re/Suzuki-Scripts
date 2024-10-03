@@ -109,13 +109,13 @@ end
 ----------------------------------------------------------------------------
 
 -- Left Click --
-function SendMidiNote(a, preview)
+function SendMidiNote(a)
   if not im.IsItemHovered(ctx) then return end
   --if preview then r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 0) end
   if Pad[a] and im.IsMouseClicked(ctx, 0) then
-    r.TrackFX_SetParam(track, Pad[a].Filter_ID, 1, 1)
+    r.TrackFX_SetParam(track, Pad[a].Filter_ID, 2, 1)
   elseif Pad[a] and im.IsMouseReleased(ctx, 0) then
-    r.TrackFX_SetParam(track, Pad[a].Filter_ID, 1, 0)
+    r.TrackFX_SetParam(track, Pad[a].Filter_ID, 2, 0)
   end
   --if preview then r.TrackFX_SetParam(track, Pad[a].RS5k_ID, 11, 1) end
 end
@@ -622,7 +622,7 @@ local function ChokeWindow(a)
               local k = tonumber(k)
               if Pad[k] then 
                 local _, filter_id = FindNoteFilter(Pad[k].Pad_Num)
-                r.TrackFX_SetParam(track, filter_id, 2, group_num)
+                r.TrackFX_SetParam(track, filter_id, 3, group_num)
                 if group_num ~= 0 then
                   for i = 1, Pad[k].FX_Num do
                     local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, Pad[k].Pad_ID, "container_item." .. i - 1) -- 0 based
@@ -637,7 +637,7 @@ local function ChokeWindow(a)
             SELECTED = nil
           else
             local _, filter_id = FindNoteFilter(Pad[a].Pad_Num)
-            r.TrackFX_SetParam(track, filter_id, 2, group_num)
+            r.TrackFX_SetParam(track, filter_id, 3, group_num)
             if group_num ~= 0 then
               for i = 1, Pad[a].FX_Num do
                 local _, find_rs5k = r.TrackFX_GetNamedConfigParm(track, Pad[a].Pad_ID, "container_item." .. i - 1) -- 0 based

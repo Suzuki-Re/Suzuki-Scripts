@@ -2,13 +2,14 @@ noindex: true
 desc:RDM MIDI Utility
 author:Suzuki & SNJUK2
 tags: MIDI
-version: 1.7.0
-changelog: + Add note trigger function
+version: 1.7.5
+changelog: # fix double note trigger
 about: Filter + Note Trigger + MIDI choke + flashing
 
 slider1:N=21<0,127,1> Note
-slider2:led=0<0,1,1> -Trigger 
-slider3:0<0,16,1{OFF,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}> MIDI Choke Group
+slider2:led=0<0,1,1> -Led
+slider3:0<0,1,1> -Trigger
+slider4:0<0,16,1{OFF,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}> MIDI Choke Group
 
 in_pin:none
 out_pin:none
@@ -23,7 +24,7 @@ trigger_state = 0; // to prevent sending note on continuously
 
 @slider
 
-choke = slider3 - 1;
+choke = slider4 - 1;
 
 @block
 
@@ -36,13 +37,13 @@ choke = slider3 - 1;
            midisend(offset,msg1,N,msg3);
            );
          isNoteOn() && channel == choke && msg2 != N ? ( // if it receives notes in the same channel
-           (slider3 > 0 ? midisend(offset, noteOff + channel, N, msg3) ); // choke note
+           (slider4 > 0 ? midisend(offset, noteOff + channel, N, msg3) ); // choke note
            );
-         slider3 == 0 && isNoteOff() && msg2 == N ? (
+         slider4 == 0 && isNoteOff() && msg2 == N ? (
            led = 0;
            midisend(offset,msg1,N,msg3);
            );
-           slider3 > 0 && isNoteOff() && msg2 == N ? ( // ignore obey note offs when choke is on
+           slider4 > 0 && isNoteOff() && msg2 == N ? ( // ignore obey note offs when choke is on
            led = 0;
            );
            noteStatus != noteOn ? noteStatus != noteOff ? midisend(offset,msg1,msg2,msg3);
@@ -50,10 +51,12 @@ choke = slider3 - 1;
  );
  
  // outside of loop
- (led && !trigger_state) ? (
+ (slider3 && !trigger_state) ? (
    midisend(channel, noteOn, N, 96);
    trigger_state = 1;
- ) : (!led && trigger_state) ? (
+   led = 1;
+ ) : (!slider3 && trigger_state) ? (
   midisend(channel, noteOff, N, 0);
   trigger_state = 0;
+  led = 0;
  );
