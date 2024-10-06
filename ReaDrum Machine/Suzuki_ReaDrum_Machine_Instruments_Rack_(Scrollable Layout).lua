@@ -1,10 +1,10 @@
 -- @description Suzuki ReaDrum Machine (Scrollable Layout)
 -- @author Suzuki
 -- @license GPL v3
--- @version 1.7.5
+-- @version 1.7.6
 -- @noindex
 -- @changelog
---   # Fix a double note trigger bug
+--   + Add paste action. Click a pad and Ctrl for windows (cmd for mac) + V pastes a sample file from the clipboard.
 -- @link https://forum.cockos.com/showthread.php?t=284566
 -- @about
 --   # ReaDrum Machine
@@ -333,6 +333,9 @@ function DrawPads(loopmin, loopmax)
     PadMenu(a, note_name)
     if im.IsItemHovered(ctx) then
       OnPad = true
+      if im.Shortcut(ctx, im.Mod_Ctrl | im.Key_V) then
+        PasteSamplesFromClipboard(a)
+      end
     end
     if ret then
       ClickPadActions(a)

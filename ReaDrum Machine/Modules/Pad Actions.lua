@@ -1002,3 +1002,20 @@ function DoubleClickActions(loopmin, loopmax)
   end
   OnPad = false
 end
+
+function PasteSamplesFromClipboard(a)
+  local current_track = r.GetSelectedTrack(0, 0)
+  r.Main_OnCommand(42398, 0)
+  local seltrack = r.GetSelectedTrack(0, 0)
+  if r.CountSelectedMediaItems(0) > 0 then
+    LoadItemsFromArrange(a)
+    local selnum = r.CountSelectedMediaItems(0)
+    for selitem = selnum - 1, 0, -1 do
+      local item = r.GetSelectedMediaItem(0, selitem)
+      r.DeleteTrackMediaItem(track, item)
+    end
+  elseif current_track ~= seltrack then
+    r.Main_OnCommand(40029, 0)
+  end
+  r.UpdateArrange()
+end
