@@ -571,6 +571,7 @@ function DndAddMultipleSamples_TARGET(a) -- several instances into one pad
       for i = 0, count - 1 do
         AddSamplesToRS5k(Pad[a].Pad_Num, padfx_idx + 1 + i, i, a, note_name, mx, pitch, rate, volume, apply_pr, assign_p)
       end
+      UpdatePadID()
     end
     im.EndDragDropTarget(ctx)
   end
