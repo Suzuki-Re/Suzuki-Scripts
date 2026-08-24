@@ -1,5 +1,5 @@
 -- @description Suzuki ReaDrum Machine (Configurable Layout)
--- @author Suzuki
+-- @author Suzuki, koeHnik
 -- @license GPL v3
 -- @version 1.7.7
 -- @changelog
