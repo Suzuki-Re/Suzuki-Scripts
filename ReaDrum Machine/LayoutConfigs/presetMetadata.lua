@@ -19,9 +19,14 @@
 
 presets = {
   ["Snippetu_Set2026"] = {
-      [-1] = "AerialCrypto",
-      [0] = "SoundDist",
-      [4] = "CLB"
+      [-1] = "Aeri/Cryp/Rrnd/Yj",
+      [0] = "Sound/Dist/Glade",
+      [1] = "Unfortunate",
+      [2] = "Stellar/Tangent/Roots",
+      [3] = "Ftsoys",
+      [4] = "CLB",
+      [5] = "Damage",
+      [6] = "WR/SMH",
   }
 }
 
